@@ -196,14 +196,17 @@ ouftispot <- function(cellList){
   
 Convertfile <- function(type = "Oufti", outputwhich = "M"){
   if(type=="Oufti"){
-    C <- pickfile()
+    C <- ouftipickfile()
     MESH <- ouftimesh(C)
     if("S"%in%outputwhich){
       REP <- ouftispot(C)
+      return(REP)
     }
     if("O"%in%outputwhich){
-      OBJ <- ouftiobject{}
+      OBJ <- ouftiobject(C)
+      return(OBJ)
     }
+    else(return(MESH))
   }
 }
 
