@@ -2,7 +2,7 @@
 
 ##################source file cellList####################################
 
-ouftipickfile <- function(){
+sprOuftipickfile <- function(){
 #pick a file
   cellListfile = file.choose()
   cellList <-read.delim(cellListfile, header=FALSE)
@@ -43,7 +43,7 @@ ouftipickfile <- function(){
 
 #######function to extract and reshape meshes out of .csv file; name .csv file = cellList
 
-ouftimesh <- function(cellList){
+sprOuftimesh <- function(cellList){
   
   mesh <- cellList[c("frameNumber", "cellId", "length", "mesh")]
   mesh$frame <- as.numeric(as.character(mesh$frameNumber))
@@ -92,7 +92,7 @@ ouftimesh <- function(cellList){
 
 
 ######################getting the meshfile "M"########################################################
-ouftiM <- function(cellList, MESH){
+sprOuftiM <- function(cellList, MESH){
   M <- cellList[c("frameNumber", "cellId", "ancestors", "descendants", "length", "area")]
   M$frame <- as.numeric(as.character(M$frameNumber))
   M$cell <- as.numeric(as.character(M$cellId))
@@ -107,7 +107,7 @@ ouftiM <- function(cellList, MESH){
 
 
 ######################spot file  ######################################################
-ouftispot <- function(cellList){
+sprOuftispot <- function(cellList){
   REP <- cellList[c("frameNumber", "cellId", "spots")]
   REP$frame <- as.numeric(as.character(REP$frameNumber))
   REP$cell <- as.numeric(as.character(REP$cellId))
@@ -149,7 +149,7 @@ ouftispot <- function(cellList){
 }
 
 
-  ouftiobject <- function(cellList){
+  sprOuftiobject <- function(cellList){
     OBJ <- cellList[c("frameNumber", "cellId", "objects")]
     OBJ$frame <- as.numeric(as.character(OBJ$frameNumber))
     OBJ$cell <- as.numeric(as.character(OBJ$cellId))
@@ -194,16 +194,16 @@ ouftispot <- function(cellList){
     return(OBJn)
   }
   
-Convertfile <- function(type = "Oufti", outputwhich = "M"){
+sprConvertfile <- function(type = "Oufti", outputwhich = "M"){
   if(type=="Oufti"){
-    C <- ouftipickfile()
-    MESH <- ouftimesh(C)
+    C <- sprOuftipickfile()
+    MESH <- sprOuftimesh(C)
     if("S"%in%outputwhich){
-      REP <- ouftispot(C)
+      REP <- sprOuftispot(C)
       return(REP)
     }
     if("O"%in%outputwhich){
-      OBJ <- ouftiobject(C)
+      OBJ <- sprOuftiobject(C)
       return(OBJ)
     }
     else(return(MESH))
