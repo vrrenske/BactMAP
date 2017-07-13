@@ -194,15 +194,15 @@ sprOuftispot <- function(cellList){
     return(OBJn)
   }
   
-sprConvertfile <- function(type = "Oufti", outputwhich = "M"){
-  if(type=="Oufti"){
+spotrTransform <- function(sourceprogram = "Oufti", outputtype = "M"){
+  if(sourceprogram=="Oufti"){
     C <- sprOuftipickfile()
     MESH <- sprOuftimesh(C)
-    if("S"%in%outputwhich){
+    if("S"%in%outputtype){
       REP <- sprOuftispot(C)
       return(REP)
     }
-    if("O"%in%outputwhich){
+    if("O"%in%outputtype){
       OBJ <- sprOuftiobject(C)
       return(OBJ)
     }
