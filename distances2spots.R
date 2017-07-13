@@ -8,7 +8,7 @@
 #Plot single cell with detected spots:
 #data = MESH (mesh.Rda) and GR (merged dataframe resulting from data merging RFP/GFP)
 
-spotrSinglecellplot <- function(outlinedata, spotdata,framenum, cellnum){
+spotrSinglecellplot <- function(outlinedata, spotdata,framenum, cellnum, val1 = "GFP", val2 = "RFP"){
   oo <- outlinedata[outlinedata$slice==framenum&outlinedata$cell==cellnum,]
   so <- spotdata[spotdata$frame==framenum&spotdata$cell==cellnum,]
   totalframe <- data.frame(x=0, y=0, Lmid=0, Dum=0, color = "0", num =0)
@@ -19,7 +19,7 @@ spotrSinglecellplot <- function(outlinedata, spotdata,framenum, cellnum){
   totalframe <- totalframe[totalframe$color!="0",]
   totalframe <- totalframe[order(totalframe$Lmid, totalframe$num),]
   return(ggplot(oo, aes(x=y0_rot*-pixel2um, y=x0_rot*-pixel2um)) +geom_point() + geom_point(aes(x=y1_rot*-pixel2um, y=x1_rot*-0.064)) + geom_point(data=so, aes(x=Lmid, y=Dum, color=color)) + geom_polygon(data=totalframe, aes(x=x, y=y, fill= color, linetype=as.factor(Lmid)), alpha=0.4) + theme_minimal() + scale_colour_manual(
-    values = c("GFP" = "green","RFP" = "red")) + scale_fill_manual(values=c("GFP"="green", "RFP"="red")) + xlab("length (um)") + ylab("width (um)") + ggtitle(paste("frame", framenum, ", cell", cellnum)))
+    values = c(val1 = "green",val2 = "red")) + scale_fill_manual(values=c(val1="green", val2="red")) + xlab("length (um)") + ylab("width (um)") + ggtitle(paste("frame", framenum, ", cell", cellnum)))
 }
 
 spotrCircleFun <- function(center = c(0,0),diameterx = 1, diametery = 1, npoints = 100, color1){
@@ -75,41 +75,37 @@ test <- function(comdat){
 groupdists <- function(comdat){
   comdat$group <- "no overlap"
   comdat$group[comdat$sdist < (comdat$fwhm_x_GFP + comdat$fwhm_x_RFP)*pixel2um] <- "< fwhm1+fwhm2"
-  comdat$group[comdat$sdist < comdat$fwhm_x_GFP*pixel2um|comdat$sdist < comdat$fwhm_x_RFP*0.064] <- "< fwhm"
+  comdat$group[comdat$sdist < comdat$fwhm_x_GFP*pixel2um|comdat$sdist < comdat$fwhm_x_RFP*pixel2um] <- "< fwhm"
   return(comdat)
 }
 
-plotdists <- function(comdat, type){
-  comdat$u <- type
+spotrPlotdists <- function(distancedata, dataname){
+  comdat$u <- dataname
   return(ggplot(comdat, aes(x=u, fill=group)) + geom_bar(aes(y=(..count..)/sum(..count..)*100), width=0.3) + ylab("percentage of spots") + theme_minimal() + scale_fill_colorblind() + coord_flip())
 }
   
-totalstuff <- function(G, R){
-  G <- rncols(G, "GFP")
-  R <- rncols(R, "RFP")
+spotrMeasuredistances <- function(dat1, dat2, val1="GFP", val2="RFP"){
+  G <- rncols(dat1, val1)
+  R <- rncols(dat2, val2)
   combi <- mergeandmeasure(G, R)
   return(combi)
 }
   
-measureframe <- totalstuff(GFP, RFP)  
-plotdists(measureframe, type)
+ 
+spotrGetdistancefreqs <- function(distancedata){
+  freqs <- data.frame(table(distancedata$group))
+  freqs$sum <- sum(freqs$Freq)
+  freqs$percentages <- freqs$Freq/freqs$sum*100
+  return(freqs)
+}
 
-freqs <- data.frame(table(measureframe$group))
-freqs$sum <- sum(freqs$Freq)
-freqs$percentages <- freqs$Freq/freqs$sum*100
 
-save(measureframe, file = "distances_91.Rda")
-save(freqs, file="frequencies91.Rda")
-ggsave(plotdists(measureframe, "RR91"), filename= "freqplot91.pdf")
 
-#or as a beeswarm plot
-library(beeswarm)
-beeswarmb <- beeswarm(data$sdist, method='swarm')
-colnames <- c("x","y")
-beeswarm.plot <- ggplot(beeswarm, aes(x,y)) + geom_point()
-
-#same but then "straight" using geom_dotplot
-ggplot(MRxc, aes(x=q1, y=sdist)) + geom_dotplot(aes(fill=q1, color=q1), binaxis="y", stackdir="center", binwidth=0.012)
+#standard dotplot function - should also work for other variables.
+spotrDotplot <- function(data1, xaxis=q1, yaxis = sdist, bins = 0.012, xlabel = "", ylabel =""){
+dotplot1 <- ggplot(data1, aes(x=xaxis, y=yaxis)) + geom_dotplot(aes(fill=xaxis, color=xaxis), binaxis="y", stackdir="center", binwidth=bins, xlab(xlabel), ylab(ylabel))
+return(dotplot1)
+}
 
 
 #plot spots in one cell over time using colour code:
