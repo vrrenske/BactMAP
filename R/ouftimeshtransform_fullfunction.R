@@ -44,7 +44,7 @@ sprOuftipickfile <- function(){
 #######function to extract and reshape meshes out of .csv file; name .csv file = cellList
 
 sprOuftimesh <- function(cellList){
-  
+
   mesh <- cellList[c("frameNumber", "cellId", "length", "mesh")]
   mesh$frame <- as.numeric(as.character(mesh$frameNumber))
   mesh$cell <- as.numeric(as.character(mesh$cellId))
@@ -193,7 +193,7 @@ sprOuftispot <- function(cellList){
     OBJn$ob_y <- as.numeric(as.character(OBJn$ob_y))
     return(OBJn)
   }
-  
+
 spotrTransform <- function(sourceprogram = "Oufti", outputtype = "M"){
   if(sourceprogram=="Oufti"){
     C <- sprOuftipickfile()

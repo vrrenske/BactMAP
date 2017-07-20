@@ -2,6 +2,13 @@
 ##7/14/2017
 
 ##Helperfunctions: functions necessary to make other functions working properly.
+##other package dependencies:
+
+#merge data functions
+library(ggplot2)
+library(ggthemes)
+library(gridExtra)
+library(scales)
 
 ##Set the pixel to um conversion
 spotrSetpixel2um <- function(){
@@ -14,7 +21,7 @@ spotrPixelerror <- function(){
   errormessage <- readline(caption="The conversion factor from pixel to um is not indicated. Please use 'spotrSetpixel2um' by pressing 'a'.
           if you don't want to convert from pixel to um, press 'b'./n")
   if(errormessage=="a"|errormessage=="A"){
-    conv == pixel2um()
+    conv == spotrSetpixel2um()
   }
   if(errormessage=="b"|errormessage=="B"){
     conv == 1
