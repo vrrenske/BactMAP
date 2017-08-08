@@ -10,6 +10,6 @@ LazyData: true
 Imports:
   ggplot2
 Suggests:
-  gridExtra
-  scales
+  gridExtra,
   ggthemes
+RoxygenNote: 6.0.1
