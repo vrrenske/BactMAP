@@ -31,8 +31,8 @@ spotrPixelerror <- function(){
 }
 
 ##merge spotfiles with only raw coordinates with mesh file with only raw data. add mesh length/width while on it.
-
-spotrSpotsinBox <- function(spotfile, MESH, Xs = "x", Ys = "y", Xm = "X", Ym = "Y"){
+#' @export
+spotsInBox <- function(spotfile, MESH, Xs = "x", Ys = "y", Xm = "X", Ym = "Y"){
   #rewrite colnames if not the same as suggested
   if(Xs!="x"){
     colnames(spotfile)[colnames(spotfile)==Xs] <- "x"

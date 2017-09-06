@@ -8,7 +8,7 @@
 
 ##MicrobeJ
 
-spotrExtrMicrobeMESH <- function(dataloc){
+extr.MicrobeJMESH <- function(dataloc){
   MESH <- read.table(dataloc, header=T, sep=",")
   MESH$cell <- as.numeric(gsub("b", "", MESH$NAME))
   MESH$frame <- MESH$POSITION
@@ -16,30 +16,46 @@ spotrExtrMicrobeMESH <- function(dataloc){
   return(MESH)
 }
 
-spotrExtrMicrobeSPOTS <- function(dataloc){
-  SPOTS <- read.table(dataloc, header=T, sep=",")
-  SPOTS$x <- unlist(sptrsplit(stringr::str_sub(SPOTS$LOCATION.dist[1], 2, -2)), ";")[1]
-  SPOTS$y <- unlist(sptrsplit(stringr::str_sub(SPOTS$LOCATION.dist[1], 2, -2)), ";")[2]
+
+extr.MicrobeJSpots <- function(spotloc){
+  SPOTS <- read.table(spotloc, header=T, sep=",")
+  SPOTS$x <- unlist(strsplit(stringr::str_sub(SPOTS$LOCATION[1], 2, -2), ";"))[1]
+  SPOTS$y <- unlist(strsplit(stringr::str_sub(SPOTS$LOCATION[1], 2, -2), ";"))[2]
   SPOTS$spotNAME <- SPOTS$NAME
   SPOTS$NAME <- NULL
   SPOTS$NAME.name <- NULL
   SPOTS$NAME.id <- NULL
   SPOTS$cell <- as.numeric(gsub("b", "", SPOTS$PARENT.id))
-  SPOTS$nums <- SPOTS$PARENT.localization
   SPOTS$frame <- SPOTS$POSITION.frame
   return(SPOTS)
 }
 
-##ISBatch
+#' @export
+extr.MicrobeJ <- function(dataloc, spotloc){
+  outlist <- list()
+  if(missing(dataloc)!=T){
+    MESH <- extr.MicrobeJMESH(dataloc)
+    outlist$MESH <- MESH
+  }
+  if(missing(spotloc)!=T){
+    SPOTS <- extr.MicrobeJSpots(spotloc)
+    outlist$SPOTS <- SPOTS
+  }
+  return(outlist)
+}
 
-spotrExtrISBatch <- function(dataloc){
+##ISBatch
+#' @export
+extr.ISBatch <- function(dataloc){
   SPOTS <- read.table(dataloc, header=T, sep=",")
   SPOTS$frame  <- SPOTS$slice
+  SPOTS$slice <- NULL
   return(SPOTS)
 }
 
 
 #ObjectJ - mostly manual entry.
+#' @export
 spotrExtrObjectJ <- function(dataloc, spots="X", constr, xcolumns, ycolumns, xconstr, yconstr, spotcol,spotloc){
   if(substr(dataloc, nchar(dataloc)-3, nchar(dataloc))==".txt"){
     OJ <- read.table(dataloc, header=T, sep="\t")
@@ -61,9 +77,9 @@ spotrExtrObjectJ <- function(dataloc, spots="X", constr, xcolumns, ycolumns, xco
 
   if(spots=="Y"|spots=="y"){
     if(missing(xcolumns)|missing(ycolumns)){
-    print("Give the name(s) of the column(s) containing the distance of the spots to the Axis.\nPress <enter> between names, end with #<enter>")
+    print("Give the name(s) of the column(s) containing the x localization of the spots.\nPress <enter> between names, end with #<enter>")
     xcolumns <- choosecolumns()
-    print("Give the name(s) of the column(s) containing the distance of the spots to the Diameter.\nPress <enter> between names, end with #<enter>" )
+    print("Give the name(s) of the column(s) containing the y localization of the spots.\nPress <enter> between names, end with #<enter>" )
     ycolumns <- choosecolumns()
     }
     n <- length(xcolumns)

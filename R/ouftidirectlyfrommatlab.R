@@ -8,13 +8,10 @@
 
 ############################################################
 
-#dependencies
-library(R.matlab)
-
 ############################################################
 
 ##extract cellList as a data frame with lists of data for the mesh, spots, etc.
-spotrInMatOufti <- function(matfile){
+extr.OuftiCellList <- function(matfile){
   matlist <- R.matlab::readMat(matfile)
   matcellList <- matlist$cellList[[1]]
   matcelnums <- matlist$cellList[[2]]
@@ -37,7 +34,7 @@ spotrInMatOufti <- function(matfile){
 }
 
 #make seperate data frame of the mesh - combined with parts of the meshturn function
-spotrInMatGetMesh <- function(cellList){
+extr.OuftiMat <- function(cellList){
   for(n in 1:nrow(cellList)){
     meshline <- as.data.frame(cellList$mesh[n])
     if(nrow(meshline)>1){
@@ -85,7 +82,7 @@ spotrInMatGetMesh <- function(cellList){
   return(MESH)
 }
 
-spotrInMatGetSpots <- function(cellList){
+extr.OuftiSpots <- function(cellList){
   spots <- cellList$spots
   u <- 1
   for(n in 1:length(spots)){
@@ -110,10 +107,18 @@ spotrInMatGetSpots <- function(cellList){
   return(spottotal)
 }
 
-
-
-matfile <- file.choose()
-cellList <- spotrInMatOufti(matfile)
-REP <- spotrInMatGetSpots(cellList)
-MESH <- spotrInMatGetMesh(cellList)
-
+#' @export
+extr.Oufti <- function(matfile){
+  outlist <- list()
+  cellList <- extr.OuftiCellList(matfile)
+  outlist$cellList <- cellList
+  Mesh <- extr.OuftiMat(cellList)
+  Mesh <- spotrXYMESH(Mesh)
+  outlist$mesh <- Mesh
+  if(length(cellList$spots>1)){
+    spotframe <- extr.OuftiSpots(cellList)
+    outlist$spotframe <- spotframe
+  }
+  print(summary(outlist))
+  return(outlist)
+}

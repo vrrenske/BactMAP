@@ -1,8 +1,9 @@
 ##15-05-13##
 ##Renske van Raaphorst##
-library(ggplot2)
+
 #########################merging GFP and RFP data############################################
 
+#' @export
 spotrMerge <- function(dataset1, dataset2, samecells=TRUE, nameset1="GFP", nameset2="RFP", groups = 4){
 ##we need to get both datasets in one. only, we need to keep them apart. that's why we need to add an extra column
 #indicating which spot is gfp (or any name you want) and which is RFP (idem).
@@ -59,8 +60,8 @@ return(QRall)
 
 #plotfunction for a 2-color dotplot
 cdot2 <- function(dataset, quartile, colorpalette){
-  plot <- ggplot2::ggplot(dataset[dataset$q1==quartile,], aes(x=Lcor, y= Dcor))
-  return(plot + geom_point(aes(colour=color), size=4, alpha=0.3) + theme_minimal() + xlab("Length(\u00B5m)") + ylab("Width(\u00B5m)") + scale_color_manual(values=c(nameset1=colorpalette[1], nameset2=colorpalette[2])))
+  plot <- ggplot2::ggplot(dataset[dataset$q1==quartile,], ggplot2::aes(x=Lcor, y= Dcor))
+  return(plot + ggplot2::geom_point(aes(colour=color), size=4, alpha=0.3) + ggplot2::theme_minimal() + ggplot2::xlab("Length(\u00B5m)") + ggplot2::ylab("Width(\u00B5m)") + ggplot2::scale_color_manual(values=c(nameset1=colorpalette[1], nameset2=colorpalette[2])))
 }
 
 
@@ -71,9 +72,9 @@ cdot2 <- function(dataset, quartile, colorpalette){
 allplot <- function(plot, data, xmax, ymax, empty, xqmax){
 
   #prepare seperate plots: histograms (hL, hD) and modified coordinate plots(remove legend )
-  p1D <- plot + theme(legend.position = "none") + coord_cartesian(xlim = c(-xmax, xmax), ylim = c(-ymax,ymax)) + geom_vline(xintercept=xqmax, alpha=0.4) + geom_vline(xintercept=-xqmax, alpha=0.4)
-  p1hL <- ggplot2::ggplot(data, aes(x=Lcor, colour=color), alpha=0.6) + geom_density(aes(fill=color), alpha = 0.3) + coord_cartesian(xlim = c(-xmax, xmax)) + theme_minimal() +theme(axis.title.x = element_blank(), legend.position="none") + scale_color_manual(values=c(nameset1=colorpalette[1], nameset2=colorpalette[2])) + scale_fill_manual(values=c(nameset1=colorpalette[1], nameset2=colorpalette[2]))
-  p1hD <- ggplot2::ggplot(data, aes(x=Dcor, colour=color), alpha=0.6) + geom_density(aes(fill=color), alpha = 0.3) + coord_flip(xlim = c(-ymax, ymax)) + theme_minimal() + theme(axis.title.y = element_blank(), legend.position="none") + scale_color_manual(values=c(nameset1=colorpalette[1], nameset2=colorpalette[2])) + scale_fill_manual(values=c(nameset1=colorpalette[1], nameset2=colorpalette[2]))
+  p1D <- plot + ggplot2::theme(legend.position = "none") + ggplot2::coord_cartesian(xlim = c(-xmax, xmax), ylim = c(-ymax,ymax)) + ggplot2::geom_vline(xintercept=xqmax, alpha=0.4) + ggplot2::geom_vline(xintercept=-xqmax, alpha=0.4)
+  p1hL <- ggplot2::ggplot(data, aes(x=Lcor, colour=color), alpha=0.6) + ggplot2::geom_density(aes(fill=color), alpha = 0.3) + ggplot2::coord_cartesian(xlim = c(-xmax, xmax)) + ggplot2::theme_minimal() +ggplot2::theme(axis.title.x = element_blank(), legend.position="none") + ggplot2::scale_color_manual(values=c(nameset1=colorpalette[1], nameset2=colorpalette[2])) + ggplot2::scale_fill_manual(values=c(nameset1=colorpalette[1], nameset2=colorpalette[2]))
+  p1hD <- ggplot2::ggplot(data, aes(x=Dcor, colour=color), alpha=0.6) + ggplot2::geom_density(aes(fill=color), alpha = 0.3) + ggplot2::coord_flip(xlim = c(-ymax, ymax)) + ggplot2::theme_minimal() + ggplot2::theme(axis.title.y = element_blank(), legend.position="none") + ggplot2::scale_color_manual(values=c(nameset1=colorpalette[1], nameset2=colorpalette[2])) + ggplot2::scale_fill_manual(values=c(nameset1=colorpalette[1], nameset2=colorpalette[2]))
 
   #align the plots properly before putting them together
   p1Dg <- ggplotGrob(p1D)
@@ -85,22 +86,22 @@ allplot <- function(plot, data, xmax, ymax, empty, xqmax){
   p1hLg$widths[2:5] <- as.list(maxWidth)
 
   #put the grids together using gridarrange
-  return(arrangeGrob(p1hLg, empty, p1Dg, p1hD, ncol=2, nrow=2, widths=c(3, 1), heights=c(1, 2)))
+  return(grid::arrangeGrob(p1hLg, empty, p1Dg, p1hD, ncol=2, nrow=2, widths=c(3, 1), heights=c(1, 2)))
 }
 
 #again you need the mockup plot in the corner:
 empty <- ggplot2::ggplot(data.frame(u=1), ggplot2::aes(u,u)) +
   ggplot2::theme(
-    plot.background = element_blank(),
-    panel.grid.major = element_blank(),
-    panel.grid.minor = element_blank(),
-    panel.border = element_blank(),
-    panel.background = element_blank(),
-    axis.title.x = element_blank(),
-    axis.title.y = element_blank(),
-    axis.text.x = element_blank(),
-    axis.text.y = element_blank(),
-    axis.ticks = element_blank()
+    plot.background = ggplot2::element_blank(),
+    panel.grid.major = ggplot2::element_blank(),
+    panel.grid.minor = ggplot2::element_blank(),
+    panel.border = ggplot2::element_blank(),
+    panel.background = ggplot2::element_blank(),
+    axis.title.x = ggplot2::element_blank(),
+    axis.title.y = ggplot2::element_blank(),
+    axis.text.x = ggplot2::element_blank(),
+    axis.text.y = ggplot2::element_blank(),
+    axis.ticks = ggplot2::element_blank()
   )
 
 #plotting
@@ -116,7 +117,7 @@ plotallsides <- function(dataset, quartile, colorpalette){
 ##################################################################################################################
 #only histograms
 hisfun <- function(dataset, quartile, colorpalette){
-  return(ggplot2::ggplot(dataset[dataset$q1==quartile,], aes(x=Lcor, colour=color), alpha=0.6) + geom_density(aes(fill=color), alpha = 0.3) + coord_cartesian(xlim = c(-xmax, xmax)) + theme_minimal() +theme(legend.position="none") + scale_color_manual(values=c("GFP"=colorpalette[1], "RFP"=colorpalette[2])) + scale_fill_manual(values=c("GFP"=colorpalette[1], "RFP"=colorpalette[2]))  + xlab("Location length-axis (\u00B5m from mid-point)"))
+  return(ggplot2::ggplot(dataset[dataset$q1==quartile,], ggplot2::aes(x=Lcor, colour=color), alpha=0.6) + ggplot2::geom_density(aes(fill=color), alpha = 0.3) + ggplot2::coord_cartesian(xlim = c(-xmax, xmax)) + ggplot2::theme_minimal() +ggplot2::theme(legend.position="none") + ggplot2::scale_color_manual(values=c("GFP"=colorpalette[1], "RFP"=colorpalette[2])) + ggplot2::scale_fill_manual(values=c("GFP"=colorpalette[1], "RFP"=colorpalette[2]))  + ggplot2::xlab("Location length-axis (\u00B5m from mid-point)"))
 }
 
 ##############################################################################################################
