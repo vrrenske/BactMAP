@@ -107,8 +107,8 @@ spotsInBox <- function(spotfile, MESH, Xs = "x", Ys = "y", Xm = "X", Ym = "Y"){
       if(nrow(pinps)>0){ #rotate spot/object points
         Lc <- pinps$x-mp[1]
         Dc <- pinps$y-mp[2]
-        pinps$L <- Lc*cos(angle)-Dc*sin(angle)
-        pinps$D <- Lc*sin(angle) +Dc*cos(angle)
+        pinps$l <- Lc*cos(angle)-Dc*sin(angle)
+        pinps$d <- Lc*sin(angle) +Dc*cos(angle)
         pinps$max.width <- unique(MESHp$max.width)
         if("max_length"%in%colnames(MESHp)){pinps$length <- unique(MESHp$max_length)}
         else{pinps$length <- unique(MESHp$length)}
@@ -133,7 +133,7 @@ spotsInBox <- function(spotfile, MESH, Xs = "x", Ys = "y", Xm = "X", Ym = "Y"){
 
 
 
-spotrMeshTurn <- function(MESH, Xm="X", Ym="Y"){
+meshTurn <- function(MESH, Xm="X", Ym="Y"){
   if(Xm!="X"){colnames(MESH)[colnames(MESH)==Xm] <- "X"}
   if(Ym!="Y"){colnames(MESH)[colnames(MESH)==Ym] <- "Y"}
 
@@ -142,7 +142,7 @@ spotrMeshTurn <- function(MESH, Xm="X", Ym="Y"){
   if("length"%in%colnames(MESH)==T){a <- 1}
   else{a<-2}
   if("x0"%in%colnames(MESH)){
-    spotrXYMESH(MESH)
+    MESH <- spotrXYMESH(MESH)
   }
 
   #if length and max width are already defined, don't touch them.
@@ -211,6 +211,7 @@ spotrMeshTurn <- function(MESH, Xm="X", Ym="Y"){
 
 spotrXYMESH <- function(MESH, x_1="x1", y_1="y1",x_0="x0", y_0="y0" ){
   u <- colnames(MESH)
+  MESH <- MESH[!is.na(MESH$cell),]
   MESH0 <- MESH[,u[u!=x_1&u!=y_1]]
   MESH1 <- MESH[,u[u!=x_0&u!=y_0]]
   MESH1$xy <- 1
@@ -223,8 +224,85 @@ spotrXYMESH <- function(MESH, x_1="x1", y_1="y1",x_0="x0", y_0="y0" ){
     }
   }
   MESH <- merge(MESH0, MESH1, all=T)
+  colnames(MESH)[colnames(MESH)=="x"] <- "X"
+  colnames(MESH)[colnames(MESH)=="y"] <- "Y"
   MESH <- MESH[order(MESH$frame, MESH$cell, MESH$num),]
   return(MESH)
 }
 
 
+mergeframes <- function(REP, MESH, mag="100x_LeicaVeening", cutoff=T, maxfactor=2, minfactor=0.5, remOut=T){
+
+  REP<- REP[(0<REP$l),]
+  if("rel.l" %in% colnames(REP)){
+    REP <-REP[(REP$rel.l<1),]
+  }
+  if("max_length"%in%colnames(MESH)){
+    MESH$length <- MESH$max_length
+  }
+  M <- unique(MESH[,c("cell", "frame", "length", "max.width")])
+  M <- M[order(M$length),]
+  M$cellnum <- c(1:nrow(M))
+
+  #merging
+  MR <- merge(M,REP, all=T)
+
+  #remove MR's cells which have NA's in the cell area
+  MR <- MR[!is.na(MR$length),]
+  #remove duplicated rows
+  MR <- MR[!duplicated(MR$l)&!duplicated(MR$d),]
+
+  MR <- spotMR(MR)
+
+  #if needed: remove smallest and largest ones (cutoff: smaller than 1/2 mean and larger than 2x mean)
+  if(cutoff==T){
+    MR <- MR[MR$length<(maxfactor*mean(MR$length)),]
+    MR <- MR[MR$length>(minfactor*mean(MR$length)),]
+  }
+
+  MR <- MR[order(MR$length),]
+
+  #make column with row numbers per cell length.
+  MR$num <- c(1:nrow(MR))
+
+  pix2um <- unlist(magnificationlist[mag])
+  MR <- LimDum(MR, pix2um)
+}
+
+#add spotnumbers!
+spotMR <- function(dat){
+  if("spot" %in% colnames(dat)){
+    #NA in spots replaced by "0"
+    dat$spot[is.na(dat$spot)] <- 0
+  } else {
+    dat <-dat[order(dat$frame, dat$cell,dat$length),]
+    dat$spot <- 1
+    for(n in 1:(nrow(dat)-1)){
+      if(dat$length[n+1]==dat$length[n]){
+        dat$spot[n+1] <- dat$spot[n] + 1
+      } }
+    dat$spot[is.na(dat$spot)] <- 0
+  }
+  return(dat)
+}
+
+
+
+################################################################################################
+#plot preparation
+#quartiles, maxima, etc.
+LimDum <- function(MR, pix2um, remOut=T){
+  MR$Lmid<-(MR$l-0.5*MR$length)*pix2um
+  MR$pole1<- -MR$length*0.5*pix2um
+  MR$pole2<- -MR$pole1
+  MR$Dum <- MR$d*pix2um
+  if(remOut==T){
+    MR <- MR[abs(MR$Lmid)<MR$pole2,]
+    MR <- MR[abs(MR$Dum)<MR$max.width*pix2um/2,]
+  }
+  MR$length <- MR$length*pix2um
+  MR$max.width <- MR$max.width*pix2um
+  return(MR)
+}
+
+magnificationList <- list("100x_LeicaVeening" = 0.0499538, "100x_DVMolgen" = 0.0645500)

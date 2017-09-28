@@ -54,3 +54,4 @@ addPalette(listofcolors, "MyBeautifulPalette")
 ##Make a nice plot using your palette
 }
 
+\keyword{~color}
