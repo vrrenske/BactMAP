@@ -66,12 +66,13 @@ densityplot <- function(plot){
 }
 
 LWplot <- function(plot, u="black", maxn){
-  return(plot + ggplot2::geom_rect(xmin=0, xmax=maxn, ymin=-1.5, ymax=1.5, fill=u) + ggplot2::theme_minimal()  + ggplot2::scale_x_continuous(limits=c(0,maxn)))
+  return(plot + #ggplot2::geom_rect(xmin=0, xmax=maxn, ymin=-1.5, ymax=1.5, fill=u)
+           ggplot2::theme_minimal()  + ggplot2::scale_x_continuous(limits=c(0,maxn)))
 }
 
-heatmap <- function(pdens, mp, colchoice, u="black", viridis = F){
+heatmap <- function(pdens, mp, colchoice, u = "black", viridis = F){
   if(viridis==F){
-  return(pdens + ggplot2::scale_fill_gradient2(low = colchoice[1], mid= colchoice[2], high = colchoice[3], midpoint =mp, space = "Lab") + theme_minimal() + theme(legend.position="none", panel.background=ggplot2::element_rect(fill=u)))
+  return(pdens + ggplot2::scale_fill_gradient2(low = colchoice[1], mid= colchoice[2], high = colchoice[3], midpoint =mp, space = "Lab") + theme_minimal() + theme(legend.position="none", panel.background=ggplot2::element_rect(fill=colchoice[1])))
   }
   if(viridis==T){
     return(pdens + viridis::scale_fill_viridis(option=colchoice,  space = "Lab") + theme_minimal() + theme(legend.position="none", panel.background=ggplot2::element_rect(fill=u)))
@@ -83,8 +84,8 @@ heatmap <- function(pdens, mp, colchoice, u="black", viridis = F){
 #which has a grey background as large as the largest cell in the dataset
 #so all quartile plots will have the same dimensions.
 #the title, y axis and x axis will also be drawn.
-coplot <- function(pheat, xmax, ymax, xqmax){
- return(pheat + ggplot2::xlab("Length (\u00B5m)") + ylab("Width (\u00B5m)") + coord_cartesian(xlim = c(-xmax,xmax), ylim=c(-ymax,ymax)) + geom_vline(xintercept = xqmax) + geom_vline(xintercept=-xqmax) + geom_hline(yintercept = ymax) + geom_hline(yintercept = -ymax) + theme(panel.background = element_rect(fill = "dark grey"), panel.grid.major = element_blank(), panel.grid.minor = element_blank()))
+coplot <- function(pheat, xmax, ymax, xqmax, u="black"){
+ return(pheat + ggplot2::xlab("Length (\u00B5m)") + ylab("Width (\u00B5m)") + coord_cartesian(xlim = c(-xmax,xmax), ylim=c(-ymax,ymax)) + geom_vline(xintercept = xqmax) + geom_vline(xintercept=-xqmax) + geom_hline(yintercept = ymax) + geom_hline(yintercept = -ymax) + theme(panel.background = element_rect(fill = u), panel.grid.major = element_blank(), panel.grid.minor = element_blank()))
 }
 
 plotlocation_histograms <- function(){}
@@ -124,16 +125,20 @@ superfun <- function(dat, bins,mag){
 }
 
 #or two, by quartiles of the number of cells:
-#'@export
-createPlotlist <- function(REP, inp, MESH, colorpalette="GreenYellow", mag="100x_LeicaVeening", AllPlot=T, Xm="X", Ym="Y", viridis=FALSE, LD = TRUE){
+#' @export
+createPlotlist <- function(REP, inp, MESH, colorpalette="GreenYellow", mag="100x_LeicaVeening", AllPlot=T, Xm="X", Ym="Y", viridis=FALSE){
+  if("Lmid"%in%colnames(REP)!=T){
+  MR <- mergeframes(REP, MESH, mag)
+  }
+  if("Lmid"%in%colnames(REP)==T){
+    MR <- REP
+    rm(REP)
+  }
 
-  MR <- mergeframes(REP, MESH, mag, LD=TRUE)
-
-  
-  colc <- colopts[colorpalette]
+  colc <- colopts[colorpalette][[1]]
   MR$q1 <- cut(MR$cellnum, breaks=inp, labels = 1:inp)
-  
-  
+
+
   xmax <- 0.5*max(MR$max.length, na.rm=TRUE)
   ymax <- 0.5*max(MR$max.width, na.rm=TRUE)
 
@@ -154,18 +159,17 @@ createPlotlist <- function(REP, inp, MESH, colorpalette="GreenYellow", mag="100x
   for(n in 1:inp){
     p <- ggplot2::ggplot(allMRs[[n]], aes(x=Lcor, y=Dcor))
     p <- densityplot(p)
-    p <- coplot(p, xmax, ymax, max(allMRs[[n]]$max.length,na.rm=T)*0.5)
     plist <- append(plist, list(p))
   }
 
 #plotting! -> L and D ordered by cell length
   pL <- ggplot2::ggplot(MR, aes(x=num, y=Lmid))
-  pL <- LWplot(pL, "black", max(MR$num, na.rm=T))
+  pL <- LWplot(pL, colc[[1]], max(MR$num, na.rm=T))
   pLpoint <- pL + ggplot2::geom_point() + ggplot2::ggtitle("Spot location on length axis ordered by cell length") + ggplot2::xlab("n\u209C\u2095 (ordered by cell length)") + ggplot2::ylab("Y-position (\u03BCm)") + ggplot2::theme_bw()
   pLD <- densityplot(pL) + ggplot2::ggtitle("Spot location on length axis ordered by cell length") + ggplot2::xlab("n\u209C\u2095 (ordered by cell length)") + ggplot2::ylab("Y-position (\u03BCm)") + ggplot2::geom_line(data=MR, ggplot2::aes(x=num,y=pole1),colour="white") + ggplot2::geom_line(data=MR, ggplot2::aes(x=num,y=pole2),colour="white")
 
   pW <- ggplot2::ggplot(MR, ggplot2::aes(x=num, y=Dum))
-  pW <- LWplot(pW, "black", max(MR$num,na.rm=T))
+  pW <- LWplot(pW, colc[[1]], max(MR$num,na.rm=T))
   pWpoint <- pW + geom_point() + ggplot2::ggtitle("Spot location on width axis ordered by cell length") + ggplot2::xlab("(n\u209C\u2095 cell (ordered by cell length)") + ggplot2::ylab("X-position (\u03BCm)") + ggplot2::theme_bw()
   pWD <- densityplot(pW) + ggplot2::ggtitle("Spot location on width axis ordered by cell length") + ggplot2::xlab("n\u209C\u2095 (ordered by cell length)") + ggplot2::ylab("X-position (\u03BCm)") + ggplot2::geom_hline(yintercept=ymax) + ggplot2::geom_hline(yintercept=-ymax) + ggplot2::coord_cartesian(ylim=c(-ymax,ymax))
 
@@ -178,7 +182,8 @@ createPlotlist <- function(REP, inp, MESH, colorpalette="GreenYellow", mag="100x
   #create n-tile plots saved in a list.
   phlist <- list()
   for(n in 1:inp){
-    p <- heatmap(plist[[n]], mp, colc[[1]], viridis)
+    p <- heatmap(plist[[n]], mp, colc, viridis)
+    p <- coplot(p, xmax, ymax, max(allMRs[[n]]$max.length,na.rm=T)*0.5)
     phlist <- append(phlist, list(p))
   }
 
@@ -186,12 +191,14 @@ createPlotlist <- function(REP, inp, MESH, colorpalette="GreenYellow", mag="100x
   #do the same procedure for length/width heatmap plots
   mpL <- MASS::kde2d(MR$num[!is.na(MR$Lmid)], MR$Lmid[!is.na(MR$Lmid)])
   mpL1 <- median(range(mpL$z))
-  pLD <- heatmap(pLD, mpL1, colc[[1]],viridis)
+  pLD <- heatmap(pLD, mpL1, colc,viridis)
+  pLD <- pLD + theme_minimal() + theme(panel.background=element_rect(fill=colc[[1]]), panel.grid = element_blank())
   u$lengthplot <- pLD
 
   mpW <- MASS::kde2d(MR$num[!is.na(MR$Dum)], MR$Dum[!is.na(MR$Dum)])
   mpW1 <- median(range(mpW$z))
-  pWD <- heatmap(pWD, mpW1, colc[[1]],viridis)
+  pWD <- heatmap(pWD, mpW1, colc,viridis)
+  pWD <- pWD + theme_minimal() + theme(panel.background=element_rect(fill=colc[[1]]), panel.grid = element_blank())
   u$widthplot <- pWD
 
   if(missing(MESH)){
@@ -240,10 +247,11 @@ createPlotlist <- function(REP, inp, MESH, colorpalette="GreenYellow", mag="100x
 
     pall <- ggplot2::ggplot(MR, aes(x=Lcor, y=Dcor))
     pall <- densityplot(pall)
-    pall <- coplot(pall,xmax, ymax, max(MR$max.length)*0.5)
     mppall <- mean(range(MASS::kde2d(MR$Lcor[!is.na(MR$Lcor)&!is.na(MR$Dcor)],MR$Dcor[!is.na(MR$Dcor)&!is.na(MR$Lcor)])$z))
+    pall <- heatmap(pall, mppall, colc)
+    pall <- coplot(pall,xmax, ymax, max(MR$max.length)*0.5)
 
-    pall <- heatmap(pall, mppall, colc[[1]])
+
     meantotal <- superfun(MESH, 30, p2um)
     pall <- pall + geom_point(data=meantotal, aes(x=x,y=y), colour="white")
     if(AllPlot==F){
@@ -280,9 +288,9 @@ createPlotlist <- function(REP, inp, MESH, colorpalette="GreenYellow", mag="100x
 allplot <- function(plot, data, xmax, ymax, empty){
 
   #prepare seperate plots: histograms (hL, hD) and modified coordinate plots(remove legend )
-  p1D <- plot + theme_bw() + theme(legend.position = "none")
-  p1hL <- ggplot2::ggplot(data, aes(x=Lcor)) + geom_histogram() + coord_cartesian(xlim = c(-xmax, xmax)) + theme_bw() +theme(axis.title.x = element_blank())
-  p1hD <- ggplot2::ggplot(data, aes(x=Dcor)) + geom_histogram() + coord_flip(xlim = c(-ymax, ymax)) + theme_bw() + theme(axis.title.y = element_blank())
+  p1D <- plot + theme(legend.position = "none")
+  p1hL <- ggplot2::ggplot(data, aes(x=Lcor)) + geom_histogram(fill="black") + coord_cartesian(xlim = c(-xmax, xmax)) + theme_minimal() +theme(axis.title.x = element_blank())
+  p1hD <- ggplot2::ggplot(data, aes(x=Dcor)) + geom_histogram(fill="black") + coord_flip(xlim = c(-ymax, ymax)) + theme_minimal() + theme(axis.title.y = element_blank())
 
   #align the plots properly before putting them together
   p1Dg <- ggplotGrob(p1D)

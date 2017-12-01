@@ -4,12 +4,12 @@
 #########################merging GFP and RFP data############################################
 
 #' @export
-spotrMerge <- function(dataset1, dataset2, samecells=TRUE, nameset1="GFP", nameset2="RFP", groups = 4){
+spotrMerge <- function(datasetlist, samecells=TRUE, namesetlist=list("GFP","RFP", "CFP", "YFP", "DAPI", "CY5"), groups = 4){
 ##we need to get both datasets in one. only, we need to keep them apart. that's why we need to add an extra column
 #indicating which spot is gfp (or any name you want) and which is RFP (idem).
-  dataset1$color <- nameset1
-  dataset2$color <- nameset2
-  GR <- merge(dataset1, dataset2,all=T)
+  numsets <- length(datasetlist)
+  datasetlist <- lapply(c(1:numsets), function(x) nameSetList(datasetlist[[x]], namesetlist[[x]]))
+  GR <- do.call(merge, c(datasetlist, all=T))
 
 ###################################################################################################################
 
@@ -59,9 +59,11 @@ return(QRall)
 #plotting
 
 #plotfunction for a 2-color dotplot
-cdot2 <- function(dataset, quartile, colorpalette){
+cdot2 <- function(dataset, quartile, colorpalette = c("Green", "Red", "Blue", "Yellow", "Dark Blue"), namesetlist){
+  colorpalette <- colorpalette[1:length(namesetlist)]
+  names(colorpalette) <- unlist(namesetlist)
   plot <- ggplot2::ggplot(dataset[dataset$q1==quartile,], ggplot2::aes(x=Lcor, y= Dcor))
-  return(plot + ggplot2::geom_point(aes(colour=color), size=4, alpha=0.3) + ggplot2::theme_minimal() + ggplot2::xlab("Length(\u00B5m)") + ggplot2::ylab("Width(\u00B5m)") + ggplot2::scale_color_manual(values=c(nameset1=colorpalette[1], nameset2=colorpalette[2])))
+  return(plot + ggplot2::geom_point(aes(colour=color), size=4, alpha=0.3) + ggplot2::theme_minimal() + ggplot2::xlab("Length(\u00B5m)") + ggplot2::ylab("Width(\u00B5m)") + ggplot2::scale_color_manual(values=colorpalette))
 }
 
 

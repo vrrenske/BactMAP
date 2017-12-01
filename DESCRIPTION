@@ -1,6 +1,6 @@
 Package: shinyspots
 Title: Visualization and Analysis of Bacterial Cell Segmentation and Fluorescence Data
-Version: 0.0.1.0
+Version: 0.0.1.1
 Authors@R: person("Renske", "van Raaphorst", email = "renske.vanraaphorst@unil.ch", role = c("aut", "cre"))
 Description: Automated import of bacterial cell segmentation and fluorescence data from a range of softwares to uniformally analyze and visualize.
 Depends: R (>= 3.3.2)
@@ -18,5 +18,5 @@ Suggests:
   SDMTools,
   shotGroups,
   stringr
-Collate: 'ouftidirectlyfrommatlab.R' 'Extr_Morphometrics.R' 'ExtractCSVs.R' 'datamerging.R' 'helperfunctions.R' 'ouftimeshtransform_fullfunction.R'
+Collate: 'ouftidirectlyfrommatlab.R' 'Extr_Morphometrics.R' 'ExtractCSVs.R' 'datamerging.R' 'helperfunctions.R' 'ouftimeshtransform_fullfunction.R' 'plothelper.R'
 RoxygenNote: 6.0.1

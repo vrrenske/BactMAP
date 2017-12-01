@@ -175,7 +175,7 @@ turncell <- function(MESHp, u, rawdatafile, a, n, i){
     MESHp$max.width <- min(lengthwidth)
   }
   if(a==1){
-    MESHp$length <- max(lengthwidth) #take length/width if not already defined
+    MESHp$max.length <- max(lengthwidth) #take length/width if not already defined
   }
   pts <- data.frame(box$pts) #get midpoint of the bounding box + define median lines
   shadowpts <- rbind(pts[2:4,], pts[1,])
@@ -362,3 +362,9 @@ LimDum <- function(MR, pix2um, remOut=T){
 }
 
 magnificationList <- list("100x_LeicaVeening" = 0.0499538, "100x_DVMolgen" = 0.0645500, "No_PixelCorrection" = 1)
+
+##for merging different colors (part of datamerging.R)
+nameSetList <- function(dsl, nam){
+  dsl$color <- nam
+  return(dsl)
+}
