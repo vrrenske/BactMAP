@@ -168,7 +168,7 @@ turnraws <- function(rawdatafile, i, n, mp, angle){
   return(rawr)
 }
 
-turncell <- function(MESHp, u, rawdatafile){
+turncell <- function(MESHp, u, rawdatafile, a, n, i){
   box <- shotGroups::getMinBBox(data.frame(x= MESHp$X, y=MESHp$Y)) #bounding box of cell
   lengthwidth <- c(box$width, box$height)
   if(u==2){
@@ -215,7 +215,7 @@ turncell <- function(MESHp, u, rawdatafile){
     rawr <- turnraws(rawdatafile, i, n, mp, angle)
     return(list(mesh=MESHp, rawdat=rawr))
   }
-  return(MESHp)
+  if(missing(rawdatafile)==T){return(MESHp)}
 }
 
 
@@ -234,71 +234,19 @@ meshTurn <- function(MESH, Xm="X", Ym="Y", rawdatafile){
     Rlist <- list()
   }
   Mlist <- list()
-  q <- 0
 
   #if length and max width are already defined, don't touch them.
-  min.i <- min(MESH$frame)
   for(i in unique(MESH$frame)){ #per frame
-    min.n <- min(MESH$cell[MESH$frame==i])
     print(paste("Turning meshes for frame", i))
-    for(n in unique(MESH$cell[MESH$frame==i])){ #per cell
-
-      print(paste("Turning cell", n))
-      q <- q+1
-      MESHp <- MESH[MESH$cell==n&MESH$frame==i,] #define part of the frame to run faster
-
-      box <- shotGroups::getMinBBox(data.frame(x= MESHp$X, y=MESHp$Y)) #bounding box of cell
-      lengthwidth <- c(box$width, box$height)
-
-      if(u==2){
-        MESHp$max.width <- min(lengthwidth)
-      }
-      if(a==1){
-        MESHp$length <- max(lengthwidth) #take length/width if not already defined
-      }
-
-      pts <- data.frame(box$pts) #get midpoint of the bounding box + define median lines
-      shadowpts <- rbind(pts[2:4,], pts[1,])
-      distances <- (pts+shadowpts)/2 #coordinates of median lines
-
-      d1 <- data.frame(x = abs(distances$x-distances$x[1]), y =abs(distances$y-distances$y[1]))
-      d1$pointn <- 1:4
-      d1 <- d1[-1,]
-      d1$dist <- sqrt(d1$x^2+d1$y^2)
-
-      un <- data.frame(table(round(d1$dist, 4)))
-
-      partdist <- un$Var1[un$Freq==1]
-      partner <- d1$pointn[round(d1$dist,4)==partdist]
-      rest <- d1$pointn[round(d1$dist,4)!=partdist]
-
-      if(round(d1$dist[d1$pointn==partner],4)==round(min(lengthwidth),4)){
-        widthline <- distances[c(1,partner),]
-        lengthline <- distances[rest,]
-      }
-      if(round(d1$dist[d1$pointn==partner],4)==round(max(lengthwidth),4)){
-        widthline <- distances[rest,]
-        lengthline <- distances[c(1,partner),] #pick which line is length/width
-      }
-
-      mp <- c(mean(lengthline$x), mean(lengthline$y)) #midpoint
-      X_cor <- MESHp$X-mp[1]
-      Y_cor <- MESHp$Y-mp[2]
-      angle <- (180-box$angle)*pi/180 #angle to lay cell flat on x axis
-
-      MESHp$X_rot <- X_cor * cos(angle) - Y_cor * sin(angle)
-      MESHp$Y_rot <- X_cor * sin(angle) + Y_cor * cos(angle) #rotate cell
-
-      if(missing(rawdatafile)!=T){
-        print(paste("Turning raw data for cell", n))
-
-        rawr <- turnraws(rawdatafile, i, n, mp, angle)
-        Rlist[[q]] <- rawr
-      }
-
-      Mlist[[q]] <- MESHp
-
+    M <- MESH[MESH$frame==i,]
+    if(missing(rawdatafile)!=T){
+      Mlistboth <- lapply(unique(M$cell), function(x) turncell(M[M$cell==x,], u, rawdatafile,a, x, i))
+      MlistF <- lapply(Mlistboth, function(x) x$mesh)
+      RlistF <- lapply(Mlistboth, function(x) x$rawdat)
+      Rlist[[i]] <- do.call(rbind, RlistF)
     }
+    if(missing(rawdatafile)==T){MlistF <- lapply(unique(M$cell), function(x) turncell(M[M$cell==x,], u, a=a, n=x, i=i))}
+    Mlist[[i]] <- do.call(rbind,MlistF)
 
   }
 
@@ -332,7 +280,7 @@ spotrXYMESH <- function(MESH, x_1="x1", y_1="y1",x_0="x0", y_0="y0" ){
 }
 
 
-mergeframes <- function(REP, MESH, mag="100x_LeicaVeening", cutoff=T, maxfactor=2, minfactor=0.5, remOut=T, LD = FALSE){
+mergeframes <- function(REP, MESH, mag="100x_LeicaVeening", cutoff=T, maxfactor=2, minfactor=0.5, remOut=T){
 
   REP<- REP[(0<REP$l),]
   if("rel.l" %in% colnames(REP)){
@@ -368,11 +316,9 @@ mergeframes <- function(REP, MESH, mag="100x_LeicaVeening", cutoff=T, maxfactor=
 
   #make column with row numbers per cell length.
   MR$num <- c(1:nrow(MR))
-  
-  if(LD == TRUE){
-    pix2um <- unlist(magnificationList[mag])
-    MR <- LimDum(MR, pix2um)
-  }
+
+  pix2um <- unlist(magnificationList[mag])
+  MR <- LimDum(MR, pix2um)
   return(MR)
 }
 
