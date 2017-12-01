@@ -1,4 +1,4 @@
-Package: shinyspots
+Package: bactMAP
 Title: Visualization and Analysis of Bacterial Cell Segmentation and Fluorescence Data
 Version: 0.0.1.1
 Authors@R: person("Renske", "van Raaphorst", email = "renske.vanraaphorst@unil.ch", role = c("aut", "cre"))

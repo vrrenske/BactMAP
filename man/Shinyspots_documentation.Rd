@@ -1,7 +1,7 @@
-\name{shinyspots}
-\alias{shinyspots-package}
-\alias{shinyspots}
-\alias{Shinyspots}
+\name{bactMAP}
+\alias{bactMAP-package}
+\alias{bactMAP}
+\alias{BACTMAP}
 
 \docType{package}
 
