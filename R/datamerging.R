@@ -18,7 +18,7 @@ spotrMerge <- function(dataset1, dataset2, samecells=TRUE, nameset1="GFP", names
 ##however, we have more cells now because of the GFP & RFP. we can circumvent that by cutting
 ##the four partitions by length:
   if(samecells==TRUE){
-  GR <- GR[order(GR$length),]
+  GR <- GR[order(GR$max.length),]
   GR$num2 <- c(1:nrow(GR))
 # by quartiles of the number of cells:
   GR$q1 <- cut(GR$num2, breaks=groups, labels = 1:groups)
@@ -30,7 +30,7 @@ spotrMerge <- function(dataset1, dataset2, samecells=TRUE, nameset1="GFP", names
 
 
 #prep for the code: define maxima.
-  xmax <- 0.5*max(GR$length, na.rm=TRUE)
+  xmax <- 0.5*max(GR$max.length, na.rm=TRUE)
   ymax <- 0.5*max(GR$max.width, na.rm=TRUE)
 
 ####################################################################################################################
@@ -39,10 +39,10 @@ spotrMerge <- function(dataset1, dataset2, samecells=TRUE, nameset1="GFP", names
 
   for(n in 1:groups){
 
-    meansL <- mean(GR$length[GR$q1==n], na.rm=TRUE)
+    meansL <- mean(GR$max.length[GR$q1==n], na.rm=TRUE)
     meansW <- mean(GR$max.width[GR$q1==n], na.rm=TRUE)
     QR <- GR[GR$q1==n,]
-    QR$Lcor <- QR$Lmid/QR$length*meansL
+    QR$Lcor <- QR$Lmid/QR$max.length*meansL
     QR$Dcor <- QR$Dum/QR$max.width*meansW
     if(n==1){
       QRall <- QR
@@ -51,7 +51,7 @@ spotrMerge <- function(dataset1, dataset2, samecells=TRUE, nameset1="GFP", names
       QRall <- rbind(QR, QRall)
     }
 }
-
+QRall$q1 <- as.numeric(as.character(QRall$q1))
 return(QRall)
 }
 #########################################################################################################################

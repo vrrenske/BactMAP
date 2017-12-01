@@ -10,36 +10,59 @@
 
 extr.MicrobeJMESH <- function(dataloc){
   MESH <- read.table(dataloc, header=T, sep=",")
+  meshL <- list()
+  meshL$cellList <- MESH
   MESH$cell <- as.numeric(gsub("b", "", MESH$NAME))
   MESH$frame <- MESH$POSITION
-  MESH$POSITION <- NULL
-  return(MESH)
+  MESH <- MESH[,c("X", "Y", "cell", "frame")]
+  meshL$meshList <- MESH
+  return(meshL)
 }
 
 
 extr.MicrobeJSpots <- function(spotloc){
   SPOTS <- read.table(spotloc, header=T, sep=",")
-  SPOTS$x <- unlist(strsplit(stringr::str_sub(SPOTS$LOCATION[1], 2, -2), ";"))[1]
-  SPOTS$y <- unlist(strsplit(stringr::str_sub(SPOTS$LOCATION[1], 2, -2), ";"))[2]
-  SPOTS$spotNAME <- SPOTS$NAME
+  spotL <- list()
+  spotL$cellList <- SPOTS
+  SPOTS$x <- t(data.frame(strsplit(stringr::str_sub(SPOTS$LOCATION,2,-2),";"))[1,])
+  SPOTS$y <- t(data.frame(strsplit(stringr::str_sub(SPOTS$LOCATION,2,-2),";"))[2,])
+  SPOTS$x <- as.numeric(SPOTS$x)
+  SPOTS$y <- as.numeric(SPOTS$y)
   SPOTS$NAME <- NULL
   SPOTS$NAME.name <- NULL
   SPOTS$NAME.id <- NULL
-  SPOTS$cell <- as.numeric(gsub("b", "", SPOTS$PARENT.id))
+  SPOTS$cell <- as.numeric(gsub("b", "", SPOTS$PARENT.name))
   SPOTS$frame <- SPOTS$POSITION.frame
-  return(SPOTS)
+  SPOTS <- SPOTS[,c("x", "y", "cell", "frame")]
+  spotL$spotList <- SPOTS
+  return(spotL)
 }
 
 #' @export
 extr.MicrobeJ <- function(dataloc, spotloc){
   outlist <- list()
   if(missing(dataloc)!=T){
-    MESH <- extr.MicrobeJMESH(dataloc)
-    outlist$MESH <- MESH
+    MESH <- extr.MicrobeJMESH(dataloc)$meshList
+    cellList <- extr.MicrobeJMESH(dataloc)$cellList
+    if(missing(spotloc)==T){
+      outlist$cellList <- cellList
+    }
   }
   if(missing(spotloc)!=T){
-    SPOTS <- extr.MicrobeJSpots(spotloc)
-    outlist$SPOTS <- SPOTS
+    SPOTS <- extr.MicrobeJSpots(spotloc)$spotList
+    cellList2 <- extr.MicrobeJSpots(spotloc)$cellList
+    if(missing(dataloc)==T){
+      outlist$cellList <- cellList2
+    }
+  }
+  if(missing(spotloc)!=T&missing(dataloc)!=T){
+    listbox <- spotsInBox(SPOTS, MESH)
+    outlist$spotList <- spot
+    outlist$meshList <- listbox$Mfull
+    cellList3 <- list()
+    cellList3$Mesh <- cellList
+    cellList3$Spots <- cellList2
+    outlist$cellList <- cellList3
   }
   return(outlist)
 }
@@ -50,7 +73,11 @@ extr.ISBatch <- function(dataloc){
   SPOTS <- read.table(dataloc, header=T, sep=",")
   SPOTS$frame  <- SPOTS$slice
   SPOTS$slice <- NULL
-  return(SPOTS)
+  spotminimal <- SPOTS[,c("x","y","cell","frame")]
+  listout <- list()
+  listout$cellList <- SPOTS
+  listout$spotList <- spotminimal
+  return(listout)
 }
 
 
@@ -65,7 +92,7 @@ spotrExtrObjectJ <- function(dataloc, spots="X", constr, xcolumns, ycolumns, xco
   }
 
   OJ$cell <- OJ$n
-  OJ$length <- round(OJ$Axis,2)
+  OJ$max.length <- round(OJ$Axis,2)
   OJ$max.width <- OJ$Dia
   OJ$n <- NULL
   OJ$Dia <- NULL
@@ -88,11 +115,11 @@ spotrExtrObjectJ <- function(dataloc, spots="X", constr, xcolumns, ycolumns, xco
     }
 
     OJ[,xcolumns[1]][is.na(OJ[,xcolumns[1]])] <- 0
-    OJ <- tidyr::gather(OJ, "xspot", "L", xcolumns[1:n], na.rm=T)
-    OJ$L[OJ$L==0] <- NA
+    OJ <- tidyr::gather(OJ, "xspot", "l", xcolumns[1:n], na.rm=T)
+    OJ$l[OJ$l==0] <- NA
     OJ[,ycolumns[1]][is.na(OJ[,ycolumns[1]])] <- 0
-    OJ <- tidyr::gather(OJ, "yspot", "D", ycolumns[1:n], na.rm=T)
-    OJ$D[OJ$D==0] <- NA
+    OJ <- tidyr::gather(OJ, "yspot", "d", ycolumns[1:n], na.rm=T)
+    OJ$d[OJ$d==0] <- NA
     if(missing(spotcol)){
     spotcol <- readline("If included, give the name of the column containing the number of spots per cell.\nOtherwise, press #<enter>")
     }
@@ -136,7 +163,7 @@ spotrExtrObjectJ <- function(dataloc, spots="X", constr, xcolumns, ycolumns, xco
     OJ$DC[OJ$DC==0] <- NA
   }
 
-  OJ$length <- OJ$Axis
+  OJ$max.length <- OJ$Axis
   OJ$Axis <- NULL
   return(OJ)
 
@@ -160,7 +187,7 @@ spotrExtractSpotsObjectJ <- function(SF){
   nmax <- (ncol(SF)-4)/3
   for(n in 1:nmax){
     SN <- SF[,c("n", "len", "seq", "mirr", paste("type",n, sep=""), paste("pp",n,sep=""), paste("off",n, sep=""))]
-    colnames(SN) <- c("cell", "length", "spotorder", "mirr", "type", "L", "D")
+    colnames(SN) <- c("cell", "length", "spotorder", "mirr", "type", "l", "d")
     if(n==1){Sframe <- SN}
     if(n>1){
       SN <-SN[!is.na(SN$L),]

@@ -16,6 +16,7 @@ extr.OuftiCellList <- function(matfile){
   matcellList <- matlist$cellList[[1]]
   matcelnums <- matlist$cellList[[2]]
   for(n in 1:length(matcellList)){
+    if(length(matcellList[[n]][[1]])!=0){
     for(y in 1:length(matcellList[[n]][[1]])){
       cell <- matcelnums[[n]][[1]][[y]]
       celldatas <- as.data.frame(matcellList[[n]][[1]][[y]][[1]])
@@ -26,8 +27,9 @@ extr.OuftiCellList <- function(matfile){
         cellList <- celldatas
       }
       else{
-        cellList <- rbind(cellList, celldatas)
+        cellList <- rbind(cellList, celldatas[,colnames(cellList)])
       }
+    }
     }
   }
   return(cellList)
@@ -74,7 +76,7 @@ extr.OuftiMat <- function(cellList){
 
         }
       }
-      meshline$max_length <- sum(meshline$steplength)
+      meshline$max.length <- sum(meshline$steplength)
       if(n==1){MESH <- meshline}
       if(n>1){MESH <- rbind(MESH, meshline)}
     }
@@ -108,17 +110,51 @@ extr.OuftiSpots <- function(cellList){
 }
 
 #' @export
-extr.Oufti <- function(matfile){
+extr.Oufti <- function(matfile, mag){
+
   outlist <- list()
+  print("Extracting original data from the matlab file... This step may take a while.")
   cellList <- extr.OuftiCellList(matfile)
+  print("Finished extracting.")
   outlist$cellList <- cellList
+  print("Taking the x/y coordinates of the mesh outlines of each cell... This step may also take a while.")
   Mesh <- extr.OuftiMat(cellList)
+  print("Converting mesh file into standard BactMAP format...")
   Mesh <- spotrXYMESH(Mesh)
   outlist$mesh <- Mesh
-  if(length(cellList$spots>1)){
+
+  if(length(cellList$spots)>1){
+    print("Taking the spot coordinates and information per cell...")
     spotframe <- extr.OuftiSpots(cellList)
     outlist$spotframe <- spotframe
+    print("Adding cell dimensions (length/width) to spot information...")
+    if(missing(mag)){
+      mag <- "No_PixelCorrection"
+    }
+    spot_mesh <- mergeframes(spotframe, Mesh, mag)
+    outlist$spots_relative_pixel2um <- unlist(magnificationList[mag])
+    outlist$spots_relative <- spot_mesh
   }
+
+  #if(length(cellList$descendants)>1){
+    #print("Getting phylogenies from ancestor/descendants information...")
+    #phylolist <- getphylolist(cellList)
+    #u <-lapply(phylolist$generation_dataframes, function(x) is.data.frame(x))
+    #phylolist$generation_dataframes <- phylolist$generation_dataframes[c(1:length(u))[u==T]]
+    #phylolist$generation_lists <- phylolist$generation_lists[c(1:length(u))[u==T]]
+    #if(length(cellList$spots)>1){
+      #print("Saving the relative spot localizations per phylogeny...")
+      #phlist_allcells <- lapply(phylolist$generation_dataframes, function(x) merge(data.frame(cell= unique(x$root), birthframe=1, root=unique(x$root), node=unique(x$node[x$node%in%x$parent!=T]), parent =unique(x$node[x$node%in%x$parent!=T])), x, all=T))
+      #MRTlist <- lapply(phlist_allcells, function(x) merge(x, spot_mesh[,c("cell","frame", "max.length", "max.width", "spot", "totalspot", "Lmid", "pole1", "pole2", "Dum")]))
+      #phylolist$spot_relative_list <- MRTlist
+      #}
+    #print("Saving cell outlines per phylogeny...")
+    #Mlist <- lapply(phylolist$generation_dataframes, function(x) merge(x, Mesh))
+    #phylolist$meshdata <- Mlist
+    #outlist$timelapsedata <- phylolist
+  #}
+  print("Finished Oufti Extraction. Data list includes:")
   print(summary(outlist))
   return(outlist)
 }
+
