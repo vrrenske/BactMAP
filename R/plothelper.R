@@ -157,13 +157,13 @@ createPlotlist <- function(REP, inp, MESH, colorpalette="GreenYellow", mag="100x
   allMRs <- split(MR, MR$q1)
   plist <- list()
   for(n in 1:inp){
-    p <- ggplot2::ggplot(allMRs[[n]], aes(x=Lcor, y=Dcor))
+    p <- ggplot2::ggplot(allMRs[[n]], ggplot2::aes(x=Lcor, y=Dcor))
     p <- densityplot(p)
     plist <- append(plist, list(p))
   }
 
 #plotting! -> L and D ordered by cell length
-  pL <- ggplot2::ggplot(MR, aes(x=num, y=Lmid))
+  pL <- ggplot2::ggplot(MR, ggplot2::aes(x=num, y=Lmid))
   pL <- LWplot(pL, colc[[1]], max(MR$num, na.rm=T))
   pLpoint <- pL + ggplot2::geom_point() + ggplot2::ggtitle("Spot location on length axis ordered by cell length") + ggplot2::xlab("n\u209C\u2095 (ordered by cell length)") + ggplot2::ylab("Y-position (\u03BCm)") + ggplot2::theme_bw()
   pLD <- densityplot(pL) + ggplot2::ggtitle("Spot location on length axis ordered by cell length") + ggplot2::xlab("n\u209C\u2095 (ordered by cell length)") + ggplot2::ylab("Y-position (\u03BCm)") + ggplot2::geom_line(data=MR, ggplot2::aes(x=num,y=pole1),colour="white") + ggplot2::geom_line(data=MR, ggplot2::aes(x=num,y=pole2),colour="white")
@@ -245,7 +245,7 @@ createPlotlist <- function(REP, inp, MESH, colorpalette="GreenYellow", mag="100x
 
     #in case you want it for the whole thing instead of only quartiles:
 
-    pall <- ggplot2::ggplot(MR, aes(x=Lcor, y=Dcor))
+    pall <- ggplot2::ggplot(MR, ggplot2::aes(x=Lcor, y=Dcor))
     pall <- densityplot(pall)
     mppall <- mean(range(MASS::kde2d(MR$Lcor[!is.na(MR$Lcor)&!is.na(MR$Dcor)],MR$Dcor[!is.na(MR$Dcor)&!is.na(MR$Lcor)])$z))
     pall <- heatmap(pall, mppall, colc)
@@ -269,7 +269,7 @@ createPlotlist <- function(REP, inp, MESH, colorpalette="GreenYellow", mag="100x
   hislist <- list()
   #save all histograms (L coordinates) of the quartiles too:
   for(n in 1:inp){
-    p1his <- ggplot2::ggplot(allMRs[[n]], aes(x=Lcor)) + geom_density(fill=colc[[1]][2], color=colc[[1]][2]) + theme_bw() + labs(x="Length(\u03BCm)") + coord_cartesian(xlim=c(-1.5,1.5))
+    p1his <- ggplot2::ggplot(allMRs[[n]], ggplot2::aes(x=Lcor)) + ggplot2::geom_density(fill=colc[[1]][2], color=colc[[1]][2]) + ggplot2::theme_minimal() + ggplot2::labs(x="Length(\u03BCm)") + ggplot2::coord_cartesian(xlim=c(-1.5,1.5))
     hislist <- append(hislist, list(p1his))
   }
 
@@ -288,37 +288,37 @@ createPlotlist <- function(REP, inp, MESH, colorpalette="GreenYellow", mag="100x
 allplot <- function(plot, data, xmax, ymax, empty){
 
   #prepare seperate plots: histograms (hL, hD) and modified coordinate plots(remove legend )
-  p1D <- plot + theme(legend.position = "none")
-  p1hL <- ggplot2::ggplot(data, aes(x=Lcor)) + geom_histogram(fill="black") + coord_cartesian(xlim = c(-xmax, xmax)) + theme_minimal() +theme(axis.title.x = element_blank())
-  p1hD <- ggplot2::ggplot(data, aes(x=Dcor)) + geom_histogram(fill="black") + coord_flip(xlim = c(-ymax, ymax)) + theme_minimal() + theme(axis.title.y = element_blank())
+  p1D <- plot + ggplot2::theme(legend.position = "none")
+  p1hL <- ggplot2::ggplot(data, ggplot2::aes(x=Lcor)) + ggplot2::geom_histogram(fill="black") + ggplot2::coord_cartesian(xlim = c(-xmax, xmax)) + ggplot2::theme_minimal() + ggplot2::theme(axis.title.x = ggplot2::element_blank())
+  p1hD <- ggplot2::ggplot(data, aes(x=Dcor)) + ggplot2::geom_histogram(fill="black") + ggplot2::coord_flip(xlim = c(-ymax, ymax)) + ggplot2::theme_minimal() + ggplot2::theme(axis.title.y = ggplot2::element_blank())
 
   #align the plots properly before putting them together
-  p1Dg <- ggplotGrob(p1D)
-  p1hLg <- ggplotGrob(p1hL)
-  p1hDg <- ggplotGrob(p1hD)
+  p1Dg <- ggplot2::ggplotGrob(p1D)
+  p1hLg <- ggplot2::ggplotGrob(p1hL)
+  p1hDg <- ggplot2::ggplotGrob(p1hD)
 
   maxWidth = grid::unit.pmax(p1Dg$widths[2:5], p1hLg$widths[2:5])
   p1Dg$widths[2:5] <- as.list(maxWidth)
   p1hLg$widths[2:5] <- as.list(maxWidth)
 
   #put the grids together using gridarrange
-  return(arrangeGrob(p1hLg, empty, p1Dg, p1hD, ncol=2, nrow=2, widths=c(10*xmax, 2.5), heights=c(2, 10*ymax)))
+  return(gridExtra::arrangeGrob(p1hLg, empty, p1Dg, p1hD, ncol=2, nrow=2, widths=c(10*xmax, 2.5), heights=c(2, 10*ymax)))
 }
 
 ##before using the function:
 #create mockup plot to make space
 empty <- ggplot2::ggplot(data.frame(u=1), ggplot2::aes(u,u)) +
   ggplot2::theme(
-    plot.background = element_blank(),
-    panel.grid.major = element_blank(),
-    panel.grid.minor = element_blank(),
-    panel.border = element_blank(),
-    panel.background = element_blank(),
-    axis.title.x = element_blank(),
-    axis.title.y = element_blank(),
-    axis.text.x = element_blank(),
-    axis.text.y = element_blank(),
-    axis.ticks = element_blank()
+    plot.background = ggplot2::element_blank(),
+    panel.grid.major = ggplot2::element_blank(),
+    panel.grid.minor = ggplot2::element_blank(),
+    panel.border = ggplot2::element_blank(),
+    panel.background = ggplot2::element_blank(),
+    axis.title.x = ggplot2::element_blank(),
+    axis.title.y = ggplot2::element_blank(),
+    axis.text.x = ggplot2::element_blank(),
+    axis.text.y = ggplot2::element_blank(),
+    axis.ticks = ggplot2::element_blank()
   )
 
 colopts <- list(OrangeHot=list("#000000", "#D55E00", "#F0E442"), GreenYellow = list("#000000", "#009E73", "#F0E442"), ColdBlue = list("#000000", "#0072B2", "#FFFFFF"), YellowHot = list("#000000", "#e69f00", "#F0E442"), RedHot = list("#000000", "#FF0000", "#FFFF00"), WhiteOrange = list("#FFFFFF", "#F0E442", "#D55E00"))
