@@ -24,7 +24,7 @@ library(MASS)
 
 ###############################################################################################
 #' @export
-addPalette <- function(palList, palName, env = parent.frame()){
+addPalette <- function(palList, palName){
   if(missing(palName)){
     palName <- readline("Give the name of your new Palette:\n")
   }
@@ -34,30 +34,37 @@ addPalette <- function(palList, palName, env = parent.frame()){
     hig <- readline("Give the color (hex) for the highest value:\n")
     palList <- list(low, med, hig)
   }
-  palList <-
-  colopts2 <- append(colopts, palList)
-  names(colopts2)[length(colopts2)] <- palName
-  env$colopts <- colopts2
-  showCurrentPalettes()
+  palList <- list(palList)
+  names(palList) <- palName
+  colopts2 <- append(get(colopts, envir=colEnv), palList)
+  assign(colopts, colopts2, envir=colEnv)
+  showCurrentPalettes(get(colopts, envir=colEnv))
 
 }
 
 #' @export
-showCurrentPalettes <- function(colchoice = colopts){
+showCurrentPalettes <- function(colchoice = get(colopts, envir=colEnv)){
   plotlist <- list()
+  namelist <- names(colchoice)
   for(n in 1:length(colchoice)){
-    p <- colorchoiceplot(colchoice[[n]], n)
+    p <- colorchoiceplot(colchoice[[n]], n, namelist[n])
     plotlist <- append(plotlist,list(p))
   }
   return(do.call(gridExtra::grid.arrange,c(plotlist, ncol=2)))
 }
 
-colorchoiceplot <- function(colchoice, nums){
-  namelist <- names(colopts)
-  z <- rmvnorm(100, mean=c(3,5), sigma=matrix(c(1,0.5,0.5,2), nrow=2))
-  z <- data.frame(z)
-  return(ggplot2::ggplot(z, ggplot2::aes(x=X1, y=X2)) + ggplot2::stat_density2d(ggplot2::aes(fill=..density..), geom="raster", contour=FALSE) + ggplot2::scale_fill_gradient2(low = colchoice[1], mid= colchoice[2], high = colchoice[3], midpoint=0.06) + ggplot2::theme_minimal() + ggplot2::theme(legend.position="none") + ggplot2::ggtitle(namelist[nums]) + ggplot2::xlab("") + ggplot2::ylab("") + ggplot2::xlim(0,5) + ggplot2::ylim(0,10) + ggplot2::theme(axis.text=ggplot2::element_blank()))
+colorchoiceplot <- function(colchoice, nums, pname){
 
+  z <- mvtnorm::rmvnorm(100, mean=c(3,5), sigma=matrix(c(1,0.5,0.5,2), nrow=2))
+  z <- data.frame(z)
+  return(ggplot2::ggplot(z, ggplot2::aes(x=X1, y=X2)) + ggplot2::stat_density2d(ggplot2::aes(fill=..density..), geom="raster", contour=FALSE) + ggplot2::scale_fill_gradient2(low = colchoice[1], mid= colchoice[2], high = colchoice[3], midpoint=0.06) + ggplot2::theme_minimal() + ggplot2::theme(legend.position="none") + ggplot2::ggtitle(pname) + ggplot2::xlab("") + ggplot2::ylab("") + ggplot2::xlim(0,5) + ggplot2::ylim(0,10) + ggplot2::theme(axis.text=ggplot2::element_blank()))
+
+}
+
+#' @export
+pal2Default <- function(){
+  assign(colopts, cols, envir=colEnv)
+  print("Colorpalettes back to default")
 }
 
 #wat basisplotfuncties
@@ -135,7 +142,7 @@ createPlotlist <- function(REP, inp, MESH, colorpalette="GreenYellow", mag="100x
     rm(REP)
   }
 
-  colc <- colopts[colorpalette][[1]]
+  colc <- get(colopts, envir = colEnv)[colorpalette][[1]]
   MR$q1 <- cut(MR$cellnum, breaks=inp, labels = 1:inp)
 
 
@@ -212,7 +219,7 @@ createPlotlist <- function(REP, inp, MESH, colorpalette="GreenYellow", mag="100x
     MESH <- meshTurn(MESH, Xm, Ym)
     print("Finished turning the cells")
     }
-    p2um <- as.numeric(magnificationList[mag])
+    p2um <- as.numeric(get(magnificationList, envir=magEnv)[mag])
     if("max_um"%in%colnames(MESH)!=T){
     MESH$max_um <- MESH$max.length*p2um
     MESH$maxwum <- MESH$max.width*p2um
@@ -321,7 +328,13 @@ empty <- ggplot2::ggplot(data.frame(u=1), ggplot2::aes(u,u)) +
     axis.ticks = ggplot2::element_blank()
   )
 
-colopts <- list(OrangeHot=list("#000000", "#D55E00", "#F0E442"), GreenYellow = list("#000000", "#009E73", "#F0E442"), ColdBlue = list("#000000", "#0072B2", "#FFFFFF"), YellowHot = list("#000000", "#e69f00", "#F0E442"), RedHot = list("#000000", "#FF0000", "#FFFF00"), WhiteOrange = list("#FFFFFF", "#F0E442", "#D55E00"))
+
+
+cols <-  list(OrangeHot=list("#000000", "#D55E00", "#F0E442"), GreenYellow = list("#000000", "#009E73", "#F0E442"), ColdBlue = list("#000000", "#0072B2", "#FFFFFF"), YellowHot = list("#000000", "#e69f00", "#F0E442"), RedHot = list("#000000", "#FF0000", "#FFFF00"), WhiteOrange = list("#FFFFFF", "#F0E442", "#D55E00"))
+colopts <- "colopts"
+colEnv <- new.env()
+assign(colopts, cols, envir=colEnv)
+
 
 singcollist <- list("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#000000", "#0072B2", "#D55E00", "#CC79A7")
 

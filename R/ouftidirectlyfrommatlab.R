@@ -132,7 +132,7 @@ extr.Oufti <- function(matfile, mag){
       mag <- "No_PixelCorrection"
     }
     spot_mesh <- mergeframes(spotframe, Mesh, mag)
-    outlist$spots_relative_pixel2um <- unlist(magnificationList[mag])
+    outlist$spots_relative_pixel2um <- unlist(get(magnificationList, envir=magEnv)[mag])
     outlist$spots_relative <- spot_mesh
   }
 

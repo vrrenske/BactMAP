@@ -11,24 +11,44 @@ library(gridExtra)
 library(scales)
 
 ##Set the pixel to um conversion
-spotrSetpixel2um <- function(){
-  pixel2um <- readline(caption="Give the conversion factor from pixel to um./n")
-  return(pixel2um)
+#' @export
+addPixels2um <- function(pixelName, pixels2um){
+
+  if(missing(pixels2um)){
+    pixels2um <- readline("Give the conversion factor from pixel to um:  ")
+  }
+  if(missing(pixelName)){
+    pixelName <- readline("Give the name of your conversion factor um:  ")
+  }
+
+  newp <- c(as.numeric(pixels2um))
+  names(newp) <- pixelName
+  newML <- append(get(magnificationList, envir=magEnv), newp)
+  assign(magnificationList, newML, envir=magEnv)
+  print("Currently loaded magnification converters:")
+  print(get(magnificationList, envir=magEnv))
+
+}
+
+#' @export
+getPixels2um <- function(){
+  print("Currently loaded magnification converters:")
+  print(get(magnificationList, envir=magEnv))
 }
 
 ##error message + solution when pixel2um is not set
-spotrPixelerror <- function(){
-  errormessage <- readline(caption="The conversion factor from pixel to um is not indicated. Please use 'spotrSetpixel2um' by pressing 'a'.
-          if you don't want to convert from pixel to um, press 'b'./n")
-  if(errormessage=="a"|errormessage=="A"){
-    conv == spotrSetpixel2um()
-  }
-  if(errormessage=="b"|errormessage=="B"){
-    conv == 1
-  }
-  else(print("Did not receive 'a' nor 'b'. If you want to convert from pixel to um, use the function 'spotrSetpixel2um()' manually./n"))
-  return(conv)
-}
+#spotrPixelerror <- function(){
+  #errormessage <- readline(caption="The conversion factor from pixel to um is not indicated. Please use 'spotrSetpixel2um' by pressing 'a'.
+  #        if you don't want to convert from pixel to um, press 'b'./n")
+ # if(errormessage=="a"|errormessage=="A"){
+ #   conv == spotrSetpixel2um()
+ # }
+ # if(errormessage=="b"|errormessage=="B"){
+ #   conv == 1
+ # }
+  #else(print("Did not receive 'a' nor 'b'. If you want to convert from pixel to um, use the function 'spotrSetpixel2um()' manually./n"))
+  #return(conv)
+#}
 
 ##merge spotfiles with only raw coordinates with mesh file with only raw data. add mesh length/width while on it.
 #' @export
@@ -317,7 +337,7 @@ mergeframes <- function(REP, MESH, mag="100x_LeicaVeening", cutoff=T, maxfactor=
   #make column with row numbers per cell length.
   MR$num <- c(1:nrow(MR))
 
-  pix2um <- unlist(magnificationList[mag])
+  pix2um <- unlist(get(magnificationList, envir=magEnv)[mag])
   MR <- LimDum(MR, pix2um)
   return(MR)
 }
@@ -361,10 +381,16 @@ LimDum <- function(MR, pix2um, remOut=T){
   return(MR)
 }
 
-magnificationList <- list("100x_LeicaVeening" = 0.0499538, "100x_DVMolgen" = 0.0645500, "No_PixelCorrection" = 1)
+mL <- list("100x_LeicaVeening" = 0.0499538, "100x_DVMolgen" = 0.0645500, "No_PixelCorrection" = 1)
+magnificationList <- "magnificationList"
+magEnv <- new.env()
+assign(magnificationList, mL, envir=magEnv)
 
 ##for merging different colors (part of datamerging.R)
 nameSetList <- function(dsl, nam){
   dsl$color <- nam
   return(dsl)
 }
+
+
+
