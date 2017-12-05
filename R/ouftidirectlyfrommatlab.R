@@ -133,7 +133,7 @@ extr.Oufti <- function(matfile, mag){
     }
     spot_mesh <- mergeframes(spotframe, Mesh, mag)
     outlist$spots_relative_pixel2um <- unlist(get(magnificationList, envir=magEnv)[mag])
-    outlist$spots_relative <- spot_mesh
+    outlist$spots_relative <- spot_mesh[!is.na(spot_mesh$cell),]
   }
 
   #if(length(cellList$descendants)>1){

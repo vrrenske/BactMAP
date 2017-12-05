@@ -4,7 +4,7 @@ output: github_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 library(bactMAP)
 library(R.matlab)
 library(ggplot2)
@@ -22,15 +22,24 @@ All importing functions start with **extr.**. See help(bactMAP::extr.all) in the
 
 For example, use **extr.Oufti(rawdatafile, pixels2um)** to load segmentation & spot detection data generated with Oufti, where *rawdatafile* is the location of the .MAT file containing the Oufti output, and *pixels2um* is the conversion factor from the pixels in the data to actual micrometers. This can differ per lab, dependent on the objective and the camera used, therefore you can add your own conversion factor using **addPixels2um()**:
 
-```{r}
+```{r data_import}
 #Add your own pixels to um conversion factor:
-addPalette(pixels2um=0.0499538, pixelName="MyPixelConversion")
+addPixels2um(pixels2um=0.0499538, pixelName="MyPixelConversion")
 
 #Load data into R
 oufti_example <- system.file("extdata", "oufti_sp_gfpsmc.MAT", package = "bactMAP")
-extr.Oufti(oufti_example, "MyPixelConversion")
+oufti_data <- extr.Oufti(oufti_example, "MyPixelConversion")
 
 
 ```
 
+This dataset contains the outlines of Streptococcus pneumoniae D39 cells and the spot localizations of the structural maintenance of chromosomes (SMC) complex linked to a superfolder-GFP (dataset from van Raaphorst, Kjos & Veening, PNAS, 2017). To get a quick overview of the localization, we can automatically plot the data in different ways:
 
+```{r data_plotting}
+#Plot data for quick overview
+
+oufti_plots <- createPlotlist(REP = oufti_data$spots_relative[oufti_data$spots_relative$frame<5,], inp = 4, MESH = oufti_data$mesh[oufti_data$mesh$frame<5,], mag="MyPixelConversion")
+print(summary(oufti_plots))
+
+oufti_plots$lengthplot
+gridExtra::arrangeGrob(oufti_plots$plottotal)
