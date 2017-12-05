@@ -24,10 +24,11 @@ For example, use **extr.Oufti(rawdatafile, pixels2um)** to load segmentation & s
 
 ```{r}
 #Add your own pixels to um conversion factor:
+addPalette(pixels2um=0.0499538, pixelName="MyPixelConversion")
 
-
+#Load data into R
 oufti_example <- system.file("extdata", "oufti_sp_gfpsmc.MAT", package = "bactMAP")
-extr.Oufti(oufti_example, "100x_LeicaVeening")
+extr.Oufti(oufti_example, "MyPixelConversion")
 
 
 ```
