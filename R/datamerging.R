@@ -4,7 +4,7 @@
 #########################merging GFP and RFP data############################################
 
 #' @export
-spotrMerge <- function(datasetlist, samecells=TRUE, namesetlist=list("GFP","RFP", "CFP", "YFP", "DAPI", "CY5"), groups = 4){
+spotrMerge <- function(datasetlist, samecells=TRUE, nameSetlist=list("GFP","RFP", "CFP", "YFP", "DAPI", "CY5"), groups = 4){
 ##we need to get both datasets in one. only, we need to keep them apart. that's why we need to add an extra column
 #indicating which spot is gfp (or any name you want) and which is RFP (idem).
   numsets <- length(datasetlist)
