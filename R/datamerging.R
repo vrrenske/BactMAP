@@ -4,7 +4,7 @@
 #########################merging GFP and RFP data############################################
 
 #' @export
-spotrMerge <- function(datasetlist, samecells=TRUE, nameSetlist=list("GFP","RFP", "CFP", "YFP", "DAPI", "CY5"), groups = 4){
+spotrMerge <- function(datasetlist, samecells=TRUE, namesetlist=list("GFP","RFP", "CFP", "YFP", "DAPI", "CY5"), groups = 4){
 ##we need to get both datasets in one. only, we need to keep them apart. that's why we need to add an extra column
 #indicating which spot is gfp (or any name you want) and which is RFP (idem).
   numsets <- length(datasetlist)
@@ -171,5 +171,13 @@ hisfun <- function(dataset, colorpicks, cpalette = bm_Colors){
 bm_Colors <-  c("bm_BlueGreen" = "#009E73", "bm_Orange" = "#E69F00", "bm_SkyBlue" = "#56B4E9",
                 "bm_Yellow" = "#F0E442", "bm_Blue" = "#0072B2", "bm_Vermillion" = "#D55E00",
                 "bm_RedPurple" = "#CC79A7", "bm_Grey" = "#999999")
+
+
+
+##for merging different colors (part of datamerging.R)
+nameSetList <- function(dsl, nam){
+  dsl$color <- nam
+  return(dsl)
+}
 
 

@@ -386,11 +386,6 @@ magnificationList <- "magnificationList"
 magEnv <- new.env()
 assign(magnificationList, mL, envir=magEnv)
 
-##for merging different colors (part of datamerging.R)
-nameSetList <- function(dsl, nam){
-  dsl$color <- nam
-  return(dsl)
-}
 
 
 
