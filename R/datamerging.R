@@ -58,12 +58,23 @@ return(QRall)
 
 #plotting
 
+plotMultiChannel <- function(dataset, cpalette=bm_Colors, colorpicks){
+  if(missing(colorpicks)==TRUE){
+    cdots <- lapply(1:length(unique(dataset$q1)), function(x) plotallsides(dataset[dataset$q1==x,], x, cpalette))
+    histos <- hisfun(dataset, cpalette=cpalette)
+  }
+  if(missing(colorpicks)==FALSE){
+    cdots <- lapply(1:length(unique(dataset$q1)), function(x) plotallsides(dataset[dataset$q1==x,], x, cpalette=cpalette, colorpicks=colorpicks))
+    histos <- hisfun(dataset, cpalette=cpalette, colorpicks=colorpicks)
+  }
+  plotlist <- list(dotplots = cdots, histograms=histos)
+  return(plotlist)
+}
+
 #plotfunction for a 2-color dotplot
-cdot2 <- function(dataset, quartile, colorpalette = c("Green", "Red", "Blue", "Yellow", "Dark Blue"), namesetlist){
-  colorpalette <- colorpalette[1:length(namesetlist)]
-  names(colorpalette) <- unlist(namesetlist)
+cdot2 <- function(dataset, quartile, cpalette){
   plot <- ggplot2::ggplot(dataset[dataset$q1==quartile,], ggplot2::aes(x=Lcor, y= Dcor))
-  return(plot + ggplot2::geom_point(aes(colour=color), size=4, alpha=0.3) + ggplot2::theme_minimal() + ggplot2::xlab("Length(\u00B5m)") + ggplot2::ylab("Width(\u00B5m)") + ggplot2::scale_color_manual(values=colorpalette))
+  return(plot + ggplot2::geom_point(aes(colour=color), size=4, alpha=0.3) + ggplot2::theme_minimal() + ggplot2::xlab("Length(\u00B5m)") + ggplot2::ylab("Width(\u00B5m)") + ggplot2::scale_color_manual(values=cpalette))
 }
 
 
@@ -71,12 +82,12 @@ cdot2 <- function(dataset, quartile, colorpalette = c("Green", "Red", "Blue", "Y
 #adding. here's a copy of the allplot function. I modified the histograms to become 2 color density plots instead, having the same color
 #codes.
 
-allplot <- function(plot, data, xmax, ymax, empty, xqmax){
+allplotmulticolor <- function(plot, data, xmax, ymax, empty=empty2, xqmax, cpalette){
 
   #prepare seperate plots: histograms (hL, hD) and modified coordinate plots(remove legend )
   p1D <- plot + ggplot2::theme(legend.position = "none") + ggplot2::coord_cartesian(xlim = c(-xmax, xmax), ylim = c(-ymax,ymax)) + ggplot2::geom_vline(xintercept=xqmax, alpha=0.4) + ggplot2::geom_vline(xintercept=-xqmax, alpha=0.4)
-  p1hL <- ggplot2::ggplot(data, aes(x=Lcor, colour=color), alpha=0.6) + ggplot2::geom_density(aes(fill=color), alpha = 0.3) + ggplot2::coord_cartesian(xlim = c(-xmax, xmax)) + ggplot2::theme_minimal() +ggplot2::theme(axis.title.x = element_blank(), legend.position="none") + ggplot2::scale_color_manual(values=c(nameset1=colorpalette[1], nameset2=colorpalette[2])) + ggplot2::scale_fill_manual(values=c(nameset1=colorpalette[1], nameset2=colorpalette[2]))
-  p1hD <- ggplot2::ggplot(data, aes(x=Dcor, colour=color), alpha=0.6) + ggplot2::geom_density(aes(fill=color), alpha = 0.3) + ggplot2::coord_flip(xlim = c(-ymax, ymax)) + ggplot2::theme_minimal() + ggplot2::theme(axis.title.y = element_blank(), legend.position="none") + ggplot2::scale_color_manual(values=c(nameset1=colorpalette[1], nameset2=colorpalette[2])) + ggplot2::scale_fill_manual(values=c(nameset1=colorpalette[1], nameset2=colorpalette[2]))
+  p1hL <- ggplot2::ggplot(data, aes(x=Lcor, colour=color), alpha=0.6) + ggplot2::geom_density(aes(fill=color), alpha = 0.3) + ggplot2::coord_cartesian(xlim = c(-xmax, xmax)) + ggplot2::theme_minimal() +ggplot2::theme(axis.title.x = element_blank(), legend.position="none") + ggplot2::scale_color_manual(values=cpalette) + ggplot2::scale_fill_manual(values=cpalette)
+  p1hD <- ggplot2::ggplot(data, aes(x=Dcor, colour=color), alpha=0.6) + ggplot2::geom_density(aes(fill=color), alpha = 0.3) + ggplot2::coord_flip(xlim = c(-ymax, ymax)) + ggplot2::theme_minimal() + ggplot2::theme(axis.title.y = element_blank(), legend.position="none") + ggplot2::scale_color_manual(values=cpalette) + ggplot2::scale_fill_manual(values=cpalette)
 
   #align the plots properly before putting them together
   p1Dg <- ggplotGrob(p1D)
@@ -88,11 +99,11 @@ allplot <- function(plot, data, xmax, ymax, empty, xqmax){
   p1hLg$widths[2:5] <- as.list(maxWidth)
 
   #put the grids together using gridarrange
-  return(grid::arrangeGrob(p1hLg, empty, p1Dg, p1hD, ncol=2, nrow=2, widths=c(3, 1), heights=c(1, 2)))
+  return(gridExtra::grid.arrange(p1hLg, empty2, p1Dg,  p1hDg, ncol=2, nrow=2, widths=c(10*xmax, 2.5), heights=c(2, 10*ymax)))
 }
 
 #again you need the mockup plot in the corner:
-empty <- ggplot2::ggplot(data.frame(u=1), ggplot2::aes(u,u)) +
+empty2 <- ggplot2::ggplot(data.frame(u=1), ggplot2::aes(u,u)) +
   ggplot2::theme(
     plot.background = ggplot2::element_blank(),
     panel.grid.major = ggplot2::element_blank(),
@@ -108,20 +119,57 @@ empty <- ggplot2::ggplot(data.frame(u=1), ggplot2::aes(u,u)) +
 
 #plotting
 
-plotallsides <- function(dataset, quartile, colorpalette){
-  p <- cdot2(dataset, quartile, colorpalette)
-  pG <- allplot(p, dataset[dataset$q1 == quartile,], xmax, ymax, empty, max(dataset$length[dataset$q1==quartile], na.rm=T)*0.5)
+plotallsides <- function(dataset, quartile, cpalette = bm_Colors, colorpicks, empty = empty){
+  xmax <- 0.5*max(dataset$max.length, na.rm=TRUE)
+  ymax <- 0.5*max(dataset$max.width, na.rm=TRUE)
+
+  if(missing(colorpicks)==TRUE){
+    for(n in 1:length(unique(dataset$color))){
+      names(cpalette)[n] = unique(dataset$color)[n]
+    }
+    cpalette <- cpalette[1:length(unique(dataset$color))]
+  }
+  if(missing(colorpicks)!=TRUE){
+    for(n in 1:length(colorpicks)){
+      if(colorpicks[n]%in%names(cpalette)==TRUE){
+        colorpicks[n] <- as.character(cpalette[colorpicks[n]])
+      }
+    }
+  }
+  p <- cdot2(dataset, quartile, cpalette)
+  pG <- allplotmulticolor(p, dataset[dataset$q1 == quartile,], xmax, ymax, empty, max(dataset$max.length[dataset$q1==quartile], na.rm=T)*0.5, cpalette)
   return(pG)
 }
 
 
 
+
 ##################################################################################################################
 #only histograms
-hisfun <- function(dataset, quartile, colorpalette){
-  return(ggplot2::ggplot(dataset[dataset$q1==quartile,], ggplot2::aes(x=Lcor, colour=color), alpha=0.6) + ggplot2::geom_density(aes(fill=color), alpha = 0.3) + ggplot2::coord_cartesian(xlim = c(-xmax, xmax)) + ggplot2::theme_minimal() +ggplot2::theme(legend.position="none") + ggplot2::scale_color_manual(values=c("GFP"=colorpalette[1], "RFP"=colorpalette[2])) + ggplot2::scale_fill_manual(values=c("GFP"=colorpalette[1], "RFP"=colorpalette[2]))  + ggplot2::xlab("Location length-axis (\u00B5m from mid-point)"))
+hisfun <- function(dataset, colorpicks, cpalette = bm_Colors){
+  xmax <- 0.5*max(dataset$max.length, na.rm=TRUE)
+  if(missing(colorpicks)==TRUE){
+    for(n in 1:length(unique(dataset$color))){
+      names(cpalette)[n] = unique(dataset$color)[n]
+    }
+    cpalette <- cpalette[1:length(unique(dataset$color))]
+  }
+  if(missing(colorpicks)!=TRUE){
+    for(n in 1:length(colorpicks)){
+      if(colorpicks[n]%in%names(cpalette)==TRUE){
+        colorpicks[n] <- as.character(cpalette[colorpicks[n]])
+      }
+    }
+  }
+  return(ggplot2::ggplot(dataset, ggplot2::aes(x=Lcor, colour=color), alpha=0.6) + ggplot2::geom_density(aes(fill=color), alpha = 0.3) + ggplot2::coord_cartesian(xlim = c(-xmax, xmax)) + ggplot2::theme_minimal() + ggplot2::theme(legend.position="none") + ggplot2::scale_color_manual(values=cpalette) + ggplot2::scale_fill_manual(values=cpalette)  + ggplot2::xlab("Location length-axis (\u00B5m from mid-point)") + facet_grid(q1~.))
 }
 
 ##############################################################################################################
+
+##Single Colors Standardly Loaded Into BactMap - from  http://jfly.iam.u-tokyo.ac.jp/color/:
+
+bm_Colors <-  c("bm_BlueGreen" = "#009E73", "bm_Orange" = "#E69F00", "bm_SkyBlue" = "#56B4E9",
+                "bm_Yellow" = "#F0E442", "bm_Blue" = "#0072B2", "bm_Vermillion" = "#D55E00",
+                "bm_RedPurple" = "#CC79A7", "bm_Grey" = "#999999")
 
 

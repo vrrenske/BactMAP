@@ -206,17 +206,17 @@ turncell <- function(MESHp, u, rawdatafile, a, n, i){
   d1 <- d1[-1,]
   d1$dist <- sqrt(d1$x^2+d1$y^2)
 
-  un <- data.frame(table(round(d1$dist, 4)))
+  un <- data.frame(table(round(d1$dist, 5)))
 
   partdist <- un$Var1[un$Freq==1]
-  partner <- d1$pointn[round(d1$dist,4)==partdist]
-  rest <- d1$pointn[round(d1$dist,4)!=partdist]
+  partner <- d1$pointn[round(d1$dist,5)==partdist]
+  rest <- d1$pointn[round(d1$dist,5)!=partdist]
 
-  if(round(d1$dist[d1$pointn==partner],4)==round(min(lengthwidth),4)){
+  if(round(d1$dist[d1$pointn==partner],5)==round(min(lengthwidth),5)){
     widthline <- distances[c(1,partner),]
     lengthline <- distances[rest,]
   }
-  if(round(d1$dist[d1$pointn==partner],4)==round(max(lengthwidth),4)){
+  if(round(d1$dist[d1$pointn==partner],5)==round(max(lengthwidth),5)){
     widthline <- distances[rest,]
     lengthline <- distances[c(1,partner),] #pick which line is length/width
   }
@@ -245,8 +245,8 @@ meshTurn <- function(MESH, Xm="X", Ym="Y", rawdatafile){
 
   if("max.width"%in%colnames(MESH)==T){u <- 1}
   else{u<-2}
-  if("length"%in%colnames(MESH)==T){a <- 1}
-  else{a<-2}
+  if("max.length"%in%colnames(MESH)==T){a <- 2}
+  else{a<-1}
   if("x0"%in%colnames(MESH)){
     MESH <- spotrXYMESH(MESH)
   }

@@ -57,18 +57,24 @@ oufti_data <- extr.Oufti(oufti_example, "MyPixelConversion")
     ## spots_relative_pixel2um  1     -none-     numeric
     ## spots_relative          20     data.frame list
 
-This dataset contains the outlines of Streptococcus pneumoniae D39 cells and the spot localizations of the structural maintenance of chromosomes (SMC) complex linked to a superfolder-GFP (dataset from van Raaphorst, Kjos & Veening, PNAS, 2017). To get a quick overview of the localization, we can automatically plot the data in different ways:
+Plotting data
+-------------
+
+This dataset contains the outlines of Streptococcus pneumoniae D39 cells and the spot localizations of the structural maintenance of chromosomes (SMC) complex linked to a superfolder-GFP (dataset from van Raaphorst, Kjos & Veening, PNAS, 2017). To get a quick overview of the localization, you can automatically plot the data in different ways.
 
 ``` r
 #Plot data for quick overview
 
-oufti_plots <- createPlotlist(REP = oufti_data$spots_relative[oufti_data$spots_relative$frame<5,], inp = 4, MESH = oufti_data$mesh[oufti_data$mesh$frame<5,], mag="MyPixelConversion")
+oufti_plots <- createPlotlist(REP = oufti_data$spots_relative, inp = 4, MESH = oufti_data$mesh, mag="MyPixelConversion")
 ```
 
     ## [1] "Turning the cells... this may take a while."
     ## [1] "Turning meshes for frame 1"
     ## [1] "Turning meshes for frame 2"
     ## [1] "Turning meshes for frame 4"
+    ## [1] "Turning meshes for frame 5"
+    ## [1] "Turning meshes for frame 6"
+    ## [1] "Turning meshes for frame 7"
     ## [1] "Finished turning the cells"
     ## [1] "Calculating mean cell outlines.."
     ## [1] "Finished calculating mean cell outlines"
@@ -87,16 +93,22 @@ print(summary(oufti_plots))
     ## spotdata   23     data.frame list
     ## meshdata   15     data.frame list
 
-``` r
-oufti_plots$lengthplot
-```
+Output
+------
 
-![](README_files/figure-markdown_github-ascii_identifiers/data_plotting-1.png)
+The output is a list of different plots which are useful for exploring the data. Let's have a look at them in more detail:
 
-``` r
-gridExtra::arrangeGrob(oufti_plots$plottotal)
-```
+Length/Width Kymographs
+=======================
 
-    ## TableGrob (1 x 1) "arrange": 1 grobs
-    ##   z     cells    name            grob
-    ## 1 1 (1-1,1-1) arrange gtable[arrange]
+Here the cells are ordered by cell length, and the spot localization (density plot) and cell poles (white lines) are plotted. This gives an indication of the localization over the cell cycle when there is no time resolution (!note that time and cell length are often no direct proxys of each other, so interpret with caution!). ![](README_files/figure-markdown_github-ascii_identifiers/length%20and%20width%20histograms-1.png)![](README_files/figure-markdown_github-ascii_identifiers/length%20and%20width%20histograms-2.png)
+
+The average cell - totalplot
+============================
+
+Here, the average cell shape (white dots) & spot localization is plotted. Side graphs show histograms of length/width spot localization. ![](README_files/figure-markdown_github-ascii_identifiers/totalplot-1.png)
+
+Localization per group - qplots & histograms
+============================================
+
+Here, the cells are divided in groups (the amount is indicated by variable *inp* in the function **createPlotlist()**). By default, they are divided by cell length. This can give more insight in the distinct localization or shape of subgroups of cells. ![](README_files/figure-markdown_github-ascii_identifiers/qplots-1.png)

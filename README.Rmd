@@ -33,13 +33,43 @@ oufti_data <- extr.Oufti(oufti_example, "MyPixelConversion")
 
 ```
 
-This dataset contains the outlines of Streptococcus pneumoniae D39 cells and the spot localizations of the structural maintenance of chromosomes (SMC) complex linked to a superfolder-GFP (dataset from van Raaphorst, Kjos & Veening, PNAS, 2017). To get a quick overview of the localization, we can automatically plot the data in different ways:
+## Plotting data
+This dataset contains the outlines of Streptococcus pneumoniae D39 cells and the spot localizations of the structural maintenance of chromosomes (SMC) complex linked to a superfolder-GFP (dataset from van Raaphorst, Kjos & Veening, PNAS, 2017). To get a quick overview of the localization, you can automatically plot the data in different ways.
 
 ```{r data_plotting}
 #Plot data for quick overview
 
-oufti_plots <- createPlotlist(REP = oufti_data$spots_relative[oufti_data$spots_relative$frame<5,], inp = 4, MESH = oufti_data$mesh[oufti_data$mesh$frame<5,], mag="MyPixelConversion")
+oufti_plots <- createPlotlist(REP = oufti_data$spots_relative, inp = 4, MESH = oufti_data$mesh, mag="MyPixelConversion")
 print(summary(oufti_plots))
 
+```
+
+## Output
+The output is a list of different plots which are useful for exploring the data. Let's have a look at them in more detail:
+
+#Length/Width Kymographs
+Here the cells are ordered by cell length, and the spot localization (density plot) and cell poles (white lines) are plotted. This gives an indication of the localization over the cell cycle when there is no time resolution (!note that time and cell length are often no direct proxys of each other, so interpret with caution!).
+```{r length and width histograms, echo=FALSE}
+
 oufti_plots$lengthplot
-gridExtra::arrangeGrob(oufti_plots$plottotal)
+
+oufti_plots$widthplot
+
+```
+
+#The average cell - totalplot
+Here, the average cell shape (white dots) & spot localization is plotted. Side graphs show histograms of length/width spot localization.
+```{r totalplot, echo=FALSE}
+
+gridExtra::grid.arrange(oufti_plots$plottotal)
+
+```
+
+#Localization per group - qplots & histograms
+Here, the cells are divided in groups (the amount is indicated by variable *inp* in the function **createPlotlist()**). By default, they are divided by cell length. This can give more insight in the distinct localization or shape of subgroups of cells.
+```{r qplots, echo=FALSE}
+
+gridExtra::grid.arrange(grobs=oufti_plots$qplots, ncol=1)
+
+```
+
