@@ -57,7 +57,7 @@ return(QRall)
 #########################################################################################################################
 
 #plotting
-
+#' @export
 plotMultiChannel <- function(dataset, cpalette=bm_Colors, colorpicks){
   if(missing(colorpicks)==TRUE){
     cdots <- lapply(1:length(unique(dataset$q1)), function(x) plotallsides(dataset[dataset$q1==x,], x, cpalette))
