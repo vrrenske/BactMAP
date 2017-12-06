@@ -175,6 +175,7 @@ bm_Colors <-  c("bm_BlueGreen" = "#009E73", "bm_Orange" = "#E69F00", "bm_SkyBlue
 
 
 ##for merging different colors (part of datamerging.R)
+#' @export
 nameSetList <- function(dsl, nam){
   dsl$color <- nam
   return(dsl)
