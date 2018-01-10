@@ -150,7 +150,7 @@ spotsInBox <- function(spotfile, MESH, Xs = "x", Ys = "y", Xm = "X", Ym = "Y"){
 
   }
   outs <- list()
-  REP <- spotsMR(REP)
+  REP <- spotMR(REP)
   outs$REP <- REP
   outs$Mfull <- Mfull
   return(outs) #return datasets as list of dataframes

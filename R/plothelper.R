@@ -79,10 +79,10 @@ LWplot <- function(plot, u="black", maxn){
 
 heatmap <- function(pdens, mp, colchoice, u = "black", viridis = F){
   if(viridis==F){
-  return(pdens + ggplot2::scale_fill_gradient2(low = colchoice[1], mid= colchoice[2], high = colchoice[3], midpoint =mp, space = "Lab") + theme_minimal() + theme(legend.position="none", panel.background=ggplot2::element_rect(fill=colchoice[1])))
+  return(pdens + ggplot2::scale_fill_gradient2(low = colchoice[1], mid= colchoice[2], high = colchoice[3], midpoint =mp, space = "Lab") + ggplot2::theme_minimal() + ggplot2::theme(legend.position="none", panel.background=ggplot2::element_rect(fill=colchoice[1])))
   }
   if(viridis==T){
-    return(pdens + viridis::scale_fill_viridis(option=colchoice,  space = "Lab") + theme_minimal() + theme(legend.position="none", panel.background=ggplot2::element_rect(fill=u)))
+    return(pdens + viridis::scale_fill_viridis(option=colchoice,  space = "Lab") + ggplot2::theme_minimal() + ggplot2::theme(legend.position="none", panel.background=ggplot2::element_rect(fill=u)))
   }
   }
 
@@ -92,7 +92,7 @@ heatmap <- function(pdens, mp, colchoice, u = "black", viridis = F){
 #so all quartile plots will have the same dimensions.
 #the title, y axis and x axis will also be drawn.
 coplot <- function(pheat, xmax, ymax, xqmax, u="black"){
- return(pheat + ggplot2::xlab("Length (\u00B5m)") + ylab("Width (\u00B5m)") + coord_cartesian(xlim = c(-xmax,xmax), ylim=c(-ymax,ymax)) + geom_vline(xintercept = xqmax) + geom_vline(xintercept=-xqmax) + geom_hline(yintercept = ymax) + geom_hline(yintercept = -ymax) + theme(panel.background = element_rect(fill = u), panel.grid.major = element_blank(), panel.grid.minor = element_blank()))
+ return(pheat + ggplot2::xlab("Length (\u00B5m)") + ggplot2::ylab("Width (\u00B5m)") + ggplot2::coord_cartesian(xlim = c(-xmax,xmax), ylim=c(-ymax,ymax)) + ggplot2::geom_vline(xintercept = xqmax) + ggplot2::geom_vline(xintercept=-xqmax) + ggplot2::geom_hline(yintercept = ymax) + ggplot2::geom_hline(yintercept = -ymax) + ggplot2::theme(panel.background = ggplot2::element_rect(fill = u), panel.grid.major = ggplot2::element_blank(), panel.grid.minor = ggplot2::element_blank()))
 }
 
 plotlocation_histograms <- function(){}
@@ -102,7 +102,7 @@ plotlocation_histograms <- function(){}
 ######################### mid-points ################################################################################
 
 superfun <- function(dat, bins,mag){
-  dat <- dat[order(dat$frame, dat$cell, dat$num, dat$max.length, dat$xy),]
+  dat <- dat[order(dat$frame, dat$cell, dat$num),]
   dat <- unique(dat)
   dat$av <- 0
   if("max.length"%in%colnames(dat)!=T){
@@ -134,12 +134,13 @@ superfun <- function(dat, bins,mag){
 #or two, by quartiles of the number of cells:
 #' @export
 createPlotlist <- function(REP, inp, MESH, colorpalette="GreenYellow", mag="100x_LeicaVeening", AllPlot=T, Xm="X", Ym="Y", viridis=FALSE){
-  if("Lmid"%in%colnames(REP)!=T){
-  MR <- mergeframes(REP, MESH, mag)
-  }
+
   if("Lmid"%in%colnames(REP)==T){
     MR <- REP
     rm(REP)
+  }
+  if("Lmid"%in%colnames(REP)!=T){
+    MR <- mergeframes(REP, MESH, mag)
   }
 
   colc <- get(colopts, envir = colEnv)[colorpalette][[1]]
@@ -177,7 +178,7 @@ createPlotlist <- function(REP, inp, MESH, colorpalette="GreenYellow", mag="100x
 
   pW <- ggplot2::ggplot(MR, ggplot2::aes(x=num, y=Dum))
   pW <- LWplot(pW, colc[[1]], max(MR$num,na.rm=T))
-  pWpoint <- pW + geom_point() + ggplot2::ggtitle("Spot location on width axis ordered by cell length") + ggplot2::xlab("(n\u209C\u2095 cell (ordered by cell length)") + ggplot2::ylab("X-position (\u03BCm)") + ggplot2::theme_bw()
+  pWpoint <- pW + ggplot2::geom_point() + ggplot2::ggtitle("Spot location on width axis ordered by cell length") + ggplot2::xlab("(n\u209C\u2095 cell (ordered by cell length)") + ggplot2::ylab("X-position (\u03BCm)") + ggplot2::theme_bw()
   pWD <- densityplot(pW) + ggplot2::ggtitle("Spot location on width axis ordered by cell length") + ggplot2::xlab("n\u209C\u2095 (ordered by cell length)") + ggplot2::ylab("X-position (\u03BCm)") + ggplot2::geom_hline(yintercept=ymax) + ggplot2::geom_hline(yintercept=-ymax) + ggplot2::coord_cartesian(ylim=c(-ymax,ymax))
 
 #make heatmap using the half max densities:
@@ -199,13 +200,13 @@ createPlotlist <- function(REP, inp, MESH, colorpalette="GreenYellow", mag="100x
   mpL <- MASS::kde2d(MR$num[!is.na(MR$Lmid)], MR$Lmid[!is.na(MR$Lmid)])
   mpL1 <- median(range(mpL$z))
   pLD <- heatmap(pLD, mpL1, colc,viridis)
-  pLD <- pLD + theme_minimal() + theme(panel.background=element_rect(fill=colc[[1]]), panel.grid = element_blank())
+  pLD <- pLD + ggplot2::theme_minimal() + ggplot2::theme(panel.background=ggplot2::element_rect(fill=colc[[1]]), panel.grid = ggplot2::element_blank())
   u$lengthplot <- pLD
 
   mpW <- MASS::kde2d(MR$num[!is.na(MR$Dum)], MR$Dum[!is.na(MR$Dum)])
   mpW1 <- median(range(mpW$z))
   pWD <- heatmap(pWD, mpW1, colc,viridis)
-  pWD <- pWD + theme_minimal() + theme(panel.background=element_rect(fill=colc[[1]]), panel.grid = element_blank())
+  pWD <- pWD + ggplot2::theme_minimal() + ggplot2::theme(panel.background=ggplot2::element_rect(fill=colc[[1]]), panel.grid = ggplot2::element_blank())
   u$widthplot <- pWD
 
   if(missing(MESH)){
@@ -260,7 +261,7 @@ createPlotlist <- function(REP, inp, MESH, colorpalette="GreenYellow", mag="100x
 
 
     meantotal <- superfun(MESH, 30, p2um)
-    pall <- pall + geom_point(data=meantotal, aes(x=x,y=y), colour="white")
+    pall <- pall + ggplot2::geom_point(data=meantotal, ggplot2::aes(x=x,y=y), colour="white")
     if(AllPlot==F){
       u$plottotal <- pall
     }

@@ -4,7 +4,7 @@
 #########################merging GFP and RFP data############################################
 
 #' @export
-spotrMerge <- function(datasetlist, samecells=TRUE, namesetlist=list("GFP","RFP", "CFP", "YFP", "DAPI", "CY5"), groups = 4){
+spotrMerge <- function(datasetlist, samecells=TRUE, namesetlist=list("GFP","RFP", "CFP", "YFP", "DAPI", "CY5"), groups = 4, groupby = "max.length"){
 ##we need to get both datasets in one. only, we need to keep them apart. that's why we need to add an extra column
 #indicating which spot is gfp (or any name you want) and which is RFP (idem).
   numsets <- length(datasetlist)
@@ -17,8 +17,8 @@ spotrMerge <- function(datasetlist, samecells=TRUE, namesetlist=list("GFP","RFP"
 ##now you might want to go back to the prep and plotting script to make the quartile partitions.
 ##however, we have more cells now because of the GFP & RFP. we can circumvent that by cutting
 ##the four partitions by length:
-  if(samecells==TRUE){
-  GR <- GR[order(GR$max.length),]
+  if(samecells==TRUE){c
+  GR <- GR[order(GR[,groupby]),]
   GR$num2 <- c(1:nrow(GR))
 # by quartiles of the number of cells:
   GR$q1 <- cut(GR$num2, breaks=groups, labels = 1:groups)

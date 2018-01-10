@@ -15,6 +15,7 @@ extr.MicrobeJMESH <- function(dataloc){
   MESH$cell <- as.numeric(gsub("b", "", MESH$NAME))
   MESH$frame <- MESH$POSITION
   MESH <- MESH[,c("X", "Y", "cell", "frame")]
+  MESH$num <- c(1:nrow(MESH))
   meshL$meshList <- MESH
   return(meshL)
 }
@@ -57,7 +58,7 @@ extr.MicrobeJ <- function(dataloc, spotloc){
   }
   if(missing(spotloc)!=T&missing(dataloc)!=T){
     listbox <- spotsInBox(SPOTS, MESH)
-    outlist$spotList <- spot
+    outlist$spotList <- listbox$REP
     outlist$meshList <- listbox$Mfull
     cellList3 <- list()
     cellList3$Mesh <- cellList
