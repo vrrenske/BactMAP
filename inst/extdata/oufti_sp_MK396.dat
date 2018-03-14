@@ -1,0 +1,837 @@
+
+---------------  Frame 1 --------------------
+Processing Frame 1
+region 1 discarded, area = 1044484
+
+---------------  Frame 2 --------------------
+Processing Frame 2
+region 1 discarded, area = 1044484
+
+---------------  Frame 3 --------------------
+Processing Frame 3
+region 1 discarded, area = 1044484
+
+---------------  Frame 4 --------------------
+Processing Frame 4
+region 1 discarded, area = 1044484
+
+---------------  Frame 5 --------------------
+Processing Frame 5
+region 1 discarded, area = 1044484
+
+---------------  Frame 6 --------------------
+Processing Frame 6
+region 1 discarded, area = 1044484
+
+---------------  Frame 7 --------------------
+Processing Frame 7
+region 1 discarded, area = 1044484
+
+---------------  Frame 8 --------------------
+Processing Frame 8
+region 1 discarded, area = 1044484
+
+---------------  Frame 9 --------------------
+Processing Frame 9
+fitting region 1 - passed and saved as cell 1
+fitting region 2 - passed and saved as cell 2
+fitting region 3 - passed and saved as cell 3
+fitting region 4 - passed and saved as cell 4
+fitting region 5 - passed and saved as cell 5
+fitting region 6 - passed and saved as cell 6
+fitting region 7 - passed and saved as cell 7
+fitting region 8 - passed and saved as cell 8
+fitting region 9 - passed and saved as cells 9 and 10
+fitting region 10 - passed and saved as cell 11
+fitting region 11 - passed and saved as cell 12
+fitting region 12 - passed and saved as cell 13
+fitting region 13 - passed and saved as cell 14
+fitting region 14 - passed and saved as cell 15
+fitting region 15 - passed and saved as cell 16
+fitting region 16 - passed and saved as cell 17
+fitting region 17 - passed and saved as cell 18
+fitting region 18 - passed and saved as cell 19
+fitting region 19 - passed and saved as cell 20
+fitting region 20 - passed and saved as cell 21
+fitting region 21 - passed and saved as cell 22
+fitting region 22 - passed and saved as cell 23
+fitting region 23 - passed and saved as cell 24
+fitting region 24 - passed and saved as cell 25
+fitting region 25 - passed and saved as cells 26 and 27
+fitting region 26 - passed and saved as cell 28
+fitting region 27 - passed and saved as cell 29
+fitting region 28 - passed and saved as cell 30
+fitting region 29 - passed and saved as cell 31
+fitting region 30 - passed and saved as cell 32
+fitting region 31 - passed and saved as cell 33
+fitting region 32 - passed and saved as cell 34
+fitting region 33 - passed and saved as cell 35
+fitting region 34 - passed and saved as cell 36
+fitting region 35 - passed and saved as cell 37
+fitting region 36 - passed and saved as cell 38
+fitting region 37 - passed and saved as cell 39
+fitting region 38 - passed and saved as cell 40
+fitting region 39 - passed and saved as cell 41
+fitting region 40 - passed and saved as cell 42
+fitting region 41 - passed and saved as cell 43
+fitting region 42 - passed and saved as cell 44
+fitting region 43 - passed and saved as cell 45
+fitting region 44 - passed and saved as cell 46
+fitting region 45 - passed and saved as cell 47
+region 46 discarded, area = 50
+cell on y=0 boundary
+fitting region 48 - passed and saved as cell 48
+fitting region 49 - passed and saved as cell 49
+fitting region 50 - passed and saved as cell 50
+fitting region 51 - passed and saved as cell 51
+fitting region 52 - quality check failed - try resplitting (1)
+region 52 splitted - return for test
+fitting region 52 - quality check failed - try resplitting (2)
+region 52 splitted - return for test
+fitting region 52 - quality check failed - try resplitting (3)
+region 52 splitted - return for test
+fitting region 52 - quality check failed - try resplitting (4)
+region 52 splitted - return for test
+fitting region 52 - quality check failed - no cell found
+fitting region 53 - passed and saved as cell 52
+fitting region 54 - passed and saved as cell 53
+fitting region 55 - passed and saved as cell 54
+fitting region 56 - passed and saved as cell 55
+fitting region 57 - passed and saved as cell 56
+fitting region 58 - passed and saved as cell 57
+fitting region 59 - passed and saved as cell 58
+fitting region 60 - passed and saved as cell 59
+fitting region 61 - passed and saved as cell 60
+fitting region 62 - passed and saved as cell 61
+fitting region 63 - passed and saved as cell 62
+fitting region 64 - passed and saved as cell 63
+fitting region 65 - passed and saved as cell 64
+fitting region 66 - passed and saved as cell 65
+fitting region 67 - passed and saved as cell 66
+region 68 discarded, area = 58
+fitting region 69 - passed and saved as cell 67
+fitting region 70 - passed and saved as cell 68
+fitting region 71 - passed and saved as cell 69
+region 72 discarded, area = 36
+
+---------------  Frame 10 --------------------
+Processing Frame 10
+fitting region 1 - passed and saved as cell 1
+fitting region 2 - passed and saved as cell 2
+fitting region 3 - passed and saved as cell 3
+fitting region 4 - passed and saved as cell 4
+fitting region 5 - passed and saved as cell 5
+fitting region 6 - passed and saved as cell 6
+fitting region 7 - passed and saved as cell 7
+fitting region 8 - passed and saved as cell 8
+fitting region 9 - passed and saved as cell 9
+fitting region 10 - passed and saved as cell 10
+fitting region 11 - passed and saved as cell 11
+fitting region 12 - passed and saved as cell 12
+fitting region 13 - passed and saved as cell 13
+fitting region 14 - passed and saved as cell 14
+fitting region 15 - quality check failed - try resplitting (1)
+region 15 splitted - return for test
+fitting region 15 - quality check failed - try resplitting (2)
+region 15 splitted - return for test
+fitting region 15 - quality check failed - try resplitting (3)
+region 15 splitted - return for test
+fitting region 15 - quality check failed - try resplitting (4)
+region 15 splitted - return for test
+fitting region 15 - quality check failed - problem getting mesh
+fitting region 16 - passed and saved as cell 15
+fitting region 17 - quality check failed - try resplitting (1)
+region 17 splitted - return for test
+fitting region 17 - quality check failed - try resplitting (2)
+region 17 splitted - return for test
+fitting region 17 - quality check failed - try resplitting (3)
+region 17 splitted - return for test
+fitting region 17 - quality check failed - try resplitting (4)
+region 17 splitted - return for test
+fitting region 17 - quality check failed - no cell found
+fitting region 18 - passed and saved as cell 16
+fitting region 19 - passed and saved as cell 17
+fitting region 20 - passed and saved as cell 18
+fitting region 21 - passed and saved as cell 19
+fitting region 22 - passed and saved as cell 20
+fitting region 23 - passed and saved as cell 21
+fitting region 24 - passed and saved as cell 22
+fitting region 25 - passed and saved as cell 23
+fitting region 26 - passed and saved as cell 24
+fitting region 27 - passed and saved as cell 25
+fitting region 28 - passed and saved as cell 26
+fitting region 29 - passed and saved as cell 27
+fitting region 30 - passed and saved as cell 28
+fitting region 31 - passed and saved as cell 29
+fitting region 32 - passed and saved as cell 30
+fitting region 33 - passed and saved as cell 31
+fitting region 34 - passed and saved as cell 32
+fitting region 35 - passed and saved as cell 33
+fitting region 36 - passed and saved as cell 34
+fitting region 37 - passed and saved as cell 35
+cell on x=max boundary
+
+---------------  Frame 11 --------------------
+Processing Frame 11
+region 1 discarded, area = 25
+region 2 discarded, area = 50
+region 3 discarded, area = 74
+region 4 discarded, area = 72
+region 5 discarded, area = 39
+region 6 discarded, area = 75
+region 7 discarded, area = 25
+fitting region 8 - passed and saved as cell 1
+region 9 discarded, area = 25
+fitting region 10 - passed and saved as cell 2
+fitting region 11 - passed and saved as cell 3
+fitting region 12 - passed and saved as cell 4
+region 13 discarded, area = 79
+region 14 discarded, area = 56
+fitting region 15 - quality check failed - cell too small
+fitting region 16 - quality check failed - cell too small
+fitting region 17 - quality check failed - cell too small
+fitting region 18 - quality check failed - cell too small
+fitting region 19 - quality check failed - cell too small
+region 20 discarded, area = 64
+region 21 discarded, area = 1
+region 22 discarded, area = 69
+region 23 discarded, area = 54
+fitting region 24 - passed and saved as cell 5
+region 25 discarded, area = 23
+fitting region 26 - passed and saved as cell 6
+fitting region 27 - quality check failed - cell too small
+fitting region 28 - quality check failed - try resplitting (1)
+region 28 splitted - return for test
+fitting region 28 - quality check failed - try resplitting (2)
+region 28 splitted - return for test
+fitting region 28 - quality check failed - try resplitting (3)
+region 28 splitted - return for test
+fitting region 28 - quality check failed - try resplitting (4)
+region 28 splitted - return for test
+fitting region 28 - quality check failed - problem getting mesh
+fitting region 29 - passed and saved as cell 7
+region 30 discarded, area = 48
+region 31 discarded, area = 12
+fitting region 32 - quality check failed - cell too small
+region 33 discarded, area = 31
+region 34 discarded, area = 34
+fitting region 35 - quality check failed - cell too small
+fitting region 36 - quality check failed - cell too small
+fitting region 37 - quality check failed - cell too small
+fitting region 38 - quality check failed - cell too small
+fitting region 39 - quality check failed - cell too small
+fitting region 40 - quality check failed - cell too small
+fitting region 41 - quality check failed - cell too small
+fitting region 42 - quality check failed - cell too small
+region 43 discarded, area = 67
+fitting region 44 - quality check failed - cell too small
+region 45 discarded, area = 39
+fitting region 46 - quality check failed - cell too small
+region 47 discarded, area = 9
+fitting region 48 - passed and saved as cell 8
+fitting region 49 - quality check failed - cell too small
+region 50 discarded, area = 3
+region 51 discarded, area = 31
+region 52 discarded, area = 18
+region 53 discarded, area = 6
+region 54 discarded, area = 43
+fitting region 55 - quality check failed - cell too small
+fitting region 56 - passed and saved as cell 9
+fitting region 57 - quality check failed - cell too small
+fitting region 58 - quality check failed - cell too small
+region 59 discarded, area = 62
+region 60 discarded, area = 9
+region 61 discarded, area = 17
+fitting region 62 - quality check failed - cell too small
+region 63 discarded, area = 60
+fitting region 64 - passed and saved as cell 10
+fitting region 65 - quality check failed - cell too small
+region 66 discarded, area = 47
+fitting region 67 - quality check failed - cell too small
+fitting region 68 - passed and saved as cell 11
+fitting region 69 - quality check failed - cell too small
+fitting region 70 - passed and saved as cell 12
+fitting region 71 - passed and saved as cell 13
+fitting region 72 - passed and saved as cell 14
+fitting region 73 - quality check failed - cell too small
+fitting region 74 - quality check failed - cell too small
+fitting region 75 - passed and saved as cell 15
+fitting region 76 - quality check failed - cell too small
+fitting region 77 - quality check failed - cell too small
+fitting region 78 - passed and saved as cell 16
+fitting region 79 - passed and saved as cell 17
+fitting region 80 - quality check failed - cell too small
+fitting region 81 - passed and saved as cell 18
+fitting region 82 - passed and saved as cell 19
+fitting region 83 - passed and saved as cell 20
+region 84 discarded, area = 42
+region 85 discarded, area = 48
+fitting region 86 - quality check failed - cell too small
+fitting region 87 - passed and saved as cell 21
+fitting region 88 - quality check failed - cell too small
+fitting region 89 - passed and saved as cell 22
+fitting region 90 - quality check failed - cell too small
+fitting region 91 - quality check failed - cell too small
+fitting region 92 - quality check failed - cell too small
+region 93 discarded, area = 48
+region 94 discarded, area = 4
+region 95 discarded, area = 50
+region 96 discarded, area = 69
+region 97 discarded, area = 6
+fitting region 98 - quality check failed - cell too small
+fitting region 99 - passed and saved as cell 23
+region 100 discarded, area = 56
+region 101 discarded, area = 62
+region 102 discarded, area = 46
+region 103 discarded, area = 30
+fitting region 104 - quality check failed - cell too small
+fitting region 105 - quality check failed - cell too small
+fitting region 106 - quality check failed - cell too small
+fitting region 107 - quality check failed - cell too small
+
+---------------  Frame 12 --------------------
+Processing Frame 12
+cell on x=0 boundary
+fitting region 2 - passed and saved as cell 1
+fitting region 3 - passed and saved as cell 2
+fitting region 4 - passed and saved as cell 3
+fitting region 5 - passed and saved as cell 4
+fitting region 6 - passed and saved as cell 5
+fitting region 7 - passed and saved as cell 6
+fitting region 8 - passed and saved as cell 7
+fitting region 9 - passed and saved as cells 8 and 9
+fitting region 10 - passed and saved as cell 10
+fitting region 11 - passed and saved as cell 11
+fitting region 12 - passed and saved as cell 12
+fitting region 13 - passed and saved as cell 13
+fitting region 14 - passed and saved as cells 14 and 15
+fitting region 15 - passed and saved as cell 16
+fitting region 16 - passed and saved as cell 17
+fitting region 17 - passed and saved as cell 18
+fitting region 18 - passed and saved as cell 19
+fitting region 19 - passed and saved as cell 20
+fitting region 20 - passed and saved as cell 21
+fitting region 21 - passed and saved as cell 22
+fitting region 22 - passed and saved as cell 23
+fitting region 23 - passed and saved as cell 24
+fitting region 24 - passed and saved as cell 25
+fitting region 25 - passed and saved as cell 26
+fitting region 26 - passed and saved as cell 27
+fitting region 27 - passed and saved as cell 28
+fitting region 28 - passed and saved as cell 29
+fitting region 29 - passed and saved as cell 30
+fitting region 30 - passed and saved as cell 31
+fitting region 31 - passed and saved as cell 32
+fitting region 32 - passed and saved as cell 33
+fitting region 33 - passed and saved as cell 34
+fitting region 34 - passed and saved as cell 35
+fitting region 35 - passed and saved as cell 36
+fitting region 36 - passed and saved as cell 37
+fitting region 37 - passed and saved as cell 38
+fitting region 38 - passed and saved as cell 39
+fitting region 39 - passed and saved as cell 40
+fitting region 40 - passed and saved as cell 41
+fitting region 41 - passed and saved as cell 42
+fitting region 42 - passed and saved as cell 43
+fitting region 43 - quality check failed - try resplitting (1)
+region 43 splitted - return for test
+fitting region 43 - quality check failed - try resplitting (2)
+region 43 splitted - return for test
+fitting region 43 - quality check failed - try resplitting (3)
+region 43 splitted - return for test
+fitting region 43 - quality check failed - try resplitting (4)
+region 43 splitted - return for test
+fitting region 43 - quality check failed - no cell found
+fitting region 44 - passed and saved as cell 44
+fitting region 45 - passed and saved as cell 45
+fitting region 46 - passed and saved as cell 46
+fitting region 47 - passed and saved as cell 47
+fitting region 48 - passed and saved as cell 48
+fitting region 49 - passed and saved as cell 49
+fitting region 50 - passed and saved as cell 50
+fitting region 51 - passed and saved as cell 51
+fitting region 52 - passed and saved as cell 52
+fitting region 53 - passed and saved as cell 53
+fitting region 54 - passed and saved as cell 54
+fitting region 55 - passed and saved as cell 55
+fitting region 56 - passed and saved as cell 56
+fitting region 57 - passed and saved as cell 57
+fitting region 58 - passed and saved as cell 58
+fitting region 59 - passed and saved as cell 59
+fitting region 60 - passed and saved as cell 60
+fitting region 61 - passed and saved as cell 61
+fitting region 62 - passed and saved as cell 62
+fitting region 63 - passed and saved as cell 63
+fitting region 64 - passed and saved as cell 64
+fitting region 65 - passed and saved as cell 65
+fitting region 66 - passed and saved as cell 66
+fitting region 67 - passed and saved as cell 67
+fitting region 68 - passed and saved as cell 68
+fitting region 69 - passed and saved as cell 69
+fitting region 70 - passed and saved as cell 70
+fitting region 71 - passed and saved as cell 71
+fitting region 72 - passed and saved as cell 72
+fitting region 73 - passed and saved as cell 73
+fitting region 74 - passed and saved as cell 74
+fitting region 75 - passed and saved as cell 75
+fitting region 76 - passed and saved as cell 76
+fitting region 77 - passed and saved as cell 77
+fitting region 78 - passed and saved as cell 78
+fitting region 79 - passed and saved as cell 79
+fitting region 80 - passed and saved as cell 80
+fitting region 81 - passed and saved as cell 81
+fitting region 82 - passed and saved as cell 82
+fitting region 83 - passed and saved as cell 83
+fitting region 84 - passed and saved as cell 84
+fitting region 85 - passed and saved as cell 85
+fitting region 86 - passed and saved as cells 86 and 87
+fitting region 87 - passed and saved as cell 88
+fitting region 88 - passed and saved as cell 89
+fitting region 89 - passed and saved as cell 90
+fitting region 90 - passed and saved as cell 91
+fitting region 91 - passed and saved as cell 92
+fitting region 92 - passed and saved as cell 93
+fitting region 93 - passed and saved as cell 94
+fitting region 94 - passed and saved as cell 95
+fitting region 95 - passed and saved as cell 96
+fitting region 96 - passed and saved as cell 97
+fitting region 97 - passed and saved as cell 98
+fitting region 98 - passed and saved as cell 99
+fitting region 99 - passed and saved as cell 100
+
+---------------  Frame 13 --------------------
+Processing Frame 13
+cell on x=0 boundary
+fitting region 2 - passed and saved as cell 1
+fitting region 3 - passed and saved as cell 2
+fitting region 4 - passed and saved as cell 3
+fitting region 5 - passed and saved as cell 4
+fitting region 6 - passed and saved as cell 5
+fitting region 7 - passed and saved as cell 6
+fitting region 8 - passed and saved as cell 7
+fitting region 9 - passed and saved as cell 8
+fitting region 10 - passed and saved as cells 9 and 10
+fitting region 11 - passed and saved as cell 11
+fitting region 12 - passed and saved as cell 12
+fitting region 13 - passed and saved as cell 13
+fitting region 14 - passed and saved as cell 14
+fitting region 15 - passed and saved as cell 15
+fitting region 16 - passed and saved as cell 16
+fitting region 17 - passed and saved as cell 17
+fitting region 18 - passed and saved as cell 18
+fitting region 19 - passed and saved as cell 19
+fitting region 20 - passed and saved as cell 20
+fitting region 21 - passed and saved as cell 21
+fitting region 22 - passed and saved as cell 22
+fitting region 23 - passed and saved as cell 23
+fitting region 24 - passed and saved as cell 24
+fitting region 25 - passed and saved as cell 25
+fitting region 26 - passed and saved as cell 26
+fitting region 27 - passed and saved as cell 27
+fitting region 28 - passed and saved as cell 28
+fitting region 29 - passed and saved as cell 29
+fitting region 30 - passed and saved as cell 30
+fitting region 31 - passed and saved as cell 31
+fitting region 32 - passed and saved as cell 32
+fitting region 33 - passed and saved as cell 33
+fitting region 34 - passed and saved as cell 34
+fitting region 35 - passed and saved as cell 35
+fitting region 36 - passed and saved as cell 36
+fitting region 37 - passed and saved as cell 37
+fitting region 38 - passed and saved as cell 38
+fitting region 39 - passed and saved as cell 39
+fitting region 40 - passed and saved as cell 40
+fitting region 41 - passed and saved as cell 41
+fitting region 42 - passed and saved as cell 42
+fitting region 43 - passed and saved as cell 43
+fitting region 44 - passed and saved as cell 44
+fitting region 45 - passed and saved as cell 45
+fitting region 46 - passed and saved as cell 46
+fitting region 47 - passed and saved as cell 47
+fitting region 48 - passed and saved as cell 48
+fitting region 49 - passed and saved as cell 49
+fitting region 50 - passed and saved as cell 50
+fitting region 51 - passed and saved as cell 51
+fitting region 52 - passed and saved as cell 52
+fitting region 53 - passed and saved as cells 53 and 54
+fitting region 54 - quality check failed - try resplitting (1)
+region 54 splitted - return for test
+fitting region 54 - quality check failed - try resplitting (2)
+region 54 splitted - return for test
+fitting region 54 - quality check failed - try resplitting (3)
+region 54 splitted - return for test
+fitting region 54 - quality check failed - try resplitting (4)
+region 54 splitted - return for test
+fitting region 54 - quality check failed - problem getting mesh
+fitting region 55 - passed and saved as cell 55
+fitting region 56 - passed and saved as cell 56
+fitting region 57 - passed and saved as cell 57
+fitting region 58 - passed and saved as cell 58
+fitting region 59 - passed and saved as cell 59
+fitting region 60 - passed and saved as cell 60
+fitting region 61 - passed and saved as cell 61
+fitting region 62 - passed and saved as cell 62
+fitting region 63 - passed and saved as cell 63
+fitting region 64 - passed and saved as cell 64
+fitting region 65 - passed and saved as cell 65
+fitting region 66 - passed and saved as cell 66
+fitting region 67 - passed and saved as cell 67
+fitting region 68 - passed and saved as cell 68
+fitting region 69 - passed and saved as cell 69
+fitting region 70 - passed and saved as cell 70
+fitting region 71 - passed and saved as cell 71
+fitting region 72 - passed and saved as cell 72
+fitting region 73 - passed and saved as cell 73
+fitting region 74 - passed and saved as cell 74
+fitting region 75 - passed and saved as cell 75
+fitting region 76 - passed and saved as cell 76
+fitting region 77 - passed and saved as cell 77
+fitting region 78 - passed and saved as cell 78
+fitting region 79 - passed and saved as cell 79
+fitting region 80 - passed and saved as cell 80
+fitting region 81 - passed and saved as cell 81
+fitting region 82 - passed and saved as cell 82
+fitting region 83 - passed and saved as cell 83
+fitting region 84 - passed and saved as cell 84
+fitting region 85 - passed and saved as cell 85
+fitting region 86 - passed and saved as cell 86
+fitting region 87 - passed and saved as cell 87
+fitting region 88 - passed and saved as cell 88
+fitting region 89 - passed and saved as cell 89
+fitting region 90 - passed and saved as cell 90
+fitting region 91 - passed and saved as cell 91
+fitting region 92 - passed and saved as cell 92
+fitting region 93 - passed and saved as cell 93
+fitting region 94 - passed and saved as cell 94
+fitting region 95 - passed and saved as cell 95
+fitting region 96 - passed and saved as cell 96
+
+---------------  Frame 14 --------------------
+Processing Frame 14
+cell on x=0 boundary
+fitting region 2 - passed and saved as cell 1
+fitting region 3 - passed and saved as cell 2
+fitting region 4 - passed and saved as cell 3
+fitting region 5 - passed and saved as cell 4
+fitting region 6 - passed and saved as cell 5
+fitting region 7 - passed and saved as cell 6
+fitting region 8 - passed and saved as cells 7 and 8
+fitting region 9 - passed and saved as cell 9
+fitting region 10 - passed and saved as cell 10
+fitting region 11 - passed and saved as cell 11
+fitting region 12 - passed and saved as cell 12
+fitting region 13 - passed and saved as cell 13
+fitting region 14 - passed and saved as cell 14
+fitting region 15 - passed and saved as cell 15
+fitting region 16 - passed and saved as cell 16
+fitting region 17 - passed and saved as cell 17
+fitting region 18 - passed and saved as cell 18
+fitting region 19 - passed and saved as cell 19
+fitting region 20 - passed and saved as cell 20
+fitting region 21 - passed and saved as cell 21
+fitting region 22 - passed and saved as cell 22
+region 23 discarded, area = 49
+region 24 discarded, area = 35
+fitting region 25 - passed and saved as cell 23
+fitting region 26 - passed and saved as cell 24
+fitting region 27 - passed and saved as cell 25
+fitting region 28 - passed and saved as cell 26
+fitting region 29 - passed and saved as cell 27
+fitting region 30 - quality check failed - try resplitting (1)
+region 30 splitted - return for test
+fitting region 30 - quality check failed - try resplitting (2)
+region 30 splitted - return for test
+fitting region 30 - quality check failed - try resplitting (3)
+region 30 splitted - return for test
+fitting region 30 - quality check failed - try resplitting (4)
+region 30 splitted - return for test
+fitting region 30 - quality check failed - problem getting mesh
+fitting region 31 - passed and saved as cell 28
+fitting region 32 - passed and saved as cell 29
+fitting region 33 - passed and saved as cell 30
+fitting region 34 - passed and saved as cell 31
+fitting region 35 - passed and saved as cell 32
+fitting region 36 - passed and saved as cell 33
+fitting region 37 - passed and saved as cell 34
+fitting region 38 - passed and saved as cell 35
+fitting region 39 - passed and saved as cell 36
+fitting region 40 - passed and saved as cell 37
+fitting region 41 - passed and saved as cell 38
+fitting region 42 - passed and saved as cell 39
+cell on y=max boundary
+fitting region 44 - passed and saved as cell 40
+fitting region 45 - passed and saved as cell 41
+fitting region 46 - quality check failed - try resplitting (1)
+region 46 splitted - return for test
+fitting region 46 - quality check failed - try resplitting (2)
+region 46 splitted - return for test
+fitting region 46 - quality check failed - try resplitting (3)
+region 46 splitted - return for test
+fitting region 46 - quality check failed - try resplitting (4)
+region 46 splitted - return for test
+fitting region 46 - quality check failed - problem getting mesh
+fitting region 47 - passed and saved as cell 42
+fitting region 48 - quality check failed - cell too small
+fitting region 49 - passed and saved as cell 43
+fitting region 50 - passed and saved as cell 44
+fitting region 51 - quality check failed - try resplitting (1)
+region 51 splitted - return for test
+fitting region 51 - quality check failed - try resplitting (2)
+region 51 splitted - return for test
+fitting region 51 - quality check failed - try resplitting (3)
+region 51 splitted - return for test
+fitting region 51 - quality check failed - try resplitting (4)
+region 51 splitted - return for test
+fitting region 51 - quality check failed - problem getting mesh
+region 52 discarded, area = 31
+region 53 discarded, area = 25
+fitting region 54 - passed and saved as cell 45
+fitting region 55 - passed and saved as cell 46
+fitting region 56 - passed and saved as cell 47
+fitting region 57 - passed and saved as cell 48
+fitting region 58 - passed and saved as cell 49
+fitting region 59 - passed and saved as cell 50
+cell on x=max boundary
+cell on x=max boundary
+cell on x=max boundary
+region 63 discarded, area = 44
+region 64 discarded, area = 27
+region 65 discarded, area = 18
+
+---------------  Frame 15 --------------------
+Processing Frame 15
+fitting region 1 - quality check failed - try resplitting (1)
+region 1 splitted - return for test
+fitting region 1 - quality check failed - try resplitting (2)
+region 1 splitted - return for test
+fitting region 1 - quality check failed - try resplitting (3)
+region 1 splitted - return for test
+fitting region 1 - quality check failed - try resplitting (4)
+region 1 splitted - return for test
+fitting region 1 - quality check failed - problem getting mesh
+fitting region 2 - passed and saved as cell 1
+fitting region 3 - passed and saved as cell 2
+fitting region 4 - passed and saved as cell 3
+fitting region 5 - passed and saved as cell 4
+fitting region 6 - passed and saved as cell 5
+fitting region 7 - passed and saved as cell 6
+fitting region 8 - passed and saved as cell 7
+fitting region 9 - passed and saved as cell 8
+region 10 discarded, area = 25
+fitting region 11 - passed and saved as cell 9
+fitting region 12 - passed and saved as cell 10
+fitting region 13 - passed and saved as cell 11
+fitting region 14 - passed and saved as cell 12
+fitting region 15 - passed and saved as cell 13
+fitting region 16 - passed and saved as cell 14
+fitting region 17 - passed and saved as cell 15
+fitting region 18 - passed and saved as cell 16
+fitting region 19 - passed and saved as cell 17
+fitting region 20 - passed and saved as cell 18
+fitting region 21 - passed and saved as cell 19
+fitting region 22 - passed and saved as cell 20
+fitting region 23 - passed and saved as cell 21
+fitting region 24 - passed and saved as cell 22
+fitting region 25 - passed and saved as cell 23
+fitting region 26 - passed and saved as cell 24
+fitting region 27 - passed and saved as cell 25
+cell on y=max boundary
+fitting region 29 - passed and saved as cell 26
+cell on y=0 boundary
+fitting region 31 - passed and saved as cell 27
+fitting region 32 - passed and saved as cell 28
+fitting region 33 - passed and saved as cell 29
+fitting region 34 - passed and saved as cell 30
+fitting region 35 - passed and saved as cell 31
+fitting region 36 - passed and saved as cell 32
+cell on y=max boundary
+fitting region 38 - passed and saved as cell 33
+fitting region 39 - passed and saved as cell 34
+fitting region 40 - passed and saved as cell 35
+fitting region 41 - passed and saved as cell 36
+fitting region 42 - passed and saved as cell 37
+fitting region 43 - passed and saved as cell 38
+fitting region 44 - passed and saved as cell 39
+fitting region 45 - passed and saved as cell 40
+fitting region 46 - passed and saved as cell 41
+fitting region 47 - passed and saved as cell 42
+fitting region 48 - passed and saved as cell 43
+fitting region 49 - passed and saved as cell 44
+fitting region 50 - passed and saved as cell 45
+fitting region 51 - passed and saved as cell 46
+fitting region 52 - passed and saved as cell 47
+fitting region 53 - passed and saved as cell 48
+fitting region 54 - passed and saved as cell 49
+cell on y=0 boundary
+fitting region 56 - passed and saved as cell 50
+fitting region 57 - passed and saved as cell 51
+
+---------------  Frame 16 --------------------
+Processing Frame 16
+fitting region 1 - passed and saved as cell 1
+fitting region 2 - passed and saved as cell 2
+fitting region 3 - passed and saved as cell 3
+fitting region 4 - passed and saved as cells 4 and 5
+fitting region 5 - passed and saved as cell 6
+fitting region 6 - passed and saved as cell 7
+fitting region 7 - passed and saved as cell 8
+fitting region 8 - passed and saved as cell 9
+fitting region 9 - passed and saved as cell 10
+fitting region 10 - passed and saved as cell 11
+fitting region 11 - passed and saved as cell 12
+fitting region 12 - passed and saved as cell 13
+fitting region 13 - passed and saved as cell 14
+fitting region 14 - passed and saved as cell 15
+fitting region 15 - passed and saved as cell 16
+fitting region 16 - passed and saved as cell 17
+fitting region 17 - passed and saved as cell 18
+fitting region 18 - passed and saved as cell 19
+fitting region 19 - passed and saved as cell 20
+fitting region 20 - passed and saved as cell 21
+fitting region 21 - passed and saved as cell 22
+fitting region 22 - passed and saved as cell 23
+fitting region 23 - passed and saved as cell 24
+fitting region 24 - passed and saved as cell 25
+fitting region 25 - passed and saved as cell 26
+fitting region 26 - passed and saved as cell 27
+fitting region 27 - passed and saved as cell 28
+fitting region 28 - passed and saved as cell 29
+fitting region 29 - passed and saved as cell 30
+fitting region 30 - passed and saved as cell 31
+fitting region 31 - passed and saved as cell 32
+fitting region 32 - passed and saved as cell 33
+fitting region 33 - passed and saved as cell 34
+fitting region 34 - passed and saved as cell 35
+fitting region 35 - passed and saved as cell 36
+fitting region 36 - passed and saved as cell 37
+fitting region 37 - passed and saved as cell 38
+fitting region 38 - passed and saved as cell 39
+fitting region 39 - quality check failed - cell too small
+fitting region 40 - passed and saved as cell 40
+fitting region 41 - passed and saved as cell 41
+fitting region 42 - passed and saved as cell 42
+fitting region 43 - passed and saved as cell 43
+fitting region 44 - passed and saved as cell 44
+fitting region 45 - passed and saved as cell 45
+fitting region 46 - passed and saved as cell 46
+fitting region 47 - passed and saved as cell 47
+fitting region 48 - passed and saved as cell 48
+fitting region 49 - passed and saved as cell 49
+region 50 discarded, area = 47
+
+---------------  Frame 17 --------------------
+Processing Frame 17
+Warning: threshold exceeds 1, no thresholding performed. thresFactorM may be too high.
+
+---------------  Frame 18 --------------------
+Processing Frame 18
+fitting region 1 - passed and saved as cell 1
+fitting region 2 - passed and saved as cell 2
+region 3 discarded, area = 55
+fitting region 4 - passed and saved as cell 3
+fitting region 5 - passed and saved as cell 4
+fitting region 6 - passed and saved as cell 5
+fitting region 7 - passed and saved as cell 6
+fitting region 8 - passed and saved as cell 7
+fitting region 9 - passed and saved as cell 8
+fitting region 10 - passed and saved as cell 9
+fitting region 11 - passed and saved as cell 10
+fitting region 12 - passed and saved as cell 11
+fitting region 13 - passed and saved as cell 12
+fitting region 14 - passed and saved as cell 13
+fitting region 15 - passed and saved as cell 14
+fitting region 16 - passed and saved as cell 15
+fitting region 17 - passed and saved as cell 16
+fitting region 18 - passed and saved as cell 17
+fitting region 19 - passed and saved as cell 18
+fitting region 20 - passed and saved as cell 19
+fitting region 21 - passed and saved as cell 20
+region 22 discarded, area = 30
+fitting region 23 - passed and saved as cell 21
+fitting region 24 - passed and saved as cell 22
+fitting region 25 - passed and saved as cell 23
+fitting region 26 - quality check failed - try resplitting (1)
+region 26 splitted - return for test
+fitting region 26 - quality check failed - try resplitting (2)
+region 26 splitted - return for test
+fitting region 26 - quality check failed - try resplitting (3)
+region 26 splitted - return for test
+fitting region 26 - quality check failed - try resplitting (4)
+region 26 splitted - return for test
+fitting region 26 - quality check failed - no cell found
+fitting region 27 - passed and saved as cell 24
+
+---------------  Frame 19 --------------------
+Processing Frame 19
+fitting region 1 - passed and saved as cell 1
+fitting region 2 - passed and saved as cell 2
+fitting region 3 - passed and saved as cell 3
+fitting region 4 - passed and saved as cell 4
+fitting region 5 - passed and saved as cell 5
+fitting region 6 - passed and saved as cell 6
+fitting region 7 - passed and saved as cell 7
+fitting region 8 - passed and saved as cell 8
+fitting region 9 - passed and saved as cell 9
+fitting region 10 - passed and saved as cell 10
+fitting region 11 - passed and saved as cell 11
+fitting region 12 - passed and saved as cell 12
+fitting region 13 - passed and saved as cell 13
+fitting region 14 - passed and saved as cell 14
+fitting region 15 - passed and saved as cell 15
+fitting region 16 - passed and saved as cell 16
+fitting region 17 - passed and saved as cell 17
+fitting region 18 - passed and saved as cell 18
+fitting region 19 - passed and saved as cell 19
+fitting region 20 - passed and saved as cell 20
+fitting region 21 - passed and saved as cell 21
+fitting region 22 - passed and saved as cell 22
+fitting region 23 - passed and saved as cell 23
+fitting region 24 - passed and saved as cell 24
+fitting region 25 - passed and saved as cell 25
+fitting region 26 - passed and saved as cell 26
+fitting region 27 - passed and saved as cell 27
+fitting region 28 - passed and saved as cell 28
+fitting region 29 - passed and saved as cell 29
+fitting region 30 - passed and saved as cell 30
+fitting region 31 - passed and saved as cell 31
+fitting region 32 - passed and saved as cell 32
+fitting region 33 - passed and saved as cell 33
+fitting region 34 - passed and saved as cell 34
+fitting region 35 - passed and saved as cell 35
+fitting region 36 - passed and saved as cell 36
+fitting region 37 - passed and saved as cell 37
+
+---------------  Frame 1 --------------------
+Tried to join cells 14 and 13 - success, cell 14 removed
+Tried to join cells 37 and 28 - failed, resplit again
+Tried to join cells 45 and 43 - failed, resplit again
+Tried to join cells 57 and 56 - success, cell 57 removed
+Tried to join cells 57 and 56 - success, cell 57 removed
+Tried to join cells 6 and 4 - failed, resplit again
+
+---------------  Frame 2 --------------------
+Tried to join cells 31 and 27 - failed, resplit again
+Tried to join cells 38 and 36 - success, cell 38 removed
+Tried to join cells 87 and 84 - failed, resplit again
+Tried to join cells 32 and 31 - success, cell 32 removed
+Tried to join cells 32 and 31 - success, cell 32 removed
+Tried to join cells 61 and 60 - success, cell 61 removed
+Tried to join cells 62 and 60 - success, cell 62 removed
+Tried to join cells 8 and 7 - failed, resplit again
+Tried to join cells 10 and 9 - success, cell 10 removed
+Tried to join cells 10 and 9 - success, cell 10 removed
+Tried to join cells 17 and 13 - failed, resplit again
+Tried to join cells 21 and 15 - failed, resplit again
+Tried to join cells 30 and 27 - failed, resplit again
+Tried to join cells 31 and 29 - failed, resplit again
+Tried to join cells 41 and 40 - failed, resplit again
+Tried to join cells 46 and 45 - failed, resplit again
+Tried to join cells 51 and 50 - failed, resplit again
+Tried to join cells 5 and 4 - success, cell 5 removed
+Tried to join cells 18 and 14 - failed, resplit again
+Tried to join cells 28 and 21 - failed, resplit again
+Tried to join cells 41 and 37 - success, cell 41 removed
+Tried to join cells 7 and 6 - failed, resplit again
+Tried to join cells 11 and 9 - failed, resplit again
+Tried to join cells 17 and 16 - failed, resplit again
+Tried to join cells 21 and 18 - failed, resplit again
