@@ -111,30 +111,34 @@ extr.OuftiSpots <- function(cellList){
 
 #' @export
 extr.Oufti <- function(matfile, mag){
-
-  outlist <- list()
-  print("Extracting original data from the matlab file... This step may take a while.")
-  cellList <- extr.OuftiCellList(matfile)
-  print("Finished extracting.")
-  outlist$cellList <- cellList
-  print("Taking the x/y coordinates of the mesh outlines of each cell... This step may also take a while.")
-  Mesh <- extr.OuftiMat(cellList)
-  print("Converting mesh file into standard BactMAP format...")
-  Mesh <- spotrXYMESH(Mesh)
-  outlist$mesh <- Mesh
-
-  if(length(cellList$spots)>1){
-    print("Taking the spot coordinates and information per cell...")
-    spotframe <- extr.OuftiSpots(cellList)
-    outlist$spotframe <- spotframe
-    print("Adding cell dimensions (length/width) to spot information...")
-    if(missing(mag)){
-      mag <- "No_PixelCorrection"
-    }
-    spot_mesh <- mergeframes(spotframe, Mesh, mag)
-    outlist$spots_relative_pixel2um <- unlist(get(magnificationList, envir=magEnv)[mag])
+  if(substr(matfile, nchar(matfile)-3, nchar(matfile))==".csv"){
+    outlist <- extr.OuftiCSV(matfile)
+    spot_mesh <- mergeframes(outlist$spotframe, outlist$mesh, mag)
+    outlist$pixel2m <- unlist(get(magnificationList, envir=magEnv)[mag])
     outlist$spots_relative <- spot_mesh[!is.na(spot_mesh$cell),]
-  }
+    } else{outlist <- list()
+    print("Extracting original data from the matlab file... This step may take a while.")
+    cellList <- extr.OuftiCellList(matfile)
+    print("Finished extracting.")
+    outlist$cellList <- cellList
+    print("Taking the x/y coordinates of the mesh outlines of each cell... This step may also take a while.")
+    Mesh <- extr.OuftiMat(cellList)
+    print("Converting mesh file into standard BactMAP format...")
+    Mesh <- spotrXYMESH(Mesh)
+    outlist$mesh <- Mesh
+
+    if(length(cellList$spots)>1){
+      print("Taking the spot coordinates and information per cell...")
+      spotframe <- extr.OuftiSpots(cellList)
+      outlist$spotframe <- spotframe
+      print("Adding cell dimensions (length/width) to spot information...")
+      if(missing(mag)){
+        mag <- "No_PixelCorrection"
+      }
+      spot_mesh <- mergeframes(spotframe, Mesh, mag)
+      outlist$pixel2um <- unlist(get(magnificationList, envir=magEnv)[mag])
+      outlist$spots_relative <- spot_mesh[!is.na(spot_mesh$cell),]
+    }
 
   #if(length(cellList$descendants)>1){
     #print("Getting phylogenies from ancestor/descendants information...")
@@ -153,6 +157,7 @@ extr.Oufti <- function(matfile, mag){
     #phylolist$meshdata <- Mlist
     #outlist$timelapsedata <- phylolist
   #}
+  }
   print("Finished Oufti Extraction. Data list includes:")
   print(summary(outlist))
   return(outlist)

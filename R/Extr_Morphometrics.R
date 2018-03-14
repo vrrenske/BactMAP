@@ -55,6 +55,9 @@ spotrExtractMorphMESH <- function(cellList){
 extr.Morphometrics <- function(morphpath){
   C <- extr.Morphometrics.cellList(morphpath)
   M <- spotrExtractMorphMESH(C)
-  return(M)
+  listM <- list()
+  listM$cellList <- C
+  listM$mesh <- M
+  return(listM)
 }
 

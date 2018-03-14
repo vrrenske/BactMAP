@@ -40,7 +40,7 @@ extr.MicrobeJSpots <- function(spotloc){
 }
 
 #' @export
-extr.MicrobeJ <- function(dataloc, spotloc){
+extr.MicrobeJ <- function(dataloc, spotloc, mag){
   outlist <- list()
   if(missing(dataloc)!=T){
     MESH <- extr.MicrobeJMESH(dataloc)$meshList
@@ -54,12 +54,19 @@ extr.MicrobeJ <- function(dataloc, spotloc){
     cellList2 <- extr.MicrobeJSpots(spotloc)$cellList
     if(missing(dataloc)==T){
       outlist$cellList <- cellList2
+      outlist$spotframe <- SPOTS
     }
   }
   if(missing(spotloc)!=T&missing(dataloc)!=T){
     listbox <- spotsInBox(SPOTS, MESH)
-    outlist$spotList <- listbox$REP
-    outlist$meshList <- listbox$Mfull
+    outlist$spotframe <- SPOTS
+    if(missing(mag)){
+      mag <- "No_PixelCorrection"
+    }
+    spot_mesh <- mergeframes(listbox$REP, listbox$Mfull, mag)
+    outlist$spots_relative <- spot_mesh
+    outlist$pixel2um <- unlist(get(magnificationList, envir=magEnv)[mag])
+    outlist$mesh <- listbox$Mfull
     cellList3 <- list()
     cellList3$Mesh <- cellList
     cellList3$Spots <- cellList2
@@ -77,14 +84,14 @@ extr.ISBatch <- function(dataloc){
   spotminimal <- SPOTS[,c("x","y","cell","frame")]
   listout <- list()
   listout$cellList <- SPOTS
-  listout$spotList <- spotminimal
+  listout$spotframe <- spotminimal
   return(listout)
 }
 
 
 #ObjectJ - mostly manual entry.
 #' @export
-spotrExtrObjectJ <- function(dataloc, spots="X", constr, xcolumns, ycolumns, xconstr, yconstr, spotcol,spotloc){
+extr.ObjectJ <- function(dataloc, spots="X", constr, xcolumns, ycolumns, xconstr, yconstr, spotcol,spotloc){
   if(substr(dataloc, nchar(dataloc)-3, nchar(dataloc))==".txt"){
     OJ <- read.table(dataloc, header=T, sep="\t")
   }
