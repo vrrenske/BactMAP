@@ -34,10 +34,10 @@ spotrExtractMorphMESH <- function(cellList){
   for(n in 1:nrow(cellList)){
     meshcell <- data.frame(cellList$Xcont[n], cellList$Ycont[n], cellList$cellID[n], cellList$area[n],
                            cellList$pole1[n], cellList$pole2[n], cellList$frame[n])
-    colnames(meshcell) <- c("Xcont", "Ycont", "cellID", "area", "poleL", "poleR", "frame")
+    colnames(meshcell) <- c("X", "Y", "cell", "area", "pole1", "pole2", "frame")
     if("length"%in%colnames(cellList)){
-      meshcell$length <- cellList$length[n]
-      meshcell$width <- cellList$width[n]
+      meshcell$max.length <- cellList$length[n]
+      meshcell$max.width <- cellList$width[n]
       meshcell$numpoint <- 1:nrow(meshcell)
     }
     if(n==1){

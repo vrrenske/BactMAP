@@ -4,7 +4,7 @@ output: github_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, dev='pdf')
 library(bactMAP)
 library(R.matlab)
 library(ggplot2)
@@ -20,21 +20,21 @@ This R package is developed for easy processing, analysis & plotting of segmenta
 
 All importing functions start with **extr.**. See help(bactMAP::extr.all) in the package documentation for a full overview of all import functions.
 
-For example, use **extr.Oufti(rawdatafile, pixels2um)** to load segmentation & spot detection data generated with Oufti, where *rawdatafile* is the location of the .MAT file containing the Oufti output, and *pixels2um* is the conversion factor from the pixels in the data to actual micrometers. This can differ per lab, dependent on the objective and the camera used, therefore you can add your own conversion factor using **addPixels2um()**:
+In this case, the data was generated using Oufti and saved as a CSV file. To upload the data, use **extr.OuftiCSV()** to upload the file into R. and *pixels2um* is the conversion factor from the pixels in the data to actual micrometers. Add the relevant conversion factor using **addPixels2um**. 
 
-```{r data_import}
+```
 #Add your own pixels to um conversion factor:
 addPixels2um(pixels2um=0.0499538, pixelName="MyPixelConversion")
 
 #Load data into R
-oufti_example <- system.file("extdata", "oufti_sp_gfpsmc.MAT", package = "bactMAP")
+oufti_example <- system.file("extdata", "oufti_sp_MK396.MAT", package = "bactMAP")
 oufti_data <- extr.Oufti(oufti_example, "MyPixelConversion")
 
 
 ```
 
 ## Plotting data
-This dataset contains the outlines of Streptococcus pneumoniae D39 cells and the spot localizations of the structural maintenance of chromosomes (SMC) complex linked to a superfolder-GFP (dataset from van Raaphorst, Kjos & Veening, PNAS, 2017). To get a quick overview of the localization, you can automatically plot the data in different ways.
+This dataset contains the outlines of Streptococcus pneumoniae D39 cell and the spot localizations of the clamp-loader of the replication machinery DnaX linked to a superfolder-GFP (dataset from van Raaphorst, Kjos & Veening, PNAS, 2017). To get a quick overview of the localization, you can automatically plot the data in different ways.
 
 ```{r data_plotting}
 #Plot data for quick overview
@@ -67,7 +67,7 @@ gridExtra::grid.arrange(oufti_plots$plottotal)
 
 #Localization per group - qplots & histograms
 Here, the cells are divided in groups (the amount is indicated by variable *inp* in the function **createPlotlist()**). By default, they are divided by cell length. This can give more insight in the distinct localization or shape of subgroups of cells.
-```{r qplots, echo=FALSE}
+```{r qplots, echo=FALSE, fig.width =4, fig.height=7}
 
 gridExtra::grid.arrange(grobs=oufti_plots$qplots, ncol=1)
 

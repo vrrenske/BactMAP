@@ -196,21 +196,22 @@ sprOuftispot <- function(cellList){
     return(OBJn)
   }
 
-
+#' @export
 extr.OuftiCSV <- function(dataloc){
   if(missing(dataloc)){
     dataloc <- file.choose()
   }
   C <- sprOuftipickfile(dataloc)
   MESH <- sprOuftimesh(C)
+  MESH <- spotrXYMESH(MESH)
   outlist <- list()
   outlist$cellList <- C
   outlist$mesh <- MESH
-  if(nrow(unique(C$spots))>1){
+  if(length(unique(C$spots))>1){
     SPOTS <- sprOuftispot(C)
     outlist$spotframe <- SPOTS
   }
-  if(nrow(unique(C$objects))>1){
+  if(length(unique(C$objects))>1){
     OBJ <- sprOuftiobject(C)
     outlist$objectframe <- OBJ
   }

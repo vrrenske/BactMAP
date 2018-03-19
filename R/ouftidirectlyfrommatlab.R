@@ -111,12 +111,13 @@ extr.OuftiSpots <- function(cellList){
 
 #' @export
 extr.Oufti <- function(matfile, mag){
-  if(substr(matfile, nchar(matfile)-3, nchar(matfile))==".csv"){
-    outlist <- extr.OuftiCSV(matfile)
-    spot_mesh <- mergeframes(outlist$spotframe, outlist$mesh, mag)
-    outlist$pixel2m <- unlist(get(magnificationList, envir=magEnv)[mag])
-    outlist$spots_relative <- spot_mesh[!is.na(spot_mesh$cell),]
-    } else{outlist <- list()
+ # if(substr(matfile, nchar(matfile)-3, nchar(matfile))==".csv"){
+   # outlist <- extr.OuftiCSV(matfile)
+   # spot_mesh <- mergeframes(outlist$spotframe, outlist$mesh, mag)
+   # outlist$pixel2m <- unlist(get(magnificationList, envir=magEnv)[mag])
+  #  outlist$spots_relative <- spot_mesh[!is.na(spot_mesh$cell),]
+   # } else{
+    outlist <- list()
     print("Extracting original data from the matlab file... This step may take a while.")
     cellList <- extr.OuftiCellList(matfile)
     print("Finished extracting.")
@@ -157,7 +158,7 @@ extr.Oufti <- function(matfile, mag){
     #phylolist$meshdata <- Mlist
     #outlist$timelapsedata <- phylolist
   #}
-  }
+ # }
   print("Finished Oufti Extraction. Data list includes:")
   print(summary(outlist))
   return(outlist)
