@@ -226,6 +226,9 @@ turncell <- function(MESHp, u, rawdatafile, a, n, i){
   Y_cor <- MESHp$Y-mp[2]
   angle <- (180-box$angle)*pi/180 #angle to lay cell flat on x axis
 
+  MESHp$angle <- angle
+  MESHp$Xmid <- mp[1]
+  MESHp$Ymid <- mp[2]
   MESHp$X_rot <- X_cor * cos(angle) - Y_cor * sin(angle)
   MESHp$Y_rot <- X_cor * sin(angle) + Y_cor * cos(angle) #rotate cell
 
@@ -362,16 +365,61 @@ spotMR <- function(dat){
   return(dat)
 }
 
+centrefun <- function(dat, xie="ob_x", yie="ob_y"){
+  dat <- dat[!is.na(dat$ob_x),]
+  dat$centre_x <- NA
+  dat$centre_y <- NA
+  for(n in unique(dat$frame)){
+    for(u in unique(dat$cell)){
+      if(nrow(dat[dat$cell==u&dat$frame==n,])>0){
+        for(i in unique(dat$obnum[dat$cell==u&dat$frame==n])){
+          woei <- as.matrix(dat[c(xie, yie)][dat$cell==u&dat$frame==n&dat$obnum==i,])
+          cen <- getMinCircle(woei)$ctr
+          dat$centre_x[dat$cell==u&dat$frame==n&dat$obnum==i] <- cen[1]
+          dat$centre_y[dat$cell==u&dat$frame==n&dat$obnum==i] <- cen[2]
+        }
+      }
+    }
+  }
+  return(dat)
+}
 
+#add object centre to mesh file and turn accordingly
+midobject <- function(MESH, OBJ, p2um){
+  MESH <- merge(MESH, OBJ, all=T)
+  MESH$xccor <- MESH$centre_x - MESH$Xmid
+  MESH$yccor <- MESH$centre_y - MESH$Ymid
+  MESH$xcorcor <- MESH$ob_x - MESH$Xmid
+  MESH$ycorcor <- MESH$ob_y - MESH$Ymid
+  MESH$Dum <- MESH$xccor * cos(MESH$angle) - MESH$yccor * sin(MESH$angle)
+  MESH$Lmid <- MESH$xccor * sin(MESH$angle) + MESH$yccor * cos(MESH$angle)
+  MESH$ob_out_y <- MESH$xcorcor * cos(MESH$angle) - MESH$ycorcor * sin(MESH$angle)
+  MESH$ob_out_x <- MESH$xcorcor * sin(MESH$angle) + MESH$ycorcor * cos(MESH$angle)
+  MO <- MESH[,c("frame", "cell", "obnum", "max.length", "max.width", "Dum", "Lmid", "ob_out_x", "ob_out_y")]
+  MO <- unique(MO)
+
+  MOnum <- unique(MO[,c("frame", "cell", "max.length", "obnum")])
+  MOnum <- MOnum[order(MOnum$max.length),]
+  MOnum$num <- 1:nrow(MOnum)
+  MO <- merge(MOnum, MO)
+  MO <- LimDum(MO, p2um)
+  MO$ob_out_x <- MO$ob_out_x*p2um
+  MO$ob_out_y <- MO$ob_out_y*p2um
+  return(MO)
+}
 
 ################################################################################################
 #plot preparation
 #quartiles, maxima, etc.
 LimDum <- function(MR, pix2um, remOut=T){
-  MR$Lmid<-(MR$l-0.5*MR$max.length)*pix2um
+  if("l"%in%colnames(MR)){
+    MR$Lmid<-(MR$l-0.5*MR$max.length)*pix2um
+  }
+  else{MR$Lmid <- MR$Lmid*pix2um}
   MR$pole1<- -MR$max.length*0.5*pix2um
   MR$pole2<- -MR$pole1
-  MR$Dum <- MR$d*pix2um
+  if("d"%in%colnames(MR)){MR$Dum <- MR$d*pix2um}
+  else{MR$Dum <- MR$Dum*pix2um}
   if(remOut==T){
     MR <- MR[abs(MR$Lmid)<MR$pole2,]
     MR <- MR[abs(MR$Dum)<MR$max.width*pix2um/2,]
