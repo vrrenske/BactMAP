@@ -16,20 +16,40 @@ library(shotGroups)
 
 This R package is developed for easy processing, analysis & plotting of segmentation & fluorescence data from multiple popular bacterial (phase-contrast) segmentation tools, like Oufti, MicrobeJ & Morphometrics. The data can be combined with the raw data or spot detection data from other programs.
 
+## Download and install package
+
+```
+#install devtools if not done yet
+install.packages("devtools")
+
+#install bactmap from my github repository
+devtools::install_github("vrrenske/shinyspots")
+
+#load package
+library(bactMAP)
+```
+
 ## Importing data
 
 All importing functions start with **extr.**. See help(bactMAP::extr.all) in the package documentation for a full overview of all import functions.
 
-In this case, the data was generated using Oufti and saved as a CSV file. To upload the data, use **extr.OuftiCSV()** to upload the file into R. and *pixels2um* is the conversion factor from the pixels in the data to actual micrometers. Add the relevant conversion factor using **addPixels2um**. 
+In this case, the outlines of the cells and the ftsZ filaments where segmented using Oufti (www.oufti.org). BacTMAP has a function to directly upload oufti's matlab-file output into R using the **R.matlab**-package. However, in the case of object-detection, the matlab files are of a version incompatible with R.matlab. Therefore I saved my Oufti-output as CSV-files. 
 
-```
+BacTMAP's **extr.Oufti()** recognizes both .CSV and .MAT-files (under version 5.0). 
+
+The spot localizations were fitted using the imageJ-plugin Peak Fitter from the package iSBatch (http://singlemolecule.github.io/iSBatch/). To upload the spot localizations, use **extr.ISBatch()**.
+
+
+```{r data upload}
 #Add your own pixels to um conversion factor:
 addPixels2um(pixels2um=0.0499538, pixelName="MyPixelConversion")
 
 #Load data into R
-oufti_example <- system.file("extdata", "oufti_sp_MK396.MAT", package = "bactMAP")
+oufti_example <- system.file("extdata", "oufti_MK396_ftsz.csv", package = "bactMAP")
 oufti_data <- extr.Oufti(oufti_example, "MyPixelConversion")
 
+#isbatch_example <- system.file("extdata", "isbatch_MK396_dnax.csv")
+#spot_data <- extr.ISBatch(isbatch_example)
 
 ```
 
@@ -39,7 +59,7 @@ This dataset contains the outlines of Streptococcus pneumoniae D39 cell and the 
 ```{r data_plotting}
 #Plot data for quick overview
 
-oufti_plots <- createPlotlist(REP = oufti_data$spots_relative, inp = 4, MESH = oufti_data$mesh, mag="MyPixelConversion")
+oufti_plots <- createPlotlist(REP = oufti_data$object_relative, inp = 4, MESH = oufti_data$mesh, mag="MyPixelConversion")
 print(summary(oufti_plots))
 
 ```
@@ -49,7 +69,7 @@ The output is a list of different plots which are useful for exploring the data.
 
 #Length/Width Kymographs
 Here the cells are ordered by cell length, and the spot localization (density plot) and cell poles (white lines) are plotted. This gives an indication of the localization over the cell cycle when there is no time resolution (!note that time and cell length are often no direct proxys of each other, so interpret with caution!).
-```{r length and width histograms, echo=FALSE}
+```{r length and width histograms}
 
 oufti_plots$lengthplot
 
@@ -59,7 +79,7 @@ oufti_plots$widthplot
 
 #The average cell - totalplot
 Here, the average cell shape (white dots) & spot localization is plotted. Side graphs show histograms of length/width spot localization.
-```{r totalplot, echo=FALSE}
+```{r totalplot}
 
 gridExtra::grid.arrange(oufti_plots$plottotal)
 
@@ -67,7 +87,7 @@ gridExtra::grid.arrange(oufti_plots$plottotal)
 
 #Localization per group - qplots & histograms
 Here, the cells are divided in groups (the amount is indicated by variable *inp* in the function **createPlotlist()**). By default, they are divided by cell length. This can give more insight in the distinct localization or shape of subgroups of cells.
-```{r qplots, echo=FALSE, fig.width =4, fig.height=7}
+```{r qplots, echo=FALSE, fig.width =6, fig.height=10}
 
 gridExtra::grid.arrange(grobs=oufti_plots$qplots, ncol=1)
 

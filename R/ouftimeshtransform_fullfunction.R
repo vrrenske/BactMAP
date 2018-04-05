@@ -81,7 +81,7 @@ sprOuftimesh <- function(cellList){
       dat$cell <- mesh$cell[n]
       dat$max_length <- mesh$max_length[n]
       dat$length <- dat$max_length/max(dat$num)*dat$num
-      print(mesh$cell[n])
+      #print(mesh$cell[n])
       if(x==1){
         MESH <- dat
       }

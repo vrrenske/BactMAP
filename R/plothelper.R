@@ -137,9 +137,10 @@ createPlotlist <- function(REP, inp, MESH, colorpalette="GreenYellow", mag="100x
 
   if("Lmid"%in%colnames(REP)==T){
     MR <- REP
+    MR$cellnum <- MR$num
     rm(REP)
   }
-  if("Lmid"%in%colnames(REP)!=T){
+  else{
     MR <- mergeframes(REP, MESH, mag)
   }
 

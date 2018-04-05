@@ -260,7 +260,7 @@ meshTurn <- function(MESH, Xm="X", Ym="Y", rawdatafile){
 
   #if length and max width are already defined, don't touch them.
   for(i in unique(MESH$frame)){ #per frame
-    print(paste("Turning meshes for frame", i))
+    #print(paste("Turning meshes for frame", i))
     M <- MESH[MESH$frame==i,]
     if(missing(rawdatafile)!=T){
       Mlistboth <- lapply(unique(M$cell), function(x) turncell(M[M$cell==x,], u, rawdatafile,a, x, i))
@@ -290,7 +290,7 @@ spotrXYMESH <- function(MESH, x_1="x1", y_1="y1",x_0="x0", y_0="y0" ){
   colnames(MESH1) <- gsub("1", "", colnames(MESH1))
   colnames(MESH0) <- gsub("0", "", colnames(MESH0))
   for(n in unique(MESH1$frame)){
-    print(n)
+    #print(n)
     for(i in unique(MESH1$cell[MESH1$frame==n])){
       MESH1$num[MESH1$cell==i&MESH1$frame==n] <- 1 + max(MESH1$num[MESH1$cell==i&MESH1$frame==n], na.rm=T)*2 - MESH1$num[MESH1$cell==i&MESH1$frame==n]
     }
@@ -391,10 +391,11 @@ midobject <- function(MESH, OBJ, p2um){
   MESH$yccor <- MESH$centre_y - MESH$Ymid
   MESH$xcorcor <- MESH$ob_x - MESH$Xmid
   MESH$ycorcor <- MESH$ob_y - MESH$Ymid
-  MESH$Dum <- MESH$xccor * cos(MESH$angle) - MESH$yccor * sin(MESH$angle)
-  MESH$Lmid <- MESH$xccor * sin(MESH$angle) + MESH$yccor * cos(MESH$angle)
-  MESH$ob_out_y <- MESH$xcorcor * cos(MESH$angle) - MESH$ycorcor * sin(MESH$angle)
-  MESH$ob_out_x <- MESH$xcorcor * sin(MESH$angle) + MESH$ycorcor * cos(MESH$angle)
+  #MESHp$X_rot <- X_cor * cos(angle) - Y_cor * sin(angle)
+  MESH$Lmid <- MESH$xccor * cos(MESH$angle) - MESH$yccor * sin(MESH$angle)
+  MESH$Dum <- MESH$xccor * sin(MESH$angle) + MESH$yccor * cos(MESH$angle)
+  MESH$ob_out_x <- MESH$xcorcor * cos(MESH$angle) - MESH$ycorcor * sin(MESH$angle)
+  MESH$ob_out_y <- MESH$xcorcor * sin(MESH$angle) + MESH$ycorcor * cos(MESH$angle)
   MO <- MESH[,c("frame", "cell", "obnum", "max.length", "max.width", "Dum", "Lmid", "ob_out_x", "ob_out_y")]
   MO <- unique(MO)
 
