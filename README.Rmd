@@ -4,7 +4,7 @@ output: github_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, dev='pdf')
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 library(bactMAP)
 library(R.matlab)
 library(ggplot2)
@@ -69,7 +69,7 @@ The output is a list of different plots which are useful for exploring the data.
 
 #Length/Width Kymographs
 Here the cells are ordered by cell length, and the spot localization (density plot) and cell poles (white lines) are plotted. This gives an indication of the localization over the cell cycle when there is no time resolution (!note that time and cell length are often no direct proxys of each other, so interpret with caution!).
-```{r length and width histograms}
+```{r lengthwidth_histograms}
 
 oufti_plots$lengthplot
 
@@ -87,7 +87,7 @@ gridExtra::grid.arrange(oufti_plots$plottotal)
 
 #Localization per group - qplots & histograms
 Here, the cells are divided in groups (the amount is indicated by variable *inp* in the function **createPlotlist()**). By default, they are divided by cell length. This can give more insight in the distinct localization or shape of subgroups of cells.
-```{r qplots, echo=FALSE, fig.width =6, fig.height=10}
+```{r qplots, echo=FALSE, fig.width=6, fig.height=10}
 
 gridExtra::grid.arrange(grobs=oufti_plots$qplots, ncol=1)
 
