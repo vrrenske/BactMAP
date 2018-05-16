@@ -374,7 +374,7 @@ centrefun <- function(dat, xie="ob_x", yie="ob_y"){
       if(nrow(dat[dat$cell==u&dat$frame==n,])>0){
         for(i in unique(dat$obnum[dat$cell==u&dat$frame==n])){
           woei <- as.matrix(dat[c(xie, yie)][dat$cell==u&dat$frame==n&dat$obnum==i,])
-          cen <- getMinCircle(woei)$ctr
+          cen <- shotGroups::getMinCircle(woei)$ctr
           dat$centre_x[dat$cell==u&dat$frame==n&dat$obnum==i] <- cen[1]
           dat$centre_y[dat$cell==u&dat$frame==n&dat$obnum==i] <- cen[2]
         }

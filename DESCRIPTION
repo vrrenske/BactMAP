@@ -17,6 +17,9 @@ Suggests:
   R.matlab,
   SDMTools,
   shotGroups,
-  stringr
-Collate: 'ouftidirectlyfrommatlab.R' 'Extr_Morphometrics.R' 'ExtractCSVs.R' 'datamerging.R' 'helperfunctions.R' 'ouftimeshtransform_fullfunction.R' 'plothelper.R'
+  stringr,
+  ggtree,
+  igraph,
+  reshape2
+Collate: 'ouftidirectlyfrommatlab.R' 'Extr_Morphometrics.R' 'ExtractCSVs.R' 'datamerging.R' 'helperfunctions.R' 'ouftimeshtransform_fullfunction.R' 'plothelper.R' 'supersegger_genealogy.R'
 RoxygenNote: 6.0.1
