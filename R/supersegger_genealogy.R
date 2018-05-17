@@ -34,13 +34,22 @@ extr.SuperSegger <- function(matfile, filetype = "Genealogy", trim.orphans=TRUE)
 }
 
 #' @export
-plottree.basic <- function(phylo, extradata, yscalechange = FALSE, showClade = FALSE, layout = "rectangular", ydata, cellNumber){
+plottree.basic <- function(phylo, extradata, yscalechange = FALSE, showClade = FALSE, layout = "rectangular", ydata, cellNumber, open.angle, linesize = 1, linecolor = "black", lines=TRUE, colors=FALSE){
   if(showClade==TRUE){
     if(missing(cellNumber)){stop("cellNumber missing. Please state the ancestor cell you want to follow to show it's clade.")}
     NodeNumber <- extradata$node[extradata$cell==cellNumber]
     phylo <- ggtree::groupClade(phylo, .node=NodeNumber)
+    if(lines==T&colors==F){
+      gP <- ggtree::ggtree(phylo, layout=layout, open.angle=open.angle, aes(linetype=group), size=linesize, color=linecolor)
+    }
+    if(lines==F&colors==T){
+      gP <- ggtree::ggtree(phylo, layout=layout, open.angle=open.angle, aes(color=group), size=linesize)
+    }
+    if(lines==T&colors==T){
+      gP <- ggtree::ggtree(phylo, layout=layout, open.angle=open.angle, aes(linetype=group, color=group), size=linesize)
+    }
   }
-  gP <- ggtree::ggtree(phylo, layout=layout)
+  if(showClade!=TRUE){gP <- ggtree::ggtree(phylo, layout=layout, open.angle=open.angle, size=linesize, color=linecolor)}
   if(!missing(extradata)){
     gP <- gP %<+% extradata
   }
@@ -49,7 +58,6 @@ plottree.basic <- function(phylo, extradata, yscalechange = FALSE, showClade = F
     gP$data$y <- gP$data[,ydata]
     gP <- gP + ggplot2::theme_classic() + ggplot2::xlab("Time") +  ggplot2::ylab(ydata)
   }
-  print("Basic Tree saved. Add cell labels with geom_label(aes(label=label)), add fluorescence information by coloring the labels (for instance, aes(fill=fluorsum)), or by coloring the nodes (geom_point(aes(color=fluorsum)). Change color schemes (fill or color) with scale_fill_viridis from the viridis package. Change axis labels using xlab('new axis name'). Check the large range of other options on http://ggplot2.tidyverse.org/")
   return(gP)
 }
 
