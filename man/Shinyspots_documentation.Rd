@@ -8,7 +8,7 @@
 \title{Analyze Bacterial Cell Segmentation And Fluoresence Data
 
 }
-\description{Package to upload an uniformally analyze (bacterial) cell segmentation and fluorescence data, making it possible to combine output from different analysis tools into one or more datasets. Vizualize the data using ggplot2, statistically compare datasets and automatically produce a summary of the data.
+\description{Package to upload and uniformally analyze (bacterial) cell segmentation and fluorescence data, making it possible to combine output from different analysis tools into one or more datasets. Vizualize the data using ggplot2, statistically compare datasets and automatically produce a summary of the data.
 
 }
 
@@ -29,6 +29,7 @@ Compatible software outputs:
 *Oufti<\url{www.oufti.org}>
 *MicrobeTracker<\url{www.microbetracker.org}>
 *Morphometrics<\url{https://simtk.org/projects/morphometrics}>
+*SuperSegger<\url{https://github.com/wiggins-lab/SuperSegger/wiki}
 
 To be added:
 *DeepCell<\url{https://covertlab.github.io/DeepCell/about/}>
