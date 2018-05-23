@@ -2,6 +2,7 @@
 
 export(addPalette)
 export(addPixels2um)
+export(compare_ObjectAngle)
 export(createPlotlist)
 export(extr.ISBatch)
 export(extr.MicrobeJ)

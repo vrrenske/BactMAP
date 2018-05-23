@@ -50,13 +50,13 @@ sprOuftimesh <- function(cellList){
   mesh <- cellList[c("frameNumber", "cellId", "length", "mesh")]
   mesh$frame <- as.numeric(as.character(mesh$frameNumber))
   mesh$cell <- as.numeric(as.character(mesh$cellId))
-  mesh$max_length <- as.numeric(as.character(mesh$length))
+  mesh$max.length <- as.numeric(as.character(mesh$length))
   mesh$length <- NULL
   mesh$frameNumber <- NULL
   mesh$cellId <- NULL
   x <- 1
   for(n in 1:nrow(mesh)){
-    if(!is.na(mesh$max_length[n])){
+    if(!is.na(mesh$max.length[n])){
       dat <- data.frame(t(do.call('rbind', strsplit(as.character(mesh$mesh[n]), ';', fixed=TRUE))))
       colnames(dat) <- "cord"
       dat$cord <- as.character(dat$cord)
@@ -79,8 +79,8 @@ sprOuftimesh <- function(cellList){
       dat$max.width <- max_width
       dat$frame <- mesh$frame[n]
       dat$cell <- mesh$cell[n]
-      dat$max_length <- mesh$max_length[n]
-      dat$length <- dat$max_length/max(dat$num)*dat$num
+      dat$max.length <- mesh$max.length[n]
+      dat$length <- dat$max.length/max(dat$num)*dat$num
       #print(mesh$cell[n])
       if(x==1){
         MESH <- dat
@@ -89,7 +89,7 @@ sprOuftimesh <- function(cellList){
       x <- x + 1
     }
   }
-  return(MESH[MESH$max_length>1,])
+  return(MESH[MESH$max.length>1,])
 }
 
 

@@ -112,7 +112,7 @@ extr.OuftiSpots <- function(cellList){
 #' @export
 extr.Oufti <- function(matfile, mag="No_PixelCorrection", phylo=FALSE){
   ##if CSV input; take cellList, matlab file & object file from there
-  if(substr(matfile, nchar(matfile)-3, nchar(matfile))==".csv"|substr(matfile.nchar(matfile)-3, nchar(matfile))==".txt"){
+  if(substr(matfile, nchar(matfile)-3, nchar(matfile))==".csv"|substr(matfile, nchar(matfile)-3, nchar(matfile))==".txt"){
     outlist <- extr.OuftiCSV(matfile)
     Mesh <- outlist$mesh
     cellList <- outlist$cellList
