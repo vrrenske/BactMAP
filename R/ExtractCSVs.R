@@ -78,7 +78,12 @@ extr.MicrobeJ <- function(dataloc, spotloc, mag){
 ##ISBatch
 #' @export
 extr.ISBatch <- function(dataloc){
-  SPOTS <- read.table(dataloc, header=T, sep=",")
+  if(substr(dataloc, nchar(dataloc)-3, nchar(dataloc))==".txt"){
+    SPOTS <- read.table(dataloc, header=T, sep="\t")
+  }
+  if(substr(dataloc, nchar(dataloc)-3, nchar(dataloc))==".csv"){
+    SPOTS <- read.csv(dataloc, header=T)
+  }
   SPOTS$frame  <- SPOTS$slice
   SPOTS$slice <- NULL
   spotminimal <- SPOTS[,c("x","y","cell","frame")]
