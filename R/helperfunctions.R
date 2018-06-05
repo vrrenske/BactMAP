@@ -90,7 +90,9 @@ spotsInBox <- function(spotfile, MESH, Xs = "x", Ys = "y", Xm = "X", Ym = "Y"){
       }
 
       pinps <- SDMTools::pnt.in.poly(spotfilep[,c("x","y")], data.frame(MESHp$X,MESHp$Y)) #find spot/object coordinates inside cell
-      pinps <- pinps[pinps$pip==1,]
+      if(nrow(pinps)>0){
+        pinps <- pinps[pinps$pip==1,]
+      }
 
       pts <- data.frame(box$pts) #get midpoint of the bounding box + define median lines
       shadowpts <- rbind(pts[2:4,], pts[1,])
@@ -101,17 +103,17 @@ spotsInBox <- function(spotfile, MESH, Xs = "x", Ys = "y", Xm = "X", Ym = "Y"){
       d1 <- d1[-1,]
       d1$dist <- sqrt(d1$x^2+d1$y^2)
 
-      un <- data.frame(table(round(d1$dist, 4)))
+      un <- data.frame(table(round(d1$dist, 5)))
 
       partdist <- un$Var1[un$Freq==1]
-      partner <- d1$pointn[round(d1$dist,4)==partdist]
-      rest <- d1$pointn[round(d1$dist,4)!=partdist]
+      partner <- d1$pointn[round(d1$dist,5)==partdist]
+      rest <- d1$pointn[round(d1$dist,5)!=partdist]
 
-      if(round(d1$dist[d1$pointn==partner],4)==round(min(lengthwidth),4)){
+      if(round(d1$dist[d1$pointn==partner],5)==round(min(lengthwidth),5)){
         widthline <- distances[c(1,partner),]
         lengthline <- distances[rest,]
       }
-      if(round(d1$dist[d1$pointn==partner],4)==round(max(lengthwidth),4)){
+      if(round(d1$dist[d1$pointn==partner],5)==round(max(lengthwidth),5)){
         widthline <- distances[rest,]
         lengthline <- distances[c(1,partner),] #pick which line is length/width
       }
@@ -127,8 +129,8 @@ spotsInBox <- function(spotfile, MESH, Xs = "x", Ys = "y", Xm = "X", Ym = "Y"){
       if(nrow(pinps)>0){ #rotate spot/object points
         Lc <- pinps$x-mp[1]
         Dc <- pinps$y-mp[2]
-        pinps$l <- Lc*cos(angle)-Dc*sin(angle)
-        pinps$d <- Lc*sin(angle) +Dc*cos(angle)
+        pinps$l <- -(Lc*cos(angle)-Dc*sin(angle))
+        pinps$d <- -(Lc*sin(angle) +Dc*cos(angle))
         pinps$max.width <- unique(MESHp$max.width)
         if("max_length"%in%colnames(MESHp)){pinps$max.length <- unique(MESHp$max_length)
                                             MESH$max.length <- MESH$max_length
@@ -277,7 +279,10 @@ meshTurn <- function(MESH, Xm="X", Ym="Y", rawdatafile){
   if(missing(rawdatafile)==T){
     return(Mfull) #return datasets as list of dataframes
   }
-  else{return(list(mesh = Mfull, rawdata = do.call(rbind, Rlist)))}
+  else{
+    rawdata_turned <- do.call(rbind, Rlist)
+    rawdata_turned <- merge(rawdata_turned, unique(Mfull[,c("cell", "frame", "max.length", "max.width")]))
+    return(list(mesh = Mfull, rawdata_turned = rawdata_turned))}
 }
 
 spotrXYMESH <- function(MESH, x_1="x1", y_1="y1",x_0="x0", y_0="y0" ){
@@ -305,7 +310,7 @@ spotrXYMESH <- function(MESH, x_1="x1", y_1="y1",x_0="x0", y_0="y0" ){
 
 mergeframes <- function(REP, MESH, mag="100x_LeicaVeening", cutoff=T, maxfactor=2, minfactor=0.5, remOut=T){
 
-  REP<- REP[(0<REP$l),]
+  #REP<- REP[(0<REP$l),]
   if("rel.l" %in% colnames(REP)){
     REP <-REP[(REP$rel.l<1),]
   }
@@ -414,7 +419,7 @@ midobject <- function(MESH, OBJ, p2um){
 #quartiles, maxima, etc.
 LimDum <- function(MR, pix2um, remOut=T){
   if("l"%in%colnames(MR)){
-    MR$Lmid<-(MR$l-0.5*MR$max.length)*pix2um
+    MR$Lmid<-MR$l*pix2um
   }
   else{MR$Lmid <- MR$Lmid*pix2um}
   MR$pole1<- -MR$max.length*0.5*pix2um

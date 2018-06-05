@@ -38,8 +38,8 @@ spotrExtractMorphMESH <- function(cellList){
     if("length"%in%colnames(cellList)){
       meshcell$max.length <- cellList$length[n]
       meshcell$max.width <- cellList$width[n]
-      meshcell$numpoint <- 1:nrow(meshcell)
     }
+    meshcell$numpoint <- 1:nrow(meshcell)
     if(n==1){
       MESH <- meshcell
     }

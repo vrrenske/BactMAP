@@ -133,7 +133,7 @@ superfun <- function(dat, bins,mag){
 
 #or two, by quartiles of the number of cells:
 #' @export
-createPlotlist <- function(REP, inp, MESH, colorpalette="GreenYellow", mag="100x_LeicaVeening", AllPlot=T, Xm="X", Ym="Y", viridis=FALSE){
+createPlotlist <- function(REP, inp, MESH, colorpalette="GreenYellow", mag="No_PixelCorrection", AllPlot=T, Xm="X", Ym="Y", viridis=FALSE){
 
   if("Lmid"%in%colnames(REP)==T){
     MR <- REP
@@ -145,6 +145,8 @@ createPlotlist <- function(REP, inp, MESH, colorpalette="GreenYellow", mag="100x
   }
 
   colc <- get(colopts, envir = colEnv)[colorpalette][[1]]
+
+
   MR$q1 <- cut(MR$cellnum, breaks=inp, labels = 1:inp)
 
 
@@ -174,13 +176,13 @@ createPlotlist <- function(REP, inp, MESH, colorpalette="GreenYellow", mag="100x
 #plotting! -> L and D ordered by cell length
   pL <- ggplot2::ggplot(MR, ggplot2::aes(x=num, y=Lmid))
   pL <- LWplot(pL, colc[[1]], max(MR$num, na.rm=T))
-  pLpoint <- pL + ggplot2::geom_point() + ggplot2::ggtitle("Spot location on length axis ordered by cell length") + ggplot2::xlab("n\u209C\u2095 (ordered by cell length)") + ggplot2::ylab("Y-position (\u03BCm)") + ggplot2::theme_bw()
-  pLD <- densityplot(pL) + ggplot2::ggtitle("Spot location on length axis ordered by cell length") + ggplot2::xlab("n\u209C\u2095 (ordered by cell length)") + ggplot2::ylab("Y-position (\u03BCm)") + ggplot2::geom_line(data=MR, ggplot2::aes(x=num,y=pole1),colour="white") + ggplot2::geom_line(data=MR, ggplot2::aes(x=num,y=pole2),colour="white")
+  pLpoint <- pL + ggplot2::geom_point() + ggplot2::ggtitle("Spot location on length axis ordered by cell length") + ggplot2::xlab("Cell - ordered by cell length") + ggplot2::ylab("Y-position (\u03BCm)") + ggplot2::theme_bw()
+  pLD <- densityplot(pL) + ggplot2::ggtitle("Spot location on length axis ordered by cell length") + ggplot2::xlab("Cell - ordered by cell length") + ggplot2::ylab("Y-position (\u03BCm)") + ggplot2::geom_line(data=MR, ggplot2::aes(x=num,y=pole1),colour="white") + ggplot2::geom_line(data=MR, ggplot2::aes(x=num,y=pole2),colour="white")
 
   pW <- ggplot2::ggplot(MR, ggplot2::aes(x=num, y=Dum))
   pW <- LWplot(pW, colc[[1]], max(MR$num,na.rm=T))
-  pWpoint <- pW + ggplot2::geom_point() + ggplot2::ggtitle("Spot location on width axis ordered by cell length") + ggplot2::xlab("(n\u209C\u2095 cell (ordered by cell length)") + ggplot2::ylab("X-position (\u03BCm)") + ggplot2::theme_bw()
-  pWD <- densityplot(pW) + ggplot2::ggtitle("Spot location on width axis ordered by cell length") + ggplot2::xlab("n\u209C\u2095 (ordered by cell length)") + ggplot2::ylab("X-position (\u03BCm)") + ggplot2::geom_hline(yintercept=ymax) + ggplot2::geom_hline(yintercept=-ymax) + ggplot2::coord_cartesian(ylim=c(-ymax,ymax))
+  pWpoint <- pW + ggplot2::geom_point() + ggplot2::ggtitle("Spot location on width axis ordered by cell length") + ggplot2::xlab("Cell - ordered by cell length") + ggplot2::ylab("X-position (\u03BCm)") + ggplot2::theme_bw()
+  pWD <- densityplot(pW) + ggplot2::ggtitle("Spot location on width axis ordered by cell length") + ggplot2::xlab("Cell - ordered by cell length") + ggplot2::ylab("X-position (\u03BCm)") + ggplot2::geom_hline(yintercept=ymax) + ggplot2::geom_hline(yintercept=-ymax) + ggplot2::coord_cartesian(ylim=c(-ymax,ymax))
 
 #make heatmap using the half max densities:
 
@@ -278,7 +280,7 @@ createPlotlist <- function(REP, inp, MESH, colorpalette="GreenYellow", mag="100x
   hislist <- list()
   #save all histograms (L coordinates) of the quartiles too:
   for(n in 1:inp){
-    p1his <- ggplot2::ggplot(allMRs[[n]], ggplot2::aes(x=Lcor)) + ggplot2::geom_density(fill=colc[[1]][2], color=colc[[1]][2]) + ggplot2::theme_minimal() + ggplot2::labs(x="Length(\u03BCm)") + ggplot2::coord_cartesian(xlim=c(-1.5,1.5))
+    p1his <- ggplot2::ggplot(allMRs[[n]], ggplot2::aes(x=Lcor)) + ggplot2::geom_density(fill=colc[[2]], color=colc[[2]]) + ggplot2::theme_minimal() + ggplot2::labs(x="Length(\u03BCm)") + ggplot2::coord_cartesian(xlim=c(-1.5,1.5))
     hislist <- append(hislist, list(p1his))
   }
 
