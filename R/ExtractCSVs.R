@@ -21,7 +21,7 @@ extr.MicrobeJMESH <- function(dataloc){
 }
 
 
-extr.MicrobeJSpots <- function(spotloc){
+extr.MicrobeJSpots <- function(spotloc ,mag){
   SPOTS <- read.csv(spotloc, header=F)
   colnamesspot <- SPOTS[1,]
   colnamesspot <- colnamesspot[!is.na(colnamesspot)]
@@ -44,8 +44,8 @@ extr.MicrobeJSpots <- function(spotloc){
   spotL$cellList <- SPOTS
  #SPOTS$x <- t(data.frame(strsplit(stringr::str_sub(SPOTS$LOCATION,2,-2),";"))[1,])
   #SPOTS$y <- t(data.frame(strsplit(stringr::str_sub(SPOTS$LOCATION,2,-2),";"))[2,])
-  SPOTS$x <- as.numeric(SPOTS$LOCATION.x)
-  SPOTS$y <- as.numeric(SPOTS$LOCATION.y)
+  SPOTS$x <- as.numeric(as.character(SPOTS$LOCATION.x))/unlist(get(magnificationList, envir=magEnv)[mag])
+  SPOTS$y <- as.numeric(as.character(SPOTS$LOCATION.y))/unlist(get(magnificationList, envir=magEnv)[mag])
   SPOTS$NAME <- NULL
   SPOTS$NAME.name <- NULL
   SPOTS$NAME.id <- NULL
@@ -58,6 +58,9 @@ extr.MicrobeJSpots <- function(spotloc){
 
 #' @export
 extr.MicrobeJ <- function(dataloc, spotloc, mag){
+  if(missing(mag)){
+    stop("Magnification conversion needed for proper intercellular measurements! MicrobeJ already converted the spot localizations for you, but not the contours.")
+  }
   outlist <- list()
   if(missing(dataloc)!=T){
     MESH <- extr.MicrobeJMESH(dataloc)$meshList
@@ -67,8 +70,8 @@ extr.MicrobeJ <- function(dataloc, spotloc, mag){
     }
   }
   if(missing(spotloc)!=T){
-    SPOTS <- extr.MicrobeJSpots(spotloc)$spotList
-    cellList2 <- extr.MicrobeJSpots(spotloc)$cellList
+    SPOTS <- extr.MicrobeJSpots(spotloc ,mag)$spotList
+    cellList2 <- extr.MicrobeJSpots(spotloc , mag)$cellList
     if(missing(dataloc)==T){
       outlist$cellList <- cellList2
       outlist$spotframe <- SPOTS

@@ -133,7 +133,7 @@ superfun <- function(dat, bins,mag){
 
 #or two, by quartiles of the number of cells:
 #' @export
-createPlotlist <- function(REP, inp, MESH, colorpalette="GreenYellow", mag="No_PixelCorrection", AllPlot=T, Xm="X", Ym="Y", viridis=FALSE){
+createPlotlist <- function(REP, inp =4 , MESH, colorpalette="GreenYellow", mag="No_PixelCorrection", AllPlot=T, Xm="X", Ym="Y", viridis=FALSE){
 
   if("Lmid"%in%colnames(REP)==T){
     MR <- REP
@@ -301,7 +301,7 @@ allplot <- function(plot, data, xmax, ymax, empty){
   #prepare seperate plots: histograms (hL, hD) and modified coordinate plots(remove legend )
   p1D <- plot + ggplot2::theme(legend.position = "none")
   p1hL <- ggplot2::ggplot(data, ggplot2::aes(x=Lcor)) + ggplot2::geom_histogram(fill="black") + ggplot2::coord_cartesian(xlim = c(-xmax, xmax)) + ggplot2::theme_minimal() + ggplot2::theme(axis.title.x = ggplot2::element_blank())
-  p1hD <- ggplot2::ggplot(data, aes(x=Dcor)) + ggplot2::geom_histogram(fill="black") + ggplot2::coord_flip(xlim = c(-ymax, ymax)) + ggplot2::theme_minimal() + ggplot2::theme(axis.title.y = ggplot2::element_blank())
+  p1hD <- ggplot2::ggplot(data, ggplot2::aes(x=Dcor)) + ggplot2::geom_histogram(fill="black") + ggplot2::coord_flip(xlim = c(-ymax, ymax)) + ggplot2::theme_minimal() + ggplot2::theme(axis.title.y = ggplot2::element_blank())
 
   #align the plots properly before putting them together
   p1Dg <- ggplot2::ggplotGrob(p1D)
