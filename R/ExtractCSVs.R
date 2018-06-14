@@ -22,13 +22,30 @@ extr.MicrobeJMESH <- function(dataloc){
 
 
 extr.MicrobeJSpots <- function(spotloc){
-  SPOTS <- read.table(spotloc, header=T, sep=",")
+  SPOTS <- read.csv(spotloc, header=F)
+  colnamesspot <- SPOTS[1,]
+  colnamesspot <- colnamesspot[!is.na(colnamesspot)]
+  SPOTS <- SPOTS[-1,]
+
+  #comma problem
+  if(ncol(SPOTS)>length(colnamesspot)){
+    a <- which(lapply(1:ncol(SPOTS), function(x) is.logical(SPOTS[,x]))==TRUE)
+    SPOTS[,a] <- NULL
+    u <- t(SPOTS[1,])
+    y <- which(substr(u, 1, 1) == "(")
+    for(z in y){
+      SPOTS[,z] <- paste(SPOTS[,z], SPOTS[,(z+1)], sep=";")
+    }
+    SPOTS[,(y+1)] <- NULL
+  }
+  colnames(SPOTS) <- colnamesspot
+
   spotL <- list()
   spotL$cellList <- SPOTS
-  SPOTS$x <- t(data.frame(strsplit(stringr::str_sub(SPOTS$LOCATION,2,-2),";"))[1,])
-  SPOTS$y <- t(data.frame(strsplit(stringr::str_sub(SPOTS$LOCATION,2,-2),";"))[2,])
-  SPOTS$x <- as.numeric(SPOTS$x)
-  SPOTS$y <- as.numeric(SPOTS$y)
+ #SPOTS$x <- t(data.frame(strsplit(stringr::str_sub(SPOTS$LOCATION,2,-2),";"))[1,])
+  #SPOTS$y <- t(data.frame(strsplit(stringr::str_sub(SPOTS$LOCATION,2,-2),";"))[2,])
+  SPOTS$x <- as.numeric(SPOTS$LOCATION.x)
+  SPOTS$y <- as.numeric(SPOTS$LOCATION.y)
   SPOTS$NAME <- NULL
   SPOTS$NAME.name <- NULL
   SPOTS$NAME.id <- NULL
