@@ -27,7 +27,9 @@ extr.OuftiCellList <- function(matfile){
         cellList <- celldatas
       }
       else{
+        if(ncol(celldatas)==ncol(cellList)){
         cellList <- rbind(cellList, celldatas[,colnames(cellList)])
+        }
       }
     }
     }
@@ -132,6 +134,10 @@ extr.Oufti <- function(matfile, mag="No_PixelCorrection", phylo=FALSE){
     print("Converting mesh file into standard BactMAP format...")
   }
   ##turn meshes to one x/y column
+    if("signal1"%in%colnames(outlist$cellList)){
+      outlist$cellList$mean.signal <- unlist(lapply(outlist$cellList$signal1, function(x) mean(x)))
+      outlist$cellList$sd.signal <- unlist(lapply(outlist$cellList$signal1, function(x) sd(x)))
+    }
     Mesh <- spotrXYMESH(Mesh)
     Mesh <- meshTurn(Mesh)
   ##pixel --> um
@@ -140,6 +146,11 @@ extr.Oufti <- function(matfile, mag="No_PixelCorrection", phylo=FALSE){
     Mesh$maxwum <- Mesh$max.width*outlist$pixel2um
     Mesh$Xrotum <- Mesh$X_rot*outlist$pixel2um
     Mesh$Yrotum <- Mesh$Y_rot*outlist$pixel2um
+    if("signal1"%in%colnames(outlist$cellList)){
+      Mesh <- merge(Mesh, outlist$cellList[,c("cell", "frame", "mean.signal", "sd.signal")])
+      meansignalList <- unique(Mesh[,c("cell", "frame", "max.width", "maxwum", "max.length", "max_um", "mean.signal", "sd.signal")])
+      outlist$meansignalList <- meansignalList
+    }
     outlist$mesh <- Mesh
     if("objectframe"%in%names(outlist)){
       OM <- centrefun(OBJ)

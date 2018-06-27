@@ -7,28 +7,36 @@
 %%  ~~function to do ... ~~
 }
 \description{
-Upload the output of MicrobeJ into R. Upto now the code supports fluorescent localization data & cell outlines, both saved as seperate .CSV or .TXT files in the MicrobeJ GUI by first pressing \emph{<right click> -> expand all} on one of the Results columns and then pressing \emph{<right click> -> export} for both the cell dataset and the fluorescent localization dataset.
+Upload the output of MicrobeJ into R. Upto now the code supports fluorescent localization data & cell outlines, both saved as seperate .CSV or .TXT files in the MicrobeJ GUI by first pressing \emph{<right click> -> expand all} on one of the Results columns and then pressing \emph{<right click> -> export} for both the cell oontour dataset and the fluorescent localization dataset.
 }
 \usage{
-extr.MicrobeJ(dataloc, spotloc)
+extr.MicrobeJ(dataloc, spotloc, mag)
 }
 
 
 \arguments{
   \item{dataloc}{path of the exported microbeJ comma-seperated file (.csv or .txt) containing the outlines of the bacterial cells.}
   \item{spotloc}{path of the exported microbeJ comma-seperated file (.csv or .txt) containing the sub-directory with fluorescent spot coordinates}
+  \item{mag}{the pixel conversion factor to be used}
 
 }
 }
 \details{
-Input either \code{dataloc}, \code{spotloc} or both to receive a list containing one or two dataframes containing the microbeJ data.
+Input either \code{dataloc}, \code{spotloc} or both to receive a list of dataframes containing the microbeJ data.
+
+Use \code{getPixels2um()} and \code{addPixels2um()} to check which conversion factors are loaded and to add new ones.
 
 }
 \value{
-Outlist containg:
-\item{$MESH}{dataframe containing MicrobeJ outlines of the cell}
-\item{$SPOTS}{dataframe containing MicrobeJ spot x/y coordinates and cell identifying number.}
+List of items containing:
+\item{$mesh}{dataframe containing MicrobeJ outlines of the cell}
+\item{$spotframe}{dataframe containing MicrobeJ spot x/y coordinates and cell identifying number.}
+\item{$spots_relative}{dataframe containing the relative x/y coordinates of the spots inside the cell}
+\item{$cellList}{(a list of) the original input dataframe(s)}
+\item{$pixels2um}{the pixel conversion factor used in the function}
 }
+
+
 \references{
 \url{www.microbej.org}
 
@@ -53,11 +61,7 @@ Renske van Raaphorst
 dataloc <- file.choose()
 spotloc <- file.choose()
 ##extract data
-micdata <- extr.MicrobeJ(dataloc, spotloc)
+micdata <- extr.MicrobeJ(dataloc, spotloc, mag = "100x_LeicaVeening")
 
 
 }
-% Add one or more standard keywords, see file 'KEYWORDS' in the
-% R documentation directory.
-\keyword{ ~kwd1 }% use one of  RShowDoc("KEYWORDS")
-\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line
