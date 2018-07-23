@@ -53,7 +53,9 @@ getPixels2um <- function(){
 ##merge spotfiles with only raw coordinates with mesh file with only raw data. add mesh length/width while on it.
 #' @export
 spotsInBox <- function(spotfile, MESH, Xs = "x", Ys = "y", Xm = "X", Ym = "Y"){
-  #rewrite colnames if not the same as suggested
+  Mfull <-0
+  REP <- 0
+   #rewrite colnames if not the same as suggested
   if(Xs!="x"){
     colnames(spotfile)[colnames(spotfile)==Xs] <- "x"
   }
@@ -139,14 +141,28 @@ spotsInBox <- function(spotfile, MESH, Xs = "x", Ys = "y", Xm = "X", Ym = "Y"){
         pinps$cell <- n
         pinps$frame <- i
       }
-      if(i==min.i&&n==min.n){ #first data frame in dataset
-        REP <- pinps
-        Mfull <- MESHp
-      }
-      else{
-        REP <- rbind(REP, pinps) #bind the rest to it
-        Mfull <- rbind(Mfull, MESHp)
-      }
+      #if(i==min.i&&n==min.n){ #first data frame in dataset
+      #  if(nrow(pinps)>0){
+      #    REP <- pinps
+    #    }
+      #  Mfull <- MESHp
+    #  }
+        if(nrow(pinps)>0){
+          if(REP==0){
+            REP <- pinps
+          }
+          if(REP!=0){
+            REP <- rbind(REP, pinps)
+          }
+        }
+        if(Mfull==0){
+          Mfull <- MESHp
+        }
+        if(Mfull!=0){
+         #bind the rest to it
+          Mfull <- rbind(Mfull, MESHp)
+        }
+
     }
 
 
@@ -435,7 +451,7 @@ LimDum <- function(MR, pix2um, remOut=T){
   return(MR)
 }
 
-mL <- list("100x_LeicaVeening" = 0.0499538, "100x_DVMolgen" = 0.0645500, "No_PixelCorrection" = 1)
+mL <- list("100x_TIRF" = 0.0499538, "100x_DVMolgen" = 0.0645500, "No_PixelCorrection" = 1, "100x_FRAP" = 0.0520488)
 magnificationList <- "magnificationList"
 magEnv <- new.env()
 assign(magnificationList, mL, envir=magEnv)
