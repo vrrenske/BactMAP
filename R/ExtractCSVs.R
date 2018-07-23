@@ -12,9 +12,11 @@ extr.MicrobeJMESH <- function(dataloc){
   MESH <- read.table(dataloc, header=T, sep=",")
   meshL <- list()
   meshL$cellList <- MESH
-  MESH$cell <- as.numeric(gsub("b", "", MESH$NAME))
+  IDlist <- data.frame(NAME.id = unique(out$cellList$Mesh$NAME.id), cell = c(1:length(unique(out$cellList$Mesh$NAME.id))))
+  MESH <- merge(MESH, IDlist)
   MESH$frame <- MESH$POSITION
-  MESH <- MESH[,c("X", "Y", "cell", "frame")]
+  MESH$cellID <- MESH$NAME.id
+  MESH <- MESH[,c("X", "Y", "cell", "frame", "cellID")]
   MESH$num <- c(1:nrow(MESH))
   meshL$meshList <- MESH
   return(meshL)
@@ -46,12 +48,9 @@ extr.MicrobeJSpots <- function(spotloc ,mag){
   #SPOTS$y <- t(data.frame(strsplit(stringr::str_sub(SPOTS$LOCATION,2,-2),";"))[2,])
   SPOTS$x <- as.numeric(as.character(SPOTS$LOCATION.x))/unlist(get(magnificationList, envir=magEnv)[mag])
   SPOTS$y <- as.numeric(as.character(SPOTS$LOCATION.y))/unlist(get(magnificationList, envir=magEnv)[mag])
-  SPOTS$NAME <- NULL
-  SPOTS$NAME.name <- NULL
-  SPOTS$NAME.id <- NULL
-  SPOTS$cell <- as.numeric(gsub("b", "", SPOTS$PARENT.name))
-  SPOTS$frame <- SPOTS$POSITION.frame
-  SPOTS <- SPOTS[,c("x", "y", "cell", "frame")]
+  SPOTS$cellID <- SPOTS$PARENT.id
+  SPOTS$frame <- SPOTS$POSITION.slice
+  SPOTS <- SPOTS[,c("x", "y", "cellID", "frame")]
   spotL$spotList <- SPOTS
   return(spotL)
 }
@@ -74,10 +73,13 @@ extr.MicrobeJ <- function(dataloc, spotloc, mag){
     cellList2 <- extr.MicrobeJSpots(spotloc , mag)$cellList
     if(missing(dataloc)==T){
       outlist$cellList <- cellList2
+      IDframe <- data.frame(cellID = unique(SPOTS$cellID), cell=c(1:length(unique(SPOTS$cellID))))
       outlist$spotframe <- SPOTS
     }
   }
   if(missing(spotloc)!=T&missing(dataloc)!=T){
+    IDframe <- unique(MESH[,c("cellID", "cell")])
+    SPOTS <- merge(SPOTS, IDframe)
     listbox <- spotsInBox(SPOTS, MESH)
     outlist$spotframe <- SPOTS
     if(missing(mag)){
