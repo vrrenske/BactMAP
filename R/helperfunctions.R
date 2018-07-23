@@ -53,8 +53,8 @@ getPixels2um <- function(){
 ##merge spotfiles with only raw coordinates with mesh file with only raw data. add mesh length/width while on it.
 #' @export
 spotsInBox <- function(spotfile, MESH, Xs = "x", Ys = "y", Xm = "X", Ym = "Y"){
-  Mfull <-0
-  REP <- 0
+  q <- 0
+  b <- 0
    #rewrite colnames if not the same as suggested
   if(Xs!="x"){
     colnames(spotfile)[colnames(spotfile)==Xs] <- "x"
@@ -81,7 +81,7 @@ spotsInBox <- function(spotfile, MESH, Xs = "x", Ys = "y", Xm = "X", Ym = "Y"){
     for(n in unique(MESH$cell[MESH$frame==i])){ #per cell
       MESHp <- MESH[MESH$cell==n&MESH$frame==i,] #define part of the frame to run faster
 
-      box <- shotGroups::getMinBBox(data.frame(x= MESHp$X, y=MESHp$Y)) #bounding box of cell
+      box <- suppressWarnings(shotGroups::getMinBBox(data.frame(x= MESHp$X, y=MESHp$Y))) #bounding box of cell
       lengthwidth <- c(box$width, box$height)
 
       if(u==2){
@@ -91,7 +91,7 @@ spotsInBox <- function(spotfile, MESH, Xs = "x", Ys = "y", Xm = "X", Ym = "Y"){
         MESHp$max.length <- max(lengthwidth) #take length/width if not already defined
       }
 
-      pinps <- SDMTools::pnt.in.poly(spotfilep[,c("x","y")], data.frame(MESHp$X,MESHp$Y)) #find spot/object coordinates inside cell
+      pinps <- suppressWarnings(SDMTools::pnt.in.poly(spotfilep[,c("x","y")], data.frame(MESHp$X,MESHp$Y))) #find spot/object coordinates inside cell
       if(nrow(pinps)>0){
         pinps <- pinps[pinps$pip==1,]
       }
@@ -147,21 +147,25 @@ spotsInBox <- function(spotfile, MESH, Xs = "x", Ys = "y", Xm = "X", Ym = "Y"){
     #    }
       #  Mfull <- MESHp
     #  }
-        if(nrow(pinps)>0){
-          if(REP==0){
+
+          if(nrow(pinps)>0){
+          if(q==0){
             REP <- pinps
+            q <- 1
           }
-          if(REP!=0){
+          if(q!=0){
             REP <- rbind(REP, pinps)
           }
         }
-        if(Mfull==0){
+        if(b==0){
           Mfull <- MESHp
+          b <- 1
         }
-        if(Mfull!=0){
+        if(b!=0){
          #bind the rest to it
           Mfull <- rbind(Mfull, MESHp)
         }
+
 
     }
 
@@ -207,7 +211,7 @@ turnraws <- function(rawdatafile, i, n, mp, angle){
 }
 
 turncell <- function(MESHp, u, rawdatafile, a, n, i){
-  box <- shotGroups::getMinBBox(data.frame(x= MESHp$X, y=MESHp$Y)) #bounding box of cell
+  box <- suppressWarnings(shotGroups::getMinBBox(data.frame(x= MESHp$X, y=MESHp$Y))) #bounding box of cell
   lengthwidth <- c(box$width, box$height)
   if(u==2){
     MESHp$max.width <- min(lengthwidth)
