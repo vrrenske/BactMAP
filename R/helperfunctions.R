@@ -421,7 +421,7 @@ midobject <- function(MESH, OBJ, p2um){
   MESH$Dum <- MESH$xccor * sin(MESH$angle) + MESH$yccor * cos(MESH$angle)
   MESH$ob_out_x <- MESH$xcorcor * cos(MESH$angle) - MESH$ycorcor * sin(MESH$angle)
   MESH$ob_out_y <- MESH$xcorcor * sin(MESH$angle) + MESH$ycorcor * cos(MESH$angle)
-  MO <- MESH[,c("frame", "cell", "obpath", "obnum", "max.length", "max.width", "Dum", "Lmid", "ob_out_x", "ob_out_y")]
+  MO <- MESH[,c("frame", "cell", "obpath", "obnum", "obID", "max.length", "max.width", "Dum", "Lmid", "ob_out_x", "ob_out_y")]
   MO <- unique(MO)
 
   MOnum <- unique(MO[,c("frame", "cell", "max.length", "obnum")])

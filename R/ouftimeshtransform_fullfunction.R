@@ -188,6 +188,7 @@ sprOuftispot <- function(cellList){
              }
              datfull$frame <- OBJ$frame[n]
              datfull$cell <- OBJ$cell[n]
+             datfull$obID <- paste(datfull$cell, datfull$obnum, sep="_")
              if(exists("OBJn")==FALSE){
                 OBJn <- datfull
              } else { OBJn <- rbind(OBJn,datfull)}
