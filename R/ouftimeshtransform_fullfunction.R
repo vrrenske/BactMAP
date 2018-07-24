@@ -176,7 +176,9 @@ sprOuftispot <- function(cellList){
              colnames(dat3) <- rep(c("ob_x", "ob_y"), (ncol(dat3)/2))
              for(i in numobjects){
                datpart <- dat3[,(2*i-1):(2*i)]
+               datpart <- unique(datpart)
                datpart$obnum <- i
+               datpart$obpath <- c(1:nrow(datpart))
                if(i==1){
                  datfull <- datpart
                }
