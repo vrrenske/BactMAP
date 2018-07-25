@@ -12,7 +12,7 @@ extr.MicrobeJMESH <- function(dataloc){
   MESH <- read.table(dataloc, header=T, sep=",")
   meshL <- list()
   meshL$cellList <- MESH
-  IDlist <- data.frame(NAME.id = unique(out$cellList$Mesh$NAME.id), cell = c(1:length(unique(out$cellList$Mesh$NAME.id))))
+  IDlist <- data.frame(NAME.id = unique(dataloc$cellList$Mesh$NAME.id), cell = c(1:length(unique(dataloc$cellList$Mesh$NAME.id))))
   MESH <- merge(MESH, IDlist)
   MESH$frame <- MESH$POSITION
   MESH$cellID <- MESH$NAME.id

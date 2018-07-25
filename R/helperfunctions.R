@@ -328,7 +328,7 @@ spotrXYMESH <- function(MESH, x_1="x1", y_1="y1",x_0="x0", y_0="y0" ){
 }
 
 
-mergeframes <- function(REP, MESH, mag="100x_LeicaVeening", cutoff=T, maxfactor=2, minfactor=0.5, remOut=T){
+mergeframes <- function(REP, MESH, mag="100x_LeicaVeening", cutoff=T, maxfactor=2, minfactor=0.5, remOut=T, ouf=F){
 
   #REP<- REP[(0<REP$l),]
   if("rel.l" %in% colnames(REP)){
@@ -366,7 +366,7 @@ mergeframes <- function(REP, MESH, mag="100x_LeicaVeening", cutoff=T, maxfactor=
   MR$num <- c(1:nrow(MR))
 
   pix2um <- unlist(get(magnificationList, envir=magEnv)[mag])
-  MR <- LimDum(MR, pix2um)
+  MR <- LimDum(MR, pix2um, ouf=ouf)
   return(MR)
 }
 
@@ -437,11 +437,16 @@ midobject <- function(MESH, OBJ, p2um){
 ################################################################################################
 #plot preparation
 #quartiles, maxima, etc.
-LimDum <- function(MR, pix2um, remOut=T){
-  if("l"%in%colnames(MR)){
+LimDum <- function(MR, pix2um, remOut=T, ouf=F){
+  if("l"%in%colnames(MR)==TRUE&ouf==F){
     MR$Lmid<-MR$l*pix2um
   }
-  else{MR$Lmid <- MR$Lmid*pix2um}
+  if("l"%in%colnames(MR)==TRUE&ouf==T){
+    MR$Lmid<-(MR$l-(MR$max.length/2))*pix2um
+  }
+  if("l"%in%colnames(MR)!=TRUE){
+    MR$Lmid <- MR$Lmid*pix2um
+    }
   MR$pole1<- -MR$max.length*0.5*pix2um
   MR$pole2<- -MR$pole1
   if("d"%in%colnames(MR)){MR$Dum <- MR$d*pix2um}

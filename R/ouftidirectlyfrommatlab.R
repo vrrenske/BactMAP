@@ -135,8 +135,10 @@ extr.Oufti <- function(matfile, mag="No_PixelCorrection", phylo=FALSE){
   }
   ##turn meshes to one x/y column
     if("signal1"%in%colnames(outlist$cellList)){
-      outlist$cellList$mean.signal <- unlist(lapply(outlist$cellList$signal1, function(x) mean(x)))
-      outlist$cellList$sd.signal <- unlist(lapply(outlist$cellList$signal1, function(x) sd(x)))
+      if(length(unique(outlist$signal1))>1){
+        outlist$cellList$mean.signal <- unlist(lapply(outlist$cellList$signal1, function(x) mean(x)))
+        outlist$cellList$sd.signal <- unlist(lapply(outlist$cellList$signal1, function(x) sd(x)))
+      }
     }
     Mesh <- spotrXYMESH(Mesh)
     Mesh <- meshTurn(Mesh)
@@ -147,9 +149,11 @@ extr.Oufti <- function(matfile, mag="No_PixelCorrection", phylo=FALSE){
     Mesh$Xrotum <- Mesh$X_rot*outlist$pixel2um
     Mesh$Yrotum <- Mesh$Y_rot*outlist$pixel2um
     if("signal1"%in%colnames(outlist$cellList)){
-      Mesh <- merge(Mesh, outlist$cellList[,c("cell", "frame", "mean.signal", "sd.signal")])
-      meansignalList <- unique(Mesh[,c("cell", "frame", "max.width", "maxwum", "max.length", "max_um", "mean.signal", "sd.signal")])
-      outlist$meansignalList <- meansignalList
+      if(length(unique(outlist$signal1))>1){
+        Mesh <- merge(Mesh, outlist$cellList[,c("cell", "frame", "mean.signal", "sd.signal")])
+        meansignalList <- unique(Mesh[,c("cell", "frame", "max.width", "maxwum", "max.length", "max_um", "mean.signal", "sd.signal")])
+        outlist$meansignalList <- meansignalList
+      }
     }
     outlist$mesh <- Mesh
     if("objectframe"%in%names(outlist)){
@@ -166,7 +170,7 @@ extr.Oufti <- function(matfile, mag="No_PixelCorrection", phylo=FALSE){
       if(missing(mag)){
         mag <- "No_PixelCorrection"
       }
-      spot_mesh <- mergeframes(spotframe, Mesh, mag)
+      spot_mesh <- mergeframes(spotframe, Mesh, mag, ouf=TRUE)
 
       ##here are the spots put relative to mesh length/width
       outlist$spots_relative <- spot_mesh[!is.na(spot_mesh$cell),]
