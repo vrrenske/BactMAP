@@ -7,7 +7,7 @@
 
 
 #' @export
-extr.SuperSegger <- function(matfile, filetype = "Genealogy", trim.orphans=TRUE){
+extr.SuperSeggerClist <- function(matfile, filetype = "Genealogy", trim.orphans=TRUE){
   clist <- R.matlab::readMat(matfile)
   datasegger <- as.data.frame(clist$data)
   colnames(datasegger) <- unlist(clist$def)

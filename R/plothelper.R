@@ -140,7 +140,14 @@ createPlotlist <- function(REP, inp =4 , MESH, colorpalette="GreenYellow", mag="
     MR$cellnum <- MR$num
     rm(REP)
   }
-  else{
+  if("l"%in%colnames(REP)==T&"Lmid"%in%colnames(REP)==F){
+    MR <- REP
+    MR <- LimDum(REP, pix2um = unlist(get(magnificationList, envir=magEnv)[mag]))
+    MR <- MR[order(MR$max.length, MR$max.width),]
+    MR$num <- c(1:nrow(MR))
+    MR$cellnum <- MR$num
+  }
+  if("Lmid"%in%colnames(REP)==F&"l"%in%colnames(REP)==F){
     MR <- mergeframes(REP, MESH, mag)
   }
 
@@ -233,7 +240,7 @@ createPlotlist <- function(REP, inp =4 , MESH, colorpalette="GreenYellow", mag="
     MESH <- merge(MESH, MR[,c("cell", "frame", "q1")], all=T)
     MESHlist <- split(MESH, MESH$q1)
     print("Calculating mean cell outlines..")
-    means <- lapply(MESHlist, function(x)superfun(x, 30, p2um))
+    means <- lapply(MESHlist, function(x)superfun(x, round(min(x$max.length), digits=0), p2um))
     print("Finished calculating mean cell outlines")
 
     phmlist <- list()

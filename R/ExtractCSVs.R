@@ -65,7 +65,9 @@ extr.MicrobeJ <- function(dataloc, spotloc, mag){
     MESH <- extr.MicrobeJMESH(dataloc)$meshList
     cellList <- extr.MicrobeJMESH(dataloc)$cellList
     if(missing(spotloc)==T){
+      cellList$num <- cellList$INDEX
       outlist$cellList <- cellList
+      outlist$mesh <- MESH
     }
   }
   if(missing(spotloc)!=T){
