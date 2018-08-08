@@ -134,11 +134,12 @@ superfun <- function(dat, bins,mag){
 #or two, by quartiles of the number of cells:
 #' @export
 createPlotlist <- function(REP, inp =4 , MESH, colorpalette="GreenYellow", mag="No_PixelCorrection", AllPlot=T, Xm="X", Ym="Y", viridis=FALSE){
-
+  if(missing(mag)!=T&is.numeric(unlist(get(magnificationList,envir=magEnv)[mag]))==FALSE){
+    stop("Magnification conversion factor not recognized. Please use addPixels2um('pixelName', pixelsize) to add your conversion factor")
+  }
   if("Lmid"%in%colnames(REP)==T){
     MR <- REP
     MR$cellnum <- MR$num
-    rm(REP)
   }
   if("l"%in%colnames(REP)==T&"Lmid"%in%colnames(REP)==F){
     MR <- REP

@@ -8,8 +8,8 @@
 
 ##MicrobeJ
 
-extr.MicrobeJMESH <- function(dataloc){
-  MESH <- read.table(dataloc, header=T, sep=",")
+extr.MicrobeJMESH <- function(dataloc, sep=","){
+  MESH <- read.csv(dataloc, header=T, sep=sep)
   meshL <- list()
   meshL$cellList <- MESH
   IDlist <- data.frame(NAME.id = unique(MESH$NAME.id), cell = c(1:length(unique(MESH$NAME.id))))
@@ -23,8 +23,8 @@ extr.MicrobeJMESH <- function(dataloc){
 }
 
 
-extr.MicrobeJSpots <- function(spotloc ,mag){
-  SPOTS <- read.csv(spotloc, header=F)
+extr.MicrobeJSpots <- function(spotloc ,mag, sep=","){
+  SPOTS <- read.csv(spotloc, header=F, sep=sep)
   colnamesspot <- SPOTS[1,]
   colnamesspot <- colnamesspot[!is.na(colnamesspot)]
   SPOTS <- SPOTS[-1,]
@@ -56,14 +56,18 @@ extr.MicrobeJSpots <- function(spotloc ,mag){
 }
 
 #' @export
-extr.MicrobeJ <- function(dataloc, spotloc, mag){
-  if(missing(mag)){
+extr.MicrobeJ <- function(dataloc, spotloc, mag, sepspot=",", sepmesh=","){
+  if(missing(spotloc)!=T&missing(dataloc)!=T&missing(mag)){
     stop("Magnification conversion needed for proper intercellular measurements! MicrobeJ already converted the spot localizations for you, but not the contours.")
+  }
+  if(missing(mag)!=T&is.numeric(unlist(get(magnificationList,envir=magEnv)[mag]))==FALSE){
+    stop("Magnification conversion factor not recognized. Please use addPixels2um('pixelName', pixelsize) to add your conversion factor")
   }
   outlist <- list()
   if(missing(dataloc)!=T){
-    MESH <- extr.MicrobeJMESH(dataloc)$meshList
-    cellList <- extr.MicrobeJMESH(dataloc)$cellList
+    MESHout <- extr.MicrobeJMESH(dataloc, sepmesh)
+    cellList <- MESHout$cellList
+    MESH <- MESHout$meshList
     if(missing(spotloc)==T){
       cellList$num <- cellList$INDEX
       outlist$cellList <- cellList
@@ -71,8 +75,12 @@ extr.MicrobeJ <- function(dataloc, spotloc, mag){
     }
   }
   if(missing(spotloc)!=T){
-    SPOTS <- extr.MicrobeJSpots(spotloc ,mag)$spotList
-    cellList2 <- extr.MicrobeJSpots(spotloc , mag)$cellList
+    if(missing(mag)){
+      mag <- "No_PixelCorrection"
+    }
+    spotsout <- extr.MicrobeJSpots(spotloc ,mag, sep=sepspot)
+    SPOTS <- spotsout$spotList
+    cellList2 <- spotsout$cellList
     if(missing(dataloc)==T){
       outlist$cellList <- cellList2
       IDframe <- data.frame(cellID = unique(SPOTS$cellID), cell=c(1:length(unique(SPOTS$cellID))))
