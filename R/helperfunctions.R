@@ -71,6 +71,7 @@ spotsInBox <- function(spotfile, MESH, Xs = "x", Ys = "y", Xm = "X", Ym = "Y"){
 
   if("max.width"%in%colnames(MESH)==T){u <- 1}
   if("max.width"%in%colnames(MESH)==F){u<-2}
+  if(any(is.na(MESH$max.width))==TRUE){u<-2}
   if("length"%in%colnames(MESH)==T){a <- 1}
   if("length"%in%colnames(MESH)==F){a<-2} #if length and max width are already defined, don't touch them.
 
@@ -450,17 +451,17 @@ LimDum <- function(MR, pix2um, remOut=T, ouf=F){
   MR$pole1<- -MR$max.length*0.5*pix2um
   MR$pole2<- -MR$pole1
   if("d"%in%colnames(MR)){MR$Dum <- MR$d*pix2um}
-  else{MR$Dum <- MR$Dum*pix2um}
-  if(remOut==T){
-    MR <- MR[abs(MR$Lmid)<MR$pole2,]
-    MR <- MR[abs(MR$Dum)<MR$max.width*pix2um/2,]
-  }
+  if("d"%in%colnames(MR)==FALSE){MR$Dum <- MR$Dum*pix2um}
   MR$max.length <- MR$max.length*pix2um
   MR$max.width <- MR$max.width*pix2um
+  if(remOut==T){
+    MR <- MR[abs(MR$Lmid)<MR$pole2,]
+    MR <- MR[abs(MR$Dum)<(MR$max.width/2),]
+  }
   return(MR)
 }
 
-mL <- list("100x_TIRF" = 0.0499538, "100x_DVMolgen" = 0.0645500, "No_PixelCorrection" = 1, "100x_FRAP" = 0.0520488)
+mL <- list("100x_TIRF" = 0.0499538, "100x_DVMolgen" = 0.0645500, "No_PixelCorrection" = 1, "100x_FRAP" = 0.0499548)
 magnificationList <- "magnificationList"
 magEnv <- new.env()
 assign(magnificationList, mL, envir=magEnv)

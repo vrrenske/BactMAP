@@ -128,92 +128,83 @@ extr.ISBatch <- function(dataloc){
 
 #ObjectJ - mostly manual entry.
 #' @export
-extr.ObjectJ <- function(dataloc, spots="X", constr, xcolumns, ycolumns, xconstr, yconstr, spotcol,spotloc){
-  if(substr(dataloc, nchar(dataloc)-3, nchar(dataloc))==".txt"){
-    OJ <- read.table(dataloc, header=T, sep="\t")
+extr.ObjectJ <- function(dataloc, mag="No_PixelCorrection"){
+  #prepare list for output
+  outlist <- list()
+  #read out .txt file
+  oj <- read.table(dataloc, header=T, sep="\t")
+
+  #get a frame count from 1:x
+  celldats <- data.frame(Frame=unique(oj$Frame))
+
+  celldats <- data.frame(Frame = celldats[order(celldats$Frame),])
+
+  celldats$f <- c(1:nrow(celldats))
+
+  oj <- merge(celldats, oj)
+
+  oj$frame <- oj$f
+
+  oj$f <- NULL
+  oj$Frame <- NULL
+  #separate chain dataframe
+  oj_chain <- oj[!is.na(oj$ChainAxis),]
+
+  oj_chain$chainID <- oj_chain$n
+
+  if(length(unique(oj_chain$GFPfluor)>1)){
+    oj_chain <- oj_chain[,c("chainID", "ChainAxis", "ChainDia", "frame", "GFPfluor", "GFPMax", "GFPMean", "GFPMid")]
   }
-  if(substr(dataloc, nchar(dataloc)-3, nchar(dataloc))==".csv"){
-    OJ <- read.csv(dataloc, header=T)
-  }
-
-  OJ$cell <- OJ$n
-  OJ$max.length <- round(OJ$Axis,2)
-  OJ$max.width <- OJ$Dia
-  OJ$n <- NULL
-  OJ$Dia <- NULL
-
-
-  if(spots=="X"&missing(spotloc)){
-    spots <- readline("Does the file contain spot coordinates? Y/N: ")
-  }
-
-  if(spots=="Y"|spots=="y"){
-    if(missing(xcolumns)|missing(ycolumns)){
-    print("Give the name(s) of the column(s) containing the x localization of the spots.\nPress <enter> between names, end with #<enter>")
-    xcolumns <- choosecolumns()
-    print("Give the name(s) of the column(s) containing the y localization of the spots.\nPress <enter> between names, end with #<enter>" )
-    ycolumns <- choosecolumns()
-    }
-    n <- length(xcolumns)
-    if(n!=length(ycolumns)){
-      stop("Number of x and y columns does not match.")
-    }
-
-    OJ[,xcolumns[1]][is.na(OJ[,xcolumns[1]])] <- 0
-    OJ <- tidyr::gather(OJ, "xspot", "l", xcolumns[1:n], na.rm=T)
-    OJ$l[OJ$l==0] <- NA
-    OJ[,ycolumns[1]][is.na(OJ[,ycolumns[1]])] <- 0
-    OJ <- tidyr::gather(OJ, "yspot", "d", ycolumns[1:n], na.rm=T)
-    OJ$d[OJ$d==0] <- NA
-    if(missing(spotcol)){
-    spotcol <- readline("If included, give the name of the column containing the number of spots per cell.\nOtherwise, press #<enter>")
-    }
-    if(spotcol!="#"){
-      colnames(OJ)[colnames(OJ)==spotcol] <- "spotn"
-
-    }
-  }
-  if(missing(spotloc)!=T){
-    if(substr(spotloc, nchar(spotloc)-3, nchar(spotloc))==".csv"){
-      SF <- read.csv(spotloc, header=T)
-    }
-    if(substr(spotloc, nchar(spotloc)-3, nchar(spotloc))==".txt"){
-      SF <- read.table(spotloc, header=T, sep="\t")
-    }
-    SF <- spotrExtractSpotsObjectJ(SF)
-    OJ <- merge(OJ, SF, all=T)
+  else{
+    oj_chain <- oj_chain[,c("chainID", "ChainAxis", "ChainDia", "frame")]
   }
 
+  #save full file as cellList
+  outlist$cellList <- oj
 
-  if(missing(constr)){
-  constr <- readline("Does the file contain constriction point coordinates? Y/N: ")
-  }
-  if(constr=="Y"|constr=="y"){
-    if(missing(xconstr)|missing(yconstr)){
-    print("Give the name(s) of the column(s) containing the distance of the constriction point to the Axis.\nPress <enter> between names, end with #<enter>")
-    xconstr <- choosecolumns()
-    print("Give the name(s) of the column(s) containing the distance of the constriction point to the Axis.\nPress <enter> between names, end with #<enter>")
-    yconstr <- choosecolumns()
-    }
-    i <- length(xconstr)
-    if(i!=length(yconstr)){
-      stop("Number of x and y columns does not match.")
-    }
+  #save chainfile as chainframe
+  outlist$chainframe <- oj_chain
 
-    OJ[,xconstr[1]][is.na(OJ[,xconstr[1]])] <- 0
-    OJ <- tidyr::gather(OJ, "xconstr", "LC", xconstr[1:i], na.rm=T)
-    OJ$LC[OJ$LC==0] <- NA
-    OJ[,yconstr[1]][is.na(OJ[,yconstr[1]])] <- 0
-    OJ <- tidyr::gather(OJ, "yconstr", "DC", yconstr[1:i], na.rm=T)
-    OJ$DC[OJ$DC==0] <- NA
-  }
+  #take now only the cells
+  oj <- oj[!is.na(oj$CellAxis),]
 
-  OJ$max.length <- OJ$Axis
-  OJ$Axis <- NULL
-  return(OJ)
+  #combine all x/y axes of the bounding boxes around the cells.
+  oj2 <- reshape2::melt(oj, measure.vars=c("X1","X2","X3","X4","X5","X6","X7","X8", "X9","X10","X11"), value.name="Xum",
+                        variable.name="index_X")
 
+  oj2 <- reshape2::melt(oj2, measure.vars=c("Y1","Y2","Y3","Y4","Y5","Y6","Y7","Y8", "Y9","Y10","Y11"), value.name="Yum",
+                        variable.name="index_Y")
+
+  oj2$index_X <- lapply(oj2$index_X, function(x) strsplit(as.character(x), "X")[[1]][[2]])
+
+  oj2$index_Y <- lapply(oj2$index_Y, function(x) strsplit(as.character(x), "Y")[[1]][[2]])
+
+  oj2$index_X <- as.numeric(oj2$index_X)
+
+  oj2$index_Y <- as.numeric(oj2$index_Y)
+
+  oj2 <- oj2[oj2$index_X==oj2$index_Y,]
+
+  oj2$num <- oj2$index_X
+  oj2$max.length <- oj2$CellAxis
+  oj2$cellID <- oj2$n
+  oj2$chainID <- oj2$ParentID
+
+  oj3 <- unique(oj2[,c("cellID", "max.length", "chainID", "GFPfluor", "GFPMean", "GFPMax", "GFPMid", "allSepta", "manSepta", "manTrace", "Thr", "startX", "startY", "barX", "barY", "barW", "barH", "SeptaPos", "frame")])
+
+  outlist$GFPframe <- oj3
+
+  oj2 <- oj2[,c("cellID", "frame","max.length", "chainID", "Xum", "Yum", "num")]
+  p2um <- as.numeric(get(magnificationList, envir=magEnv)[mag])
+
+  oj2$X <- oj2$Xum/p2um
+  oj2$Y <- oj2$Yum/p2um
+
+  oj2 <- oj2[order(oj2$frame, oj2$cell, oj2$num),]
+  outlist$mesh <- oj2
+
+  return(outlist)
 }
-
 
 
 choosecolumns <- function(){

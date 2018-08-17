@@ -145,6 +145,7 @@ createPlotlist <- function(REP, inp =4 , MESH, colorpalette="GreenYellow", mag="
     MR <- REP
     MR <- LimDum(REP, pix2um = unlist(get(magnificationList, envir=magEnv)[mag]))
     MR <- MR[order(MR$max.length, MR$max.width),]
+    MR <- MR[!is.na(MR$cell),]
     MR$num <- c(1:nrow(MR))
     MR$cellnum <- MR$num
   }
@@ -162,7 +163,7 @@ createPlotlist <- function(REP, inp =4 , MESH, colorpalette="GreenYellow", mag="
   ymax <- 0.5*max(MR$max.width, na.rm=TRUE)
 
   #Length and width corrected for average length per quartile for plotting the coordinate plots
-  mframe <- aggregate(MR, by=list(MR$q1), FUN=mean, na.rm=T)
+  mframe <- suppressWarnings(aggregate(MR, by=list(MR$q1), FUN=mean, na.rm=TRUE, na.action=na.omit))
   meansL <- mframe$max.length
   meansW <- mframe$max.width
 
@@ -197,7 +198,7 @@ createPlotlist <- function(REP, inp =4 , MESH, colorpalette="GreenYellow", mag="
   ##for all quartiles (or n-tiles)
   allMRLmids <- split(MR[,c("Lmid","Dum")][!is.na(MR$Lmid),], MR$q1[!is.na(MR$Lmid)])
   #get maximum half max density of all groups and apply for each plot to have same scaling.
-  mp<- max(sapply(allMRLmids, function(x) median(range(MASS::kde2d(x$Lmid, x$Dum)$z))))
+  mp<- max(sapply(allMRLmids, function(x) median(range(MASS::kde2d(x$Lmid,x$Dum)$z))))
   #create n-tile plots saved in a list.
   phlist <- list()
   for(n in 1:inp){
@@ -228,6 +229,10 @@ createPlotlist <- function(REP, inp =4 , MESH, colorpalette="GreenYellow", mag="
   if(!missing(MESH)){
     if("X_rot"%in%colnames(MESH)!=T){
     print("Turning the cells... this may take a while.")
+    if("cellID"%in%colnames(MESH)){
+      MESH$cell <- MESH$cellID
+      MESH$cellID <- NULL
+    }
     MESH <- meshTurn(MESH, Xm, Ym)
     print("Finished turning the cells")
     }
@@ -242,6 +247,7 @@ createPlotlist <- function(REP, inp =4 , MESH, colorpalette="GreenYellow", mag="
     MESHlist <- split(MESH, MESH$q1)
     print("Calculating mean cell outlines..")
     means <- lapply(MESHlist, function(x)superfun(x, round(min(x$max.length), digits=0), p2um))
+    u$mean_outlines <- means
     print("Finished calculating mean cell outlines")
 
     phmlist <- list()
