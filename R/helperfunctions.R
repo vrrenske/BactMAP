@@ -71,7 +71,7 @@ spotsInBox <- function(spotfile, MESH, Xs = "x", Ys = "y", Xm = "X", Ym = "Y"){
 
   if("max.width"%in%colnames(MESH)==T){u <- 1}
   if("max.width"%in%colnames(MESH)==F){u<-2}
-  if(any(is.na(MESH$max.width))==TRUE){u<-2}
+
   if("length"%in%colnames(MESH)==T){a <- 1}
   if("length"%in%colnames(MESH)==F){a<-2} #if length and max width are already defined, don't touch them.
 
@@ -174,8 +174,8 @@ spotsInBox <- function(spotfile, MESH, Xs = "x", Ys = "y", Xm = "X", Ym = "Y"){
   }
   outs <- list()
   REP <- spotMR(REP)
-  outs$REP <- REP
-  outs$Mfull <- Mfull
+  outs$spots_relative <- REP
+  outs$mesh <- Mfull
   return(outs) #return datasets as list of dataframes
 
 }

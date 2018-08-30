@@ -3,7 +3,7 @@
 #upload your image stack (one color)
 #' @export
 extr.OriginalStack <- function(picloc){
-  im <- tiff::readTIFF(picloc, all=T) #if you want the best resolution, it needs to be a .tiff file
+  suppressWarnings(im <- tiff::readTIFF(picloc, all=T)) #if you want the best resolution, it needs to be a .tiff file
   im <- lapply(im, function(x) raster::raster(x))
   imdatframe <- lapply(im, function(x) as.data.frame(as(x, "SpatialPixelsDataFrame"))) #get values
   imdatframe <- lapply(imdatframe, function(x) changecols(x))
@@ -155,17 +155,33 @@ plotcellsframelist <- function(TRframe, maxframes, minframes, updown=F, movie=F,
 ###plot raw image
 
 #' @export
-plotRaw <- function(tiffdata, meshdata, pointsdata, frameN=1, xrange, yrange, viridisoption="inferno", meshcolor="white", spotcolor="yellow"){
+plotRaw <- function(tiffdata,
+                    meshdata,
+                    spotdata,
+                    frameN=1,
+                    xrange,
+                    yrange,
+                    viridisoption="inferno",
+                    meshcolor="white",
+                    spotcolor="yellow",
+                    valuerange){
 
+  if(missing(valuerange)!=T&missing(tiffdata)!=T){
+    tiffdata[[frameN]] <- tiffdata[[frameN]][tiffdata[[frameN]]$value>valuerange[1]&tiffdata[[frameN]]$value<valuerange[2],]
+  }
+  if(missing(tiffdata)!=T){
   plotcells <- ggplot2::ggplot(tiffdata[[frameN]]) + #plot raw image
     ggplot2::geom_raster(ggplot2::aes(x=x,y=y,fill=values)) + #use geom_raster to remake image out of dataframe
     ggplot2::theme_classic() + #simple theme, no backgrounds
     viridis::scale_fill_viridis(option=viridisoption) + #well-working color scheme for gradient values
     ggplot2::theme(legend.position="none") # remove legend for easy viewing
-
+  }
+  if(missing(tiffdata)==T){
+    plotcells <- ggplot2::ggplot() + theme_dark()
+  }
   #add x and/or y range + fixed coordinates when indicated:
   if(missing(xrange)!=T&missing(yrange)!=T){
-    plotcells <- plotcells + ggplot2::coord_fixed(xlim=xrange, ylim=xrange)  #sub-set of the image frame to zoom in
+    plotcells <- plotcells + ggplot2::coord_fixed(xlim=xrange, ylim=yrange)  #sub-set of the image frame to zoom in
   }
   if(missing(xrange)!=T&missing(yrange)==T){
     plotcells <- plotcells + ggplot2::coord_fixed(xlim=xrange)
@@ -177,14 +193,16 @@ plotRaw <- function(tiffdata, meshdata, pointsdata, frameN=1, xrange, yrange, vi
     plotcells <- plotcells + ggplot2::coord_fixed()
   }
 
+
   #add mesh data when given:
   if(missing(meshdata)!=T){
+    meshdata <- meshdata[order(meshdata$frame, meshdata$cell, meshdata$num),]
     plotcells <- plotcells + #plot made above
       geom_path(data=meshdata[meshdata$frame==frameN,], aes(x=X,y=Y, group=cell), color=meshcolor) #add outline of cells, only frame one, white color
   }
   if(missing(pointsdata)!=T){
     plotcells <- plotcells +
-      geom_point(data=pointsdata[pointsdata$frame==frameN,], aes(x=x,y=y), shape=1, color=spotcolor) # add yellow empty dots of our spot localizations on top
+      geom_point(data=spotdata[spotdata$frame==frameN,], aes(x=x,y=y), shape=1, color=spotcolor)# add yellow empty dots of our spot localizations on top
   }
   return(plotcells)
 }

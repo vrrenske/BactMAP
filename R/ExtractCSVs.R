@@ -187,14 +187,14 @@ extr.ObjectJ <- function(dataloc, mag="No_PixelCorrection"){
 
   oj2$num <- oj2$index_X
   oj2$max.length <- oj2$CellAxis
-  oj2$cellID <- oj2$n
+  oj2$cell <- oj2$n
   oj2$chainID <- oj2$ParentID
 
-  oj3 <- unique(oj2[,c("cellID", "max.length", "chainID", "GFPfluor", "GFPMean", "GFPMax", "GFPMid", "allSepta", "manSepta", "manTrace", "Thr", "startX", "startY", "barX", "barY", "barW", "barH", "SeptaPos", "frame")])
+  oj3 <- unique(oj2[,c("cell", "max.length", "chainID", "GFPfluor", "GFPMean", "GFPMax", "GFPMid", "allSepta", "manSepta", "manTrace", "Thr", "startX", "startY", "barX", "barY", "barW", "barH", "SeptaPos", "frame")])
 
   outlist$GFPframe <- oj3
 
-  oj2 <- oj2[,c("cellID", "frame","max.length", "chainID", "Xum", "Yum", "num")]
+  oj2 <- oj2[,c("cell", "frame","max.length", "chainID", "Xum", "Yum", "num")]
   p2um <- as.numeric(get(magnificationList, envir=magEnv)[mag])
 
   oj2$X <- oj2$Xum/p2um

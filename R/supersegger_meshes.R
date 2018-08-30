@@ -99,5 +99,7 @@ extr.SuperSeggerCells <- function(loc, frames){
   segmasks <- getallmasks(segcells)
   finalframe <- bindallcellsandmeshes(flipallcells(segcells), segmasks)
   finalframe$MESH <- meshTurn(finalframe$MESH, "x", "y")
+  finalframe$MESH$Y <- finalframe$MESH$Ymid + (finalframe$MESH$Ymid - finalframe$MESH$Y)
+  finalframe$MESH$Y_rot <- -finalframe$MESH$Y_rot
   return(finalframe)
 }
