@@ -226,10 +226,8 @@ prepForKymo <- function(turnedCells, dimension="length", bins = 25, sizeAV=FALSE
     }
 
     Umeans <- lapply(unique(U$cell), function(x) aggregate(U[U$cell==x,], by=list(U$group[U$cell==x]), FUN=mean, na.rm=T))
-    Umeansall <- Umeans[[1]]
-    for(x in 2:length(Umeans)){
-      Umeansall <- rbind(Umeansall, Umeans[[x]])
-    }
+
+    Umeansall <- do.call('rbind', Umeans)
 
 
     if(sizeAV==TRUE){
@@ -318,7 +316,7 @@ bactKymo <- function(groupL, timeD = FALSE, dimension = "length", bins=25, sizeA
                         ggplot2::theme_minimal() +
                         ggplot2::xlab("Time (frames)") +
                         ggplot2::ylab(paste("bin (by cell ", dimension, ")", sep="")) +
-                        viridis::scale_fill_viridis()
+                        ggplot2::scale_fill_viridis_c()
       )
     }
     if(is.numeric(cells)==TRUE&length(cells)>1){
@@ -327,7 +325,7 @@ bactKymo <- function(groupL, timeD = FALSE, dimension = "length", bins=25, sizeA
                         ggplot2::theme_minimal() +
                         ggplot2::xlab("Time (frames)") +
                         ggplot2::ylab(paste("bin (by cell ", dimension, ")", sep="")) +
-                        viridis::scale_fill_viridis()
+                        ggplot2::scale_fill_viridis_c()
       )
     }
     if(is.numeric(cells)==TRUE&length(cells)==1){
@@ -336,7 +334,7 @@ bactKymo <- function(groupL, timeD = FALSE, dimension = "length", bins=25, sizeA
         ggplot2::theme_minimal() +
         ggplot2::xlab("Time (frames)") +
         ggplot2::ylab(paste("bin (by cell ", dimension, ")", sep="")) +
-        viridis::scale_fill_viridis()
+        ggplot2::scale_fill_viridis_c()
     }
     if(cells!="all" & is.numeric(cells)==FALSE){
       stop("'cells' must be either be a character string 'all', a number or a vector of numbers c(x, x,)")
@@ -350,7 +348,7 @@ bactKymo <- function(groupL, timeD = FALSE, dimension = "length", bins=25, sizeA
                           ggplot2::theme_minimal() +
                           ggplot2::xlab("Time (frames)") +
                           ggplot2::ylab(paste("bin (by cell ", dimension, ")", sep="")) +
-                          viridis::scale_fill_viridis() +
+                          ggplot2::scale_fill_viridis_c() +
                           ggtitle(x)
         )
         plot1 <- !is.na(plot1)
@@ -371,7 +369,7 @@ bactKymo <- function(groupL, timeD = FALSE, dimension = "length", bins=25, sizeA
         ggplot2::theme_minimal() +
         ggplot2::xlab("Time (frames)") +
         ggplot2::ylab(paste("bin (by cell ", dimension, ")", sep="")) +
-        viridis::scale_fill_viridis()
+        ggplot2::scale_fill_viridis_c()
     }
     if(cells!="all" & is.numeric(cells)==FALSE){
       stop("'cells' must be either be a character string 'all', a number or a vector of numbers c(x, x,)")
