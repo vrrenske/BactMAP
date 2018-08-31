@@ -333,7 +333,7 @@ bactKymo <- function(groupL, timeD = FALSE, dimension = "length", bins=25, sizeA
         ggplot2::geom_raster(ggplot2::aes(x=frame, y=group, fill=values)) +
         ggplot2::theme_minimal() +
         ggplot2::xlab("Time (frames)") +
-        ggplot2::ylab(paste("bin (by cell ", dimension, ")", sep="")) +
+        ggplot2::ylab(paste("length (by cell ", dimension, ")", sep="")) +
         ggplot2::scale_fill_viridis_c()
     }
     if(cells!="all" & is.numeric(cells)==FALSE){
@@ -347,7 +347,7 @@ bactKymo <- function(groupL, timeD = FALSE, dimension = "length", bins=25, sizeA
                           ggplot2::geom_polygon(ggplot2::aes(x=x_coords, y=y_coords, fill=values, group=X_rot)) +
                           ggplot2::theme_minimal() +
                           ggplot2::xlab("Time (frames)") +
-                          ggplot2::ylab(paste("bin (by cell ", dimension, ")", sep="")) +
+                          ggplot2::ylab(paste(dimension, "(in pixels)", sep=" ")) +
                           ggplot2::scale_fill_viridis_c() +
                           ggtitle(x)
         )
@@ -358,7 +358,7 @@ bactKymo <- function(groupL, timeD = FALSE, dimension = "length", bins=25, sizeA
                         ggplot2::geom_polygon(ggplot2::aes(x=x_coords, y=y_coords, fill=values, group=X_rot)) +
                         ggplot2::theme_minimal() +
                         ggplot2::xlab("Time (frames)") +
-                        ggplot2::ylab(paste("bin (by cell ", dimension, ")", sep="")) +
+                        ggplot2::ylab(paste(dimension, "(in pixels)", sep=" ")) +
                         viridis::scale_fill_viridis() +
                         ggtitle(x)
       )

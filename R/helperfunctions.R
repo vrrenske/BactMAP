@@ -214,6 +214,9 @@ turnraws <- function(rawdatafile, i, n, mp, angle){
 turncell <- function(MESHp, u, rawdatafile, a, n, i){
   box <- suppressWarnings(shotGroups::getMinBBox(data.frame(x= MESHp$X, y=MESHp$Y))) #bounding box of cell
   lengthwidth <- c(box$width, box$height)
+  if(ars==2){
+    MESHp$area <- sp::Polygon(cbind(x=MESHp$X, y=MESHp$Y))@area
+  }
   if(u==2){
     MESHp$max.width <- min(lengthwidth)
   }
@@ -273,6 +276,8 @@ meshTurn <- function(MESH, Xm="X", Ym="Y", rawdatafile){
   else{u<-2}
   if("max.length"%in%colnames(MESH)==T){a <- 2}
   else{a<-1}
+  if("area"%in%colnames(MESH)==T){ars <- 1}
+  else{ars<-2}
   if("x0"%in%colnames(MESH)){
     MESH <- spotrXYMESH(MESH)
   }
@@ -302,7 +307,7 @@ meshTurn <- function(MESH, Xm="X", Ym="Y", rawdatafile){
   }
   else{
     rawdata_turned <- do.call(rbind, Rlist)
-    rawdata_turned <- merge(rawdata_turned, unique(Mfull[,c("cell", "frame", "max.length", "max.width")]))
+    rawdata_turned <- merge(rawdata_turned, unique(Mfull[,c("cell", "frame", "max.length", "max.width", "area")]))
     return(list(mesh = Mfull, rawdata_turned = rawdata_turned))}
 }
 
@@ -341,7 +346,10 @@ mergeframes <- function(REP, MESH, mag="100x_LeicaVeening", cutoff=T, maxfactor=
   if("max_length"%in%colnames(MESH)){
     MESH$max.length <- MESH$max_length
   }
-  M <- unique(MESH[,c("cell", "frame", "max.length", "max.width")])
+  if("area"%in%colnames(MESH)){
+    M <- unique(MESH[,c("cell", "frame", "max.length", "max.width", "area")])
+  }
+  else{M <- unique(MESH[,c("cell", "frame", "max.length", "max.width")])}
   M <- M[order(M$max.length),]
   M$cellnum <- c(1:nrow(M))
 
