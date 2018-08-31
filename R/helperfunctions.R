@@ -211,7 +211,7 @@ turnraws <- function(rawdatafile, i, n, mp, angle){
   return(rawr)
 }
 
-turncell <- function(MESHp, u, rawdatafile, a, n, i){
+turncell <- function(MESHp, u, rawdatafile, a, n, i, ars){
   box <- suppressWarnings(shotGroups::getMinBBox(data.frame(x= MESHp$X, y=MESHp$Y))) #bounding box of cell
   lengthwidth <- c(box$width, box$height)
   if(ars==2){
@@ -291,12 +291,12 @@ meshTurn <- function(MESH, Xm="X", Ym="Y", rawdatafile){
     #print(paste("Turning meshes for frame", i))
     M <- MESH[MESH$frame==i,]
     if(missing(rawdatafile)!=T){
-      Mlistboth <- lapply(unique(M$cell), function(x) turncell(M[M$cell==x,], u, rawdatafile,a, x, i))
+      Mlistboth <- lapply(unique(M$cell), function(x) turncell(M[M$cell==x,], u, rawdatafile,a, x, i, ars=ars))
       MlistF <- lapply(Mlistboth, function(x) x$mesh)
       RlistF <- lapply(Mlistboth, function(x) x$rawdat)
       Rlist[[i]] <- do.call(rbind, RlistF)
     }
-    if(missing(rawdatafile)==T){MlistF <- lapply(unique(M$cell), function(x) turncell(M[M$cell==x,], u, a=a, n=x, i=i))}
+    if(missing(rawdatafile)==T){MlistF <- lapply(unique(M$cell), function(x) turncell(M[M$cell==x,], u, a=a, n=x, i=i, ars=ars))}
     Mlist[[i]] <- do.call(rbind,MlistF)
 
   }
