@@ -95,10 +95,10 @@ extr.MicrobeJ <- function(dataloc, spotloc, mag, sepspot=",", sepmesh=","){
     if(missing(mag)){
       mag <- "No_PixelCorrection"
     }
-    spot_mesh <- mergeframes(listbox$REP, listbox$Mfull, mag)
+    spot_mesh <- mergeframes(listbox$spots_relative, listbox$mesh, mag)
     outlist$spots_relative <- spot_mesh
     outlist$pixel2um <- unlist(get(magnificationList, envir=magEnv)[mag])
-    outlist$mesh <- listbox$Mfull
+    outlist$mesh <- listbox$mesh
     cellList3 <- list()
     cellList3$Mesh <- cellList
     cellList3$Spots <- cellList2

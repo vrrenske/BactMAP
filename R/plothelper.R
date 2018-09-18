@@ -200,8 +200,8 @@ createPlotlist <- function(REP, inp =4 , MESH, colorpalette="GreenYellow", mag="
   if(viridis==FALSE){
     pL <- LWplot(pL, colc[[1]], max(MR$num, na.rm=T))
   }
-  pLpoint <- pL + ggplot2::geom_point() + ggplot2::ggtitle("Spot location on length axis ordered by cell length") + ggplot2::xlab("Cell - ordered by cell length") + ggplot2::ylab("Y-position (\u03BCm)") + ggplot2::theme_bw()
-  pLD <- densityplot(pL) + ggplot2::ggtitle("Spot location on length axis ordered by cell length") + ggplot2::xlab("Cell - ordered by cell length") + ggplot2::ylab("Y-position (\u03BCm)") + ggplot2::geom_line(data=MR, ggplot2::aes(x=num,y=pole1),colour="white") + ggplot2::geom_line(data=MR, ggplot2::aes(x=num,y=pole2),colour="white")
+  pLpoint <- pL + ggplot2::geom_point() + ggplot2::ggtitle("Spot location on length axis ordered by cell length") + ggplot2::xlab("Spot - ordered by cell length") + ggplot2::ylab("Y-position (\u03BCm)") + ggplot2::theme_bw()
+  pLD <- densityplot(pL) + ggplot2::ggtitle("Spot location on length axis ordered by cell length") + ggplot2::xlab("Spot - ordered by cell length") + ggplot2::ylab("Y-position (\u03BCm)") + ggplot2::geom_line(data=MR, ggplot2::aes(x=num,y=pole1),colour="white") + ggplot2::geom_line(data=MR, ggplot2::aes(x=num,y=pole2),colour="white")
 
   pW <- ggplot2::ggplot(MR, ggplot2::aes(x=num, y=Dum))
   if(viridis == TRUE){
@@ -210,8 +210,8 @@ createPlotlist <- function(REP, inp =4 , MESH, colorpalette="GreenYellow", mag="
   if(viridis==FALSE){
     pW <- LWplot(pW, colc[[1]], max(MR$num,na.rm=T))
   }
-  pWpoint <- pW + ggplot2::geom_point() + ggplot2::ggtitle("Spot location on width axis ordered by cell length") + ggplot2::xlab("Cell - ordered by cell length") + ggplot2::ylab("X-position (\u03BCm)") + ggplot2::theme_bw()
-  pWD <- densityplot(pW) + ggplot2::ggtitle("Spot location on width axis ordered by cell length") + ggplot2::xlab("Cell - ordered by cell length") + ggplot2::ylab("X-position (\u03BCm)") + ggplot2::geom_hline(yintercept=ymax) + ggplot2::geom_hline(yintercept=-ymax) + ggplot2::coord_cartesian(ylim=c(-ymax,ymax))
+  pWpoint <- pW + ggplot2::geom_point() + ggplot2::ggtitle("Spot location on width axis ordered by cell length") + ggplot2::xlab("Spot - ordered by cell length") + ggplot2::ylab("X-position (\u03BCm)") + ggplot2::theme_bw()
+  pWD <- densityplot(pW) + ggplot2::ggtitle("Spot location on width axis ordered by cell length") + ggplot2::xlab("Spot - ordered by cell length") + ggplot2::ylab("X-position (\u03BCm)") + ggplot2::geom_hline(yintercept=ymax) + ggplot2::geom_hline(yintercept=-ymax) + ggplot2::coord_cartesian(ylim=c(-ymax,ymax))
 
 #make heatmap using the half max densities:
 

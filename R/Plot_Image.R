@@ -61,9 +61,9 @@ changecols <- function(x){
   return(x)
 }
 changeres <- function(dat, nx, ny){
-  dat$x <- dat$x*nx
+  dat$x <- dat$x*nx - 0.5
   dat$y <- max(dat$y)-dat$y
-  dat$y <- dat$y*ny
+  dat$y <- dat$y*ny + 1
   return(dat)
 }
 
@@ -198,11 +198,11 @@ plotRaw <- function(tiffdata,
   if(missing(meshdata)!=T){
     meshdata <- meshdata[order(meshdata$frame, meshdata$cell, meshdata$num),]
     plotcells <- plotcells + #plot made above
-      geom_path(data=meshdata[meshdata$frame==frameN,], aes(x=X,y=Y, group=cell), color=meshcolor) #add outline of cells, only frame one, white color
+      ggplot2::geom_path(data=meshdata[meshdata$frame==frameN,], ggplot2::aes(x=X,y=Y, group=cell), color=meshcolor) #add outline of cells, only frame one, white color
   }
-  if(missing(pointsdata)!=T){
+  if(missing(spotdata)!=T){
     plotcells <- plotcells +
-      geom_point(data=spotdata[spotdata$frame==frameN,], aes(x=x,y=y), shape=1, color=spotcolor)# add yellow empty dots of our spot localizations on top
+      ggplot2::geom_point(data=spotdata[spotdata$frame==frameN,], ggplot2::aes(x=x,y=y), shape=1, color=spotcolor)# add yellow empty dots of our spot localizations on top
   }
   return(plotcells)
 }
@@ -288,7 +288,7 @@ bactKymo <- function(groupL, timeD = FALSE, dimension = "length", bins=25, sizeA
 
   if(timeD==FALSE){
 
-    if(dimension=="length"){
+    if(dimension=="length"&sizeAV==FALSE){
       plot1 <- ggplot2::ggplot(groupL, ggplot2::aes(x=cellnum.length,y=group, fill=values)) +
         ggplot2::geom_raster() +
         ggplot2::coord_fixed(ratio=20) +
@@ -298,13 +298,33 @@ bactKymo <- function(groupL, timeD = FALSE, dimension = "length", bins=25, sizeA
         viridis::scale_fill_viridis(name="Fluorescence\nIntensity")
     }
 
-    if(dimension=="width"){
+    if(dimension=="length"&sizeAV==TRUE){
+      groupL$cellnum.length[groupL$frameh=="a"|groupL$frameh=="d"] <- groupL$cellnum.length[groupL$frameh=="a"|groupL$frameh=="d"] + 0.5
+      groupL$cellnum.length[groupL$frameh=="b"|groupL$frameh=="c"] <- groupL$cellnum.length[groupL$frameh=="b"|groupL$frameh=="c"] - 0.5
+      plot1 <- ggplot2::ggplot(groupL, ggplot2::aes(x=cellnum.length,y=y_coords, group=paste(X_rot, cell, frame, sep="_"), fill=values)) +
+        ggplot2::geom_polygon() +
+        ggplot2::theme_minimal() +
+        ggplot2::xlab("n(th) cell ordered by cell length") +
+        ggplot2::ylab("location on length axis (micron)") +
+        viridis::scale_fill_viridis(name="Fluorescence\nIntensity")
+    }
+    if(dimension=="width"&sizeAV==FALSE){
       plot1 <- ggplot2::ggplot(groupL, ggplot2::aes(x=cellnum.width,y=group, fill=values)) +
         ggplot2::geom_raster() +
         ggplot2::coord_fixed(ratio=20) +
         ggplot2::theme_minimal() +
         ggplot2::xlab("n(th) cell ordered by cell width") +
         ggplot2::ylab("bin (by cell width)") +
+        viridis::scale_fill_viridis(name="Fluorescence\nIntensity")
+    }
+    if(dimension=="width"&sizeAV==TRUE){
+      groupL$cellnum.width[groupL$frameh=="a"|groupL$frameh=="d"] <- groupL$cellnum.width[groupL$frameh=="a"|groupL$frameh=="d"] + 0.5
+      groupL$cellnum.width[groupL$frameh=="b"|groupL$frameh=="c"] <- groupL$cellnum.width[groupL$frameh=="b"|groupL$frameh=="c"] - 0.5
+      plot1 <- ggplot2::ggplot(groupL, ggplot2::aes(x=cellnum.width,y=y_coords, group=paste(X_rot, cell, frame, sep="_"), fill=values)) +
+        ggplot2::geom_polygon() +
+        ggplot2::theme_minimal() +
+        ggplot2::xlab("n(th) cell ordered by cell width") +
+        ggplot2::ylab("location on length axis (micron)") +
         viridis::scale_fill_viridis(name="Fluorescence\nIntensity")
     }
   }
