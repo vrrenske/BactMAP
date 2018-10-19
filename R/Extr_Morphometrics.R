@@ -17,12 +17,14 @@ extr.Morphometrics.cellList <- function(morphpath){
   framenum <- 2*(1:(length(morphdata$frame)/2))
   for(u in framenum){
     cellListf <- data.frame(t(data.frame(morphdata$frame[u])))
-    cellListf$frame <- u/2
-    if(u==2){
-      cellList <- cellListf
-    }
-    else{
-      cellList <- rbind(cellList, cellListf)
+    if(nrow(cellListf)!=0){
+      cellListf$frame <- u/2
+      if(u==2){
+        cellList <- cellListf
+      }
+      else{
+        cellList <- rbind(cellList, cellListf)
+      }
     }
   }
   return(cellList)

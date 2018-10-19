@@ -118,7 +118,12 @@ extr.ISBatch <- function(dataloc){
   }
   SPOTS$frame  <- SPOTS$slice
   SPOTS$slice <- NULL
-  spotminimal <- SPOTS[,c("x","y","frame")]
+  if("trajectory"%in%colnames(SPOTS)){
+    spotminimal <- SPOTS[,c("x", "y", "frame", "displacement_sq", "trajectory", "trajectory_length")]
+  }else{
+    spotminimal <- SPOTS[,c("x","y","frame")]
+  }
+
   listout <- list()
   listout$cellList <- SPOTS
   listout$spotframe <- spotminimal
