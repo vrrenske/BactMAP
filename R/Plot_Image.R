@@ -119,8 +119,8 @@ plotcellsframelist <- function(TRframe, maxframes, minframes, updown=F, movie=F,
       ggplot2::geom_polygon(ggplot2::aes(x=xt,y=yt,fill=values,group=pointN),color=NA) +
       ggimage::theme_transparent() + ggplot2::coord_fixed() +
       viridis::scale_fill_viridis(option=viridisoption) +
-      ggplot2::xlim(c(-19,19)) +
-      ggplot2::ylim(c(-12, 12)) +
+      ggplot2::xlim(c(min(TRframe$xt, na.rm=TRUE), max(TRframe$xt, na.rm=TRUE))) +
+      ggplot2::ylim(c(min(TRframe$yt, na.rm=TRUE), max(TRframe$yt, na.rm=TRUE))) +
       ggplot2::xlab(NULL) +
       ggplot2::ylab(NULL) +
       ggplot2::theme(strip.background=ggplot2::element_rect(fill="transparent", colour=NA),
@@ -213,7 +213,7 @@ plotRaw <- function(tiffdata,
 
 prepForKymo <- function(turnedCells, dimension="length", bins = 25, sizeAV=FALSE){
 
-  turnedCells <- turnedCells[,c("values", "frame", "cell", "X_rot","Y_rot", "max.length", "max.width")]
+  turnedCells <- unique(turnedCells[,c("values", "frame", "cell", "X_rot","Y_rot", "max.length", "max.width")])
   groupL <- list()
   for(n in unique(turnedCells$frame)){
 
@@ -225,7 +225,7 @@ prepForKymo <- function(turnedCells, dimension="length", bins = 25, sizeAV=FALSE
       U$group <- unlist(lapply(unique(U$cell), function(x) cut(U$Y_rot[U$cell==x], breaks=bins, labels= c(1:bins))))
     }
 
-    Umeans <- lapply(unique(U$cell), function(x) aggregate(U[U$cell==x,], by=list(U$group[U$cell==x]), FUN=mean, na.rm=T))
+    Umeans <- suppressWarnings(lapply(unique(U$cell), function(x) aggregate(U[U$cell==x,], by=list(U$group[U$cell==x]), FUN=mean, na.rm=T)))
 
     Umeansall <- do.call('rbind', Umeans)
 
@@ -280,13 +280,43 @@ prepForKymo <- function(turnedCells, dimension="length", bins = 25, sizeAV=FALSE
 ##############plot#########
 #' @export
 
-bactKymo <- function(groupL, timeD = FALSE, dimension = "length", bins=25, sizeAV=FALSE, cells="all", prep=TRUE){
+bactKymo <- function(groupL, timeD = FALSE, dimension = "length", bins=25, sizeAV=FALSE, cells="all", prep=TRUE, percDiv=FALSE){
+  if(percDiv==TRUE){
+    if("percentage_binned"%in%colnames(groupL)!=TRUE){
+      groupP <- perc_Division(unique(groupL[,c("cell", "frame", "max.length")]), av=FALSE, plotgrowth=FALSE)$timelapse
+      groupP <- unique(groupP[,c("cell","frame","percentage_binned")])
+    }
+    if("percentage_binned"%in%colnames(groupL)==TRUE){
+      groupP <- unique(groupL[,c("cell", "frame", "percentage_binned")])
+    }
+
+  }
 
   if(prep==TRUE){
     groupL <- prepForKymo(groupL, dimension=dimension, bins=bins, sizeAV=sizeAV)
+    if(percDiv==TRUE){
+      groupL <- merge(groupL,groupP)
+    }
   }
 
-  if(timeD==FALSE){
+  if(percDiv==TRUE){
+   groupL$frame <- as.numeric(groupL$percentage_binned)
+   groupL$cell <- 1
+
+   if(sizeAV==FALSE){
+     groupL <- aggregate(groupL[,colnames(groupL)[colnames(groupL)!="group"&colnames(groupL)!="frame"&colnames(groupL)!="percentage_binned"]],
+                         by=list(group=groupL$group, frame=groupL$frame),FUN=mean)
+   }
+   if(sizeAV==TRUE){
+     groupL <- aggregate(groupL[,colnames(groupL)[colnames(groupL)!="group"&colnames(groupL)!="frameh"&colnames(groupL)!="frame"&colnames(groupL)!="percentage_binned"]],
+                      by=list(group=groupL$group, frameh=groupL$frameh, frame=groupL$frame), FUN=mean)
+
+     groupL$x_coords[groupL$frameh=="a"|groupL$frameh=="d"] <- groupL$frame[groupL$frameh=="a"|groupL$frameh=="d"] + 0.5
+     groupL$x_coords[groupL$frameh=="b"|groupL$frameh=="c"] <- groupL$frame[groupL$frameh=="b"|groupL$frameh=="c"] - 0.5
+   }
+  }
+
+  if(timeD==FALSE&percDiv==F){
 
     if(dimension=="length"&sizeAV==FALSE){
       plot1 <- ggplot2::ggplot(groupL, ggplot2::aes(x=cellnum.length,y=group, fill=values)) +
@@ -329,7 +359,7 @@ bactKymo <- function(groupL, timeD = FALSE, dimension = "length", bins=25, sizeA
     }
   }
 
-  if(timeD==TRUE&sizeAV==FALSE){
+  if(timeD==TRUE&sizeAV==FALSE&percDiv==FALSE){
     if(cells=="all"){
       plot1 <- lapply(unique(groupL$cell), function(x) ggplot2::ggplot(groupL[groupL$cell==x,]) +
                         ggplot2::geom_raster(ggplot2::aes(x=frame, y=group, fill=values)) +
@@ -338,6 +368,7 @@ bactKymo <- function(groupL, timeD = FALSE, dimension = "length", bins=25, sizeA
                         ggplot2::ylab(paste("bin (by cell ", dimension, ")", sep="")) +
                         ggplot2::scale_fill_viridis_c()
       )
+
     }
     if(is.numeric(cells)==TRUE&length(cells)>1){
       plot1 <- lapply(cells, function(x) ggplot2::ggplot(groupL[groupL$cell==x,]) +
@@ -361,7 +392,7 @@ bactKymo <- function(groupL, timeD = FALSE, dimension = "length", bins=25, sizeA
     }
   }
 
-  if(timeD==TRUE&sizeAV==TRUE){
+  if(timeD==TRUE&sizeAV==TRUE&percDiv==FALSE){
     if(cells=="all"){
         plot1 <- lapply(unique(ggplot2::groupL$cell), function(x) ggplot2::ggplot(groupL[groupL$cell==x,]) +
                           ggplot2::geom_polygon(ggplot2::aes(x=x_coords, y=y_coords, fill=values, group=X_rot)) +
@@ -372,6 +403,7 @@ bactKymo <- function(groupL, timeD = FALSE, dimension = "length", bins=25, sizeA
                           ggtitle(x)
         )
         plot1 <- !is.na(plot1)
+
     }
     if(is.numeric(cells)==TRUE&length(cells)>1){
       plot1 <- lapply(cells, function(x) ggplot2::ggplot(groupL[groupL$cell==x,]) +
@@ -394,6 +426,25 @@ bactKymo <- function(groupL, timeD = FALSE, dimension = "length", bins=25, sizeA
     if(cells!="all" & is.numeric(cells)==FALSE){
       stop("'cells' must be either be a character string 'all', a number or a vector of numbers c(x, x,)")
     }
+  }
+
+  if(percDiv==TRUE&sizeAV==FALSE){
+    plot1 <- ggplot2::ggplot(groupL) +
+      ggplot2::geom_raster(ggplot2::aes(x=frame, y=group, fill=values)) +
+      ggplot2::theme_minimal() +
+      ggplot2::xlab("Percentage of division") +
+      ggplot2::ylab(paste("length (by cell ", dimension, ")", sep="")) +
+      ggplot2::scale_fill_viridis_c()
+  }
+
+
+  if(percDiv==TRUE&sizeAV==TRUE){
+    plot1 <- ggplot2::ggplot(groupL) +
+      ggplot2::geom_polygon(ggplot2::aes(x=x_coords, y=y_coords, fill=values, group=X_rot)) +
+      ggplot2::theme_minimal() +
+      ggplot2::xlab("Percentage of division") +
+      ggplot2::ylab(paste("length (by cell ", dimension, ")", sep="")) +
+      ggplot2::scale_fill_viridis_c()
   }
 
   return(plot1)
