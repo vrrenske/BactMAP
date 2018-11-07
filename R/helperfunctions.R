@@ -5,10 +5,10 @@
 ##other package dependencies:
 
 #merge data functions
-library(ggplot2)
-library(ggthemes)
-library(gridExtra)
-library(scales)
+#library(ggplot2)
+#library(ggthemes)
+#library(gridExtra)
+#library(scales)
 
 ##Set the pixel to um conversion
 #' @export
