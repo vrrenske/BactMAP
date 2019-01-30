@@ -13,8 +13,8 @@
 ##extract cellList as a data frame with lists of data for the mesh, spots, etc.
 extr_OuftiCellList <- function(matfile){
   if (!requireNamespace("R.matlab", quietly = TRUE)) {
-    stop("Package 'R.matlab' needed for extr_Oufti to extract matlab files. Please install it.",
-         call. = FALSE)
+    inp <- readline("Package 'R.matlab' needed for this function to work. Press 'y' to install, or any other key to cancel.")
+    if(inp=="y"|inp=="Y"){install.packages("R.matlab")}else{stop("Canceled")}
   }
   matlist <- R.matlab::readMat(matfile)
   matcellList <- matlist$cellList[[1]]

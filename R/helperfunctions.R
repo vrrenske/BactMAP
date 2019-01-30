@@ -54,10 +54,12 @@ getPixels2um <- function(){
 #' @export
 spotsInBox <- function(spotfile, MESH, Xs = "x", Ys = "y", Xm = "X", Ym = "Y"){
   if (!requireNamespace("shotGroups", quietly = TRUE)) {
-    stop("Package 'shotGroups' needed for this function to work. Please install this package. Note: packages 'sp' and 'SDMTools' are also necessary for this function." )
+    inp <- readline("Package 'shotGroups' needed for this function to work. Press 'y' to install, or any other key to cancel.")
+    if(inp=="y"|inp=="Y"){install.packages("shotGroups")}else{stop("Canceled")}
   }
   if (!requireNamespace("SDMTools", quietly = TRUE)) {
-    stop("Package 'SDMTools' needed for this function to work. Please install this package. Note: packages 'sp' and 'shotGroups' are also necessary for this function." )
+    inp <- readline("Package 'SDMTools' needed for this function to work. Press 'y' to install, or any other key to cancel.")
+    if(inp=="y"|inp=="Y"){install.packages("SDMTools")}else{stop("Canceled")}
   }
   q <- 0
   b <- 0
@@ -219,10 +221,12 @@ turnraws <- function(rawdatafile, i, n, mp, angle){
 
 turncell <- function(MESHp, u, rawdatafile, a, n, i, ars){
   if (!requireNamespace("shotGroups", quietly = TRUE)) {
-    stop("Package 'shotGroups' needed for this function to work. Please install this package. Note: package 'sp' is also necessary for this function." )
+    inp <- readline("Package 'shotGroups' needed for this function to work. Press 'y' to install, or any other key to cancel.")
+    if(inp=="y"|inp=="Y"){install.packages("shotGroups")}else{stop("Canceled")}
   }
   if (!requireNamespace("sp", quietly = TRUE)) {
-    stop("Package 'sp' needed for this function to work. Please install this package. Note: package 'shotGroups' is also necessary for this function." )
+    inp <- readline("Package 'sp' needed for this function to work. Press 'y' to install, or any other key to cancel.")
+    if(inp=="y"|inp=="Y"){install.packages("sp")}else{stop("Canceled")}
   }
   box <- suppressWarnings(shotGroups::getMinBBox(data.frame(x= MESHp$X, y=MESHp$Y))) #bounding box of cell
   lengthwidth <- c(box$width, box$height)
@@ -413,7 +417,8 @@ spotMR <- function(dat){
 
 centrefun <- function(dat, xie="ob_x", yie="ob_y"){
   if (!requireNamespace("shotGroups", quietly = TRUE)) {
-    stop("Package 'shotGroups' needed for this function to work. Please install this package." )
+    inp <- readline("Package 'shotGroups' needed for this function to work. Press 'y' to install, or any other key to cancel.")
+    if(inp=="y"|inp=="Y"){install.packages("shotGroups")}else{stop("Canceled")}
   }
   dat <- dat[!is.na(dat$ob_x),]
   dat$centre_x <- NA

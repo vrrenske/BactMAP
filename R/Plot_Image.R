@@ -5,12 +5,15 @@
 extr_OriginalStack <- function(picloc){
   if (!requireNamespace("tiff", quietly = TRUE)) {
     if(!requireNamespace("raster", quietly = TRUE)){
-      stop("Package 'tiff' and 'raster' needed for this function to work. Please install them.",
-         call. = FALSE)}else{stop("Package 'tiff' needed for this function to work. Please install it.")}
+      inp <- readline("Package 'tiff' and 'raster' needed for this function to work. Press 'y' to install them, or any other key to cancel.")
+      if(inp=="y"|inp=="Y"){install.packages(c("tiff", "raster"))}else{stop("Canceled")}
+    }else{
+      inp <- readline("Package 'tiff' needed for this function to work. Press 'y' to install it, or any other key to cancel.")
+      if(inp=="y"|inp=="Y"){install.packages("tiff")}else{stop("Canceled")}}
   }
   if(!requireNamespace("raster", quietly = TRUE)){
-    stop("Package 'raster' needed for this function to work. Please install it.",
-         call. = FALSE)
+    inp <- readline("Package 'raster' needed for this function to work. Press 'y' to install it, or any other key to cancel.")
+    if(inp=="y"|inp=="Y"){install.packages("raster")}else{stop("Canceled")}
   }
   suppressWarnings(im <- tiff::readTIFF(picloc, all=T)) #if you want the best resolution, it needs to be a .tiff file
   im <- lapply(im, function(x) raster::raster(x))

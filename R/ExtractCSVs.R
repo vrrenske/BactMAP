@@ -10,8 +10,8 @@
 
 extr_MicrobeJMESH <- function(dataloc, sep=","){
   if (!requireNamespace("shotGroups", quietly = TRUE)) {
-    stop("Package 'shotGroups' needed for this function to work. Please install it.",
-         call. = FALSE)
+    inp <- readline("Package 'shotGroups' needed for this function to work. Press 'y' to install, or any other key to cancel.")
+    if(inp=="y"|inp=="Y"){install.packages("shotGroups")}else{stop("Canceled")}
   }
   MESH <- read.csv(dataloc, header=T, sep=sep)
   meshL <- list()

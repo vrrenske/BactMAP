@@ -12,8 +12,8 @@
 
 anglefun <- function(dat, xie, yie){
   if (!requireNamespace("shotGroups", quietly = TRUE)) {
-    stop("Package 'shotGroups' needed for this function to work. Please install it.",
-         call. = FALSE)
+    inp <- readline("Package 'shotGroups' needed for this function to work. Press 'y' to install, or any other key to cancel.")
+    if(inp=="y"|inp=="Y"){install.packages("shotGroups")}else{stop("Canceled")}
   }
   dat$angle <- NA
   for(n in unique(dat$frame)){
