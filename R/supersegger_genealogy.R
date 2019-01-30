@@ -48,7 +48,7 @@ extr_SuperSeggerClist <- function(matfile, filetype = "Genealogy", trim.orphans=
 #' @export
 plottreeBasic <- function(phylo, extradata, yscalechange = FALSE, showClade = FALSE, layout = "rectangular", ydata, cellNumber, open.angle, linesize = 1, linecolor = "black", lines=TRUE, colors=FALSE){
   if (!requireNamespace("ggtree", quietly = TRUE)) {
-    stop("Package 'ggtree' needed to plot trees! Please install ggtree.",
+    stop("Package 'ggtree' needed to plot trees! Please install ggtree (https://github.com/GuangchuangYu/ggtree).",
          call. = FALSE)
   }
   if(showClade==TRUE){

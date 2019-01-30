@@ -123,6 +123,14 @@ bindallcellsandmeshes <- function(cellflip, cellmask){
 
 #' @export
 extr_SuperSeggerCells <- function(loc, frames, mag){
+  if (!requireNamespace("R.matlab", quietly = TRUE)) {
+    stop("Package 'R.matlab' needed for this function to work. Note: you also need the package 'raster'." ,
+         call. = FALSE)
+  }
+  if (!requireNamespace("raster", quietly = TRUE)) {
+    stop("Package 'R.matlab' needed for this function to work." ,
+         call. = FALSE)
+  }
   segcells <- readallsegcells(frames=frames, loc=loc)
   segmasks <- getallmasks(segcells)
   finalframe <- bindallcellsandmeshes(flipallcells(segcells), segmasks)
