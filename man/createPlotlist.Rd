@@ -16,7 +16,7 @@ createplotlist <- function(Spots, inp=4, bycol="length", MESH, colorpalette="Gre
   \item{bycol}{Identifies the column based on which the data will be divided. Default = "length".}
   \item{MESH}{Data frame containing -at least- the x and y coordinates of the cell meshes, the maximum cell width, maximum cell length, cell ID and frame.Optional.}
   \item{colorpalette}{Color palette the heatmap plots will be plotted in. Default is "GreenYellow". Check which palettes are loaded by \code{showColorPaletes()} and add your own palette using \code{addPallete()}}
-  \item{mag}{The name of the conversion factor for pixel to micrometer. Default is "100x_LeicaVeening" which is 0.0499538. Check \code{\link{getPixels2um}} for the loaded conversionfactors and use \code{\link{addPixels2um("ConversionName", conversionfactor)}} to add a conversion factor to the list.}
+  \item{mag}{The name of the conversion factor for pixel to micrometer. Default is "100x_LeicaVeening" which is 0.0499538. Check \code{\link{getPixels2um}} for the loaded conversionfactors and use \code{addPixels2um("ConversionName", conversionfactor)} to add a conversion factor to the list.}
   \item{AllPlot}{When \code{TRUE}, the output x/y plots will have sideplots with histograms of the spot localization. When \code{FALSE}, only the x/y plots will be plotted.}
   \item{Xm and Ym}{By default, the column names of the x/y coordinates in the MESH data frames are "X" and "Y". When this is not the case, one can tell the function by using \code{Xm} and \code{Ym}. Enter a character string with the name of the x-coordinate column for Xm, and the name of the y-coordinate column for Ym.}
 

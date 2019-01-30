@@ -12,6 +12,7 @@
 
 ##extract cellList as a data frame with lists of data for the mesh, spots, etc.
 extr_OuftiCellList <- function(matfile){
+  checkPacks(c("R.matlab"))
   matlist <- R.matlab::readMat(matfile)
   matcellList <- matlist$cellList[[1]]
   matcelnums <- matlist$cellList[[2]]

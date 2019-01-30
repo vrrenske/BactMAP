@@ -53,6 +53,7 @@ getPixels2um <- function(){
 ##merge spotfiles with only raw coordinates with mesh file with only raw data. add mesh length/width while on it.
 #' @export
 spotsInBox <- function(spotfile, MESH, Xs = "x", Ys = "y", Xm = "X", Ym = "Y"){
+  checkPacks(c("shotGroups", "SDMTools"))
   q <- 0
   b <- 0
    #rewrite colnames if not the same as suggested
@@ -212,6 +213,7 @@ turnraws <- function(rawdatafile, i, n, mp, angle){
 }
 
 turncell <- function(MESHp, u, rawdatafile, a, n, i, ars){
+  checkPacks(c("shotGroups", "sp"))
   box <- suppressWarnings(shotGroups::getMinBBox(data.frame(x= MESHp$X, y=MESHp$Y))) #bounding box of cell
   lengthwidth <- c(box$width, box$height)
   if(ars==2){
@@ -400,6 +402,7 @@ spotMR <- function(dat){
 }
 
 centrefun <- function(dat, xie="ob_x", yie="ob_y"){
+  checkPacks(c("shotGroups"))
   dat <- dat[!is.na(dat$ob_x),]
   dat$centre_x <- NA
   dat$centre_y <- NA
@@ -474,6 +477,18 @@ magnificationList <- "magnificationList"
 magEnv <- new.env()
 assign(magnificationList, mL, envir=magEnv)
 
-
+checkPacks <- function(list.of.packages){
+  list.of.packages <- c("ggplot2", "Rcpp")
+  new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
+  if(length(new.packages)){
+    message(paste("This function needs packages ", new.packages, ". Do you want to install them now? Type 'y'. Or press any other key to cancel", sep=""))
+    inp <- readline()
+    if(inp=="y"|inp=="Y"){
+      install.packages(new.packages)}
+    if(inp!="y"&inp!="Y"){
+      stop()
+    }
+  }
+}
 
 

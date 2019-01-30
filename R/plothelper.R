@@ -9,12 +9,6 @@
 #"REP": output of peakfitter.
 #"M": the excel output file of the meshes used for peakfitter
 #aand start
-library(ggplot2)
-library(gridExtra)
-library(scales)
-library(ggthemes)
-library(mvtnorm)
-library(MASS)
 
 
 
@@ -44,6 +38,17 @@ addPalette <- function(palList, palName){
 
 #' @export
 showCurrentPalettes <- function(colchoice = get(colopts, envir=colEnv)){
+  if (!requireNamespace("gridExtra", quietly = TRUE)) {
+    if (!requireNamespace("mvtnorm", quietly = TRUE)) {
+      stop("Package 'gridExtra' and 'mvtnorm' needed for this function to work. Please install this package.",
+           call. = FALSE)
+    }
+    else{stop("Package 'gridExtra' needed for this function to work. Please install this package.",
+       call. = FALSE)}
+  }
+  if(!requireNamespace("mvtnorm", quietly = TRUE)) {
+    stop("Package 'mvtnorm' needed for this function to work. Please install this package.")
+  }
   plotlist <- list()
   namelist <- names(colchoice)
   for(n in 1:length(colchoice)){
@@ -54,7 +59,7 @@ showCurrentPalettes <- function(colchoice = get(colopts, envir=colEnv)){
 }
 
 colorchoiceplot <- function(colchoice, nums, pname){
-
+  checkPacks(c("mvtnorm"))
   z <- mvtnorm::rmvnorm(100, mean=c(3,5), sigma=matrix(c(1,0.5,0.5,2), nrow=2))
   z <- data.frame(z)
   return(ggplot2::ggplot(z, ggplot2::aes(x=X1, y=X2)) + ggplot2::stat_density2d(ggplot2::aes(fill=..density..), geom="raster", contour=FALSE) + ggplot2::scale_fill_gradient2(low = colchoice[1], mid= colchoice[2], high = colchoice[3], midpoint=0.06) + ggplot2::theme_minimal() + ggplot2::theme(legend.position="none") + ggplot2::ggtitle(pname) + ggplot2::xlab("") + ggplot2::ylab("") + ggplot2::xlim(0,5) + ggplot2::ylim(0,10) + ggplot2::theme(axis.text=ggplot2::element_blank()))

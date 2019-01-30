@@ -20,7 +20,7 @@ addPixels2um("ConversionName", conversionfactor)
   \item{conversionfactor}{A numerical value to convert the pixel values to microns}
 
   }
-}
+
 \details{
 %%  ~~ If necessary, more details than the description above ~~
 }
@@ -43,4 +43,4 @@ getPixels2um()
 ## To add your pixel conversion factor to bactMAP:
 addPixels2um("MyPixel2um", 0.543)
 
-
+}

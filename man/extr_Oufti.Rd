@@ -34,11 +34,11 @@ When spot data is included:
 
 When a CSV or TXT file containing object data:
 \item{$objectframe}{A dataframe containing the coordinates of detected objects, cell ID, frame ID and object ID:  ob_x, ob_y, obnum, obpath, frame, cell, obID}
-\intem{$object_relative}{A dataframe reminescent of spots_relative containing the following variables: "frame, cell, max.length, obnum, num, obpath, obID, max.width, Dum, Lmid, ob_out_x, ob_out_y, pole1, pole2}
-}
+\item{$object_relative}{A dataframe reminescent of spots_relative containing the following variables: "frame, cell, max.length, obnum, num, obpath, obID, max.width, Dum, Lmid, ob_out_x, ob_out_y, pole1, pole2}
 
-When "phylo" is set to TRUE::
-\item{$timelapsedata}{a list of \item{generation_dataframes}{dataframe with cells with common ancestor}\item{$generation_lists}{phylo objects which can be used for tree plotting.} \item{$spot_relative_list}{when spots are found in dataframe: list of spot localization dataframes of cells with common ancestor}\item{$meshdata}{list of cell outline data of cells with common ancestor}}
+When "phylo" is set to TRUE:
+\item{$timelapsedata}{a list of: generation_dataframes: a dataframe with cells with common ancestor, generation_lists: phylo objects which can be used for tree plotting, spot_relative_list: list of spot localization dataframes of cells with common ancestor, and meshdata: a list of cell outline data of cells with common ancestor}
+}
 
 \references{
 \url{www.oufti.org}

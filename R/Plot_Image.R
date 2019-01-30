@@ -3,6 +3,15 @@
 #upload your image stack (one color)
 #' @export
 extr_OriginalStack <- function(picloc){
+  if (!requireNamespace("tiff", quietly = TRUE)) {
+    if(!requireNamespace("raster", quietly = TRUE)){
+      stop("Package 'tiff' and 'raster' needed for this function to work. Please install them.",
+         call. = FALSE)}else{stop("Package 'tiff' needed for this function to work. Please install it.")}
+  }
+  if(!requireNamespace("raster", quietly = TRUE)){
+    stop("Package 'raster' needed for this function to work. Please install it.",
+         call. = FALSE)
+  }
   suppressWarnings(im <- tiff::readTIFF(picloc, all=T)) #if you want the best resolution, it needs to be a .tiff file
   im <- lapply(im, function(x) raster::raster(x))
   imdatframe <- lapply(im, function(x) as.data.frame(as(x, "SpatialPixelsDataFrame"))) #get values
