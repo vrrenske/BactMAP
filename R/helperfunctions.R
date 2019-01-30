@@ -460,8 +460,8 @@ LimDum <- function(MR, pix2um, remOut=T, ouf=F){
   MR$pole2<- -MR$pole1
   if("d"%in%colnames(MR)){MR$Dum <- MR$d*pix2um}
   if("d"%in%colnames(MR)==FALSE){MR$Dum <- MR$Dum*pix2um}
-  MR$max.length <- MR$max.length*pix2um
-  MR$max.width <- MR$max.width*pix2um
+  MR$max_um <- MR$max.length*pix2um
+  MR$maxwum <- MR$max.width*pix2um
   if(remOut==T){
     MR <- MR[abs(MR$Lmid)<MR$pole2,]
     MR <- MR[abs(MR$Dum)<(MR$max.width/2),]

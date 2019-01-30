@@ -1,6 +1,6 @@
-\name{extr.Original}
-\alias{extr.OriginalStack}
-\alias{extr.OriginalCells}
+\name{extr_Original}
+\alias{extr_OriginalStack}
+\alias{extr_OriginalCells}
 
 \title{Convert original TIFF image stack used to gather spot and cell outline data.
 }
@@ -15,17 +15,17 @@ extr.OriginalCells(imdatframe, mesh)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-extr.OriginalStack:
+extr_OriginalStack:
   \item{picloc}{file path of the .TIFF image stack.
 }
-extr.OriginalCells:
-  \item{imdatframe}{output dataframe of extr.OriginalStack()}
+extr_OriginalCells:
+  \item{imdatframe}{output dataframe of extr_OriginalStack()}
   \item{mesh}{dataframe containing (at least) mesh coordinates, cell numbers and frame numbers.}
 }
 \details{
-extr.OriginalStack needs the package "raster" to function.
+extr_OriginalStack needs the package "raster" to function.
 
-extr.OriginalCells needs "SMDTools" and "raster" to function
+extr_OriginalCells needs "SMDTools" and "raster" to function
 }
 \value{
 
@@ -37,7 +37,8 @@ extr.OriginalCells needs "SMDTools" and "raster" to function
 %%  ~~who you are~~
 }
 \note{
-extr.OriginalCells is a heavy function since it's turning all pixels of each cell!
+1. extr_OriginalCells is a heavy function since it's turning all pixels of each cell!
+2. extr_OriginalStack works for single TIFFs and stacks. It only works with greyscale stacks!
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
@@ -46,15 +47,16 @@ extr.OriginalCells is a heavy function since it's turning all pixels of each cel
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or do  help(data=index)  for the standard data sets.
 
-## The function is currently defined as
-function (x)
-{
-  }
-}
+TIFFfilepath <- file.choose()
+
+TIFFstack <- extr_OriginalStack(TIFFfilepath)
+
+#plot stack
+
+bactMAP::plotRaw(TIFFstack, frameN=1)
+
+
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
 \keyword{ ~kwd1 }% use one of  RShowDoc("KEYWORDS")

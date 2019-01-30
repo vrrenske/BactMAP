@@ -1,23 +1,22 @@
-\name{extr.Oufti}
-\alias{extr.Oufti}
+\name{extr_Oufti}
+\alias{extr_Oufti}
 \alias{Oufti}
-\alias{extr.OuftiCSV}
+\alias{extr_OuftiCSV}
 \alias{OuftiCSV}
 
-\title{Function to upload Oufti meshes and spot localizations directly from .Mat files to R.
+\title{Function to upload Oufti meshes and spot localizations directly from .Mat, .TXT or .CSV files to R.
 }
 \description{
 
 }
 \usage{
-extr.Oufti(matfile)
-
-extr.OuftiCSV(csvfile)
+extr_Oufti(matfile, mag="No_PixelCorrection", phylo=FALSE)
 }
 
 \arguments{
-  \item{matfile}{.MAT output of oufti segmentation. whether spot data is included will automatically be detected. not possible to include object data for now.}
-  \item{csvfile}{.CSV or .TXT output of oufti segmentation (saved with "tools"-->"export to csv" in the Oufti GUI). Whether spot data and/or object data is included will automatically be detected.}
+  \item{matfile}{.MAT, .CSV or .TXT of oufti segmentation. Spot data, object data and fluorescence intensity will automatically be detected. Note: object data can only be extracted from .CSV or .TXT files for now!}
+  \item{mag}{The pixel-micron conversion factor. See bactMAP::getPixels2um() for more information. When not given, the factor will be 1.}
+  \item{phylo}{When TRUE, a list of child-parent nodes & phylo objects containing cell genealogy will be made. Takes very long, so default is set to FALSE}
 %%     ~~Describe \code{x} here~~
 }
 \details{
@@ -25,13 +24,21 @@ extr.OuftiCSV(csvfile)
 }
 \value{
 A list containing:
-\item{$cellList}{The complete cellList as it is displayed in oufti's matlab output.}
-\item{$mesh}{A dataframe containing the following columns: \code{x, y, cell, frame, num, max.width, length, steplength, max_length}. See standard mesh output for more information.}
-\item{$spots}{A dataframe containing the following columns: \code{l, d, x, y, position, adj_Rsquared, CI_xy, frame, cell}. See \url{www.oufti.org} for more information on the spot data output.}
+\item{$cellList}{The complete cellList as it is displayed in oufti's output.}
+\item{$mesh}{A dataframe containing the following columns: \code{X, Y, cell, frame, num, max.width, length, steplength, max.length, area, Xmid, Ymid, X_rot, Y_rot, angle, Xrotum, Yrotum, max_um, maxwum}. See standard mesh output for more information.}
 
-optional in case of \code{extr.Oufti}:
-\item{$obj}{A dataframe containing the coordinates of detected objects.}
+When spot data is included:
+\item{$spotframe}{A dataframe containing the following columns: \code{l, d, x, y, position, adj_Rsquared, CI_xy, frame, cell}. See \url{www.oufti.org} for more information on the spot data output.}
+\item{$spots_relative}{A dataframe containing from the mesh data: max.width, max.length, area, cell, frame. from the spot data: l, d, x, y. Added: spot, totalspot, Lmid, Dum, max_um, maxwum, pole1, pole2.}
+\item{$pixel2um}{the pixel to micron conversion factor used}
+
+When a CSV or TXT file containing object data:
+\item{$objectframe}{A dataframe containing the coordinates of detected objects, cell ID, frame ID and object ID:  ob_x, ob_y, obnum, obpath, frame, cell, obID}
+\intem{$object_relative}{A dataframe reminescent of spots_relative containing the following variables: "frame, cell, max.length, obnum, num, obpath, obID, max.width, Dum, Lmid, ob_out_x, ob_out_y, pole1, pole2}
 }
+
+When "phylo" is set to TRUE::
+\item{$timelapsedata}{a list of \item{generation_dataframes}{dataframe with cells with common ancestor}\item{$generation_lists}{phylo objects which can be used for tree plotting.} \item{$spot_relative_list}{when spots are found in dataframe: list of spot localization dataframes of cells with common ancestor}\item{$meshdata}{list of cell outline data of cells with common ancestor}}
 
 \references{
 \url{www.oufti.org}
@@ -54,9 +61,9 @@ Renske van Raaphorst
 ##upload matlab oufti file
 matfile <- file.choose()
 ##extract data using extr.Oufti()
-output <- extr.Oufti(matfile)
+output <- extr_Oufti(matfile)
 ##get spot dataframe
-spots <- output$spots
+spots <- output$spotframe
 ##plot spots of frame no.1
 ggplot2::ggplot(spots[spots$frame==1,], ggplot2::aes(x=x, y=y, color=as.factor(cell))) + ggplot2::geom_point() + ggplot2::theme_minimal()
 }

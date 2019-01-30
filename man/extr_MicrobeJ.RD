@@ -7,7 +7,7 @@
 %%  ~~function to do ... ~~
 }
 \description{
-Upload the output of MicrobeJ into R. Upto now the code supports fluorescent localization data & cell outlines, both saved as seperate .CSV or .TXT files in the MicrobeJ GUI by first pressing \emph{<right click> -> expand all} on one of the Results columns and then pressing \emph{<right click> -> export} for both the cell oontour dataset and the fluorescent localization dataset.
+Upload the output of MicrobeJ into R. Upto now the code supports fluorescent localization data & cell outlines, both saved as seperate .CSV or .TXT files in the MicrobeJ GUI by first pressing \emph{<right click> -> expand all} on one of the Results columns and then pressing \emph{<right click> -> export} for both the cell contour dataset and the fluorescent localization dataset.
 }
 \usage{
 extr.MicrobeJ(dataloc, spotloc, mag)
