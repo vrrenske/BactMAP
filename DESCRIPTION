@@ -8,11 +8,12 @@ License: GMD-1
 Encoding: UTF-8
 LazyData: true
 Imports:
-  ggplot2
+  ggplot2,
+  tidyr,
+  reshape2
 Suggests:
   gridExtra,
   ggthemes,
-  tidyr,
   MASS,
   R.matlab,
   SDMTools,
@@ -23,7 +24,6 @@ Suggests:
   stringr,
   ggtree,
   igraph,
-  reshape2,
   treeio
 Collate: 'ouftidirectlyfrommatlab.R' 'Extr_Morphometrics.R' 'ExtractCSVs.R' 'datamerging.R' 'helperfunctions.R' 'ouftimeshtransform_fullfunction.R' 'plothelper.R' 'Polygon_angle.R' 'supersegger_genealogy.R' 'Plot_Image.R' 'objectplotting.R' 'supersegger_meshes.R' 'combine_analyses.R' 'timelapse.R' 'plotTracks.R'
 RoxygenNote: 6.1.0

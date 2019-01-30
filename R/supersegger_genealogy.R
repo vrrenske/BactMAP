@@ -8,6 +8,18 @@
 
 #' @export
 extr_SuperSeggerClist <- function(matfile, filetype = "Genealogy", trim.orphans=TRUE){
+  if (!requireNamespace("R.matlab", quietly = TRUE)) {
+    stop("Package 'R.matlab' needed for this function to work. Note: you also need the packages 'igraph' and 'ape'." ,
+         call. = FALSE)
+  }
+  if (!requireNamespace("igraph", quietly = TRUE)) {
+    stop("Package 'igraph' needed for this function to work. Note: you also need the package 'ape'.",
+         call. = FALSE)
+  }
+  if (!requireNamespace("ape", quietly = TRUE)) {
+    stop("Package 'ape' needed for this function to work. Please install it.",
+         call. = FALSE)
+  }
   clist <- R.matlab::readMat(matfile)
   datasegger <- as.data.frame(clist$data)
   colnames(datasegger) <- unlist(clist$def)
@@ -35,6 +47,10 @@ extr_SuperSeggerClist <- function(matfile, filetype = "Genealogy", trim.orphans=
 
 #' @export
 plottreeBasic <- function(phylo, extradata, yscalechange = FALSE, showClade = FALSE, layout = "rectangular", ydata, cellNumber, open.angle, linesize = 1, linecolor = "black", lines=TRUE, colors=FALSE){
+  if (!requireNamespace("ggtree", quietly = TRUE)) {
+    stop("Package 'ggtree' needed to plot trees! Please install ggtree.",
+         call. = FALSE)
+  }
   if(showClade==TRUE){
     if(missing(cellNumber)){stop("cellNumber missing. Please state the ancestor cell you want to follow to show it's clade.")}
     NodeNumber <- extradata$node[extradata$cell==cellNumber]

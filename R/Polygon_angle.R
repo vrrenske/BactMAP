@@ -11,6 +11,10 @@
 
 
 anglefun <- function(dat, xie, yie){
+  if (!requireNamespace("shotGroups", quietly = TRUE)) {
+    stop("Package 'shotGroups' needed for this function to work. Please install it.",
+         call. = FALSE)
+  }
   dat$angle <- NA
   for(n in unique(dat$frame)){
     for(u in unique(dat$cell[dat$frame==n])){

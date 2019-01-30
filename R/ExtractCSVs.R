@@ -9,6 +9,10 @@
 ##MicrobeJ
 
 extr_MicrobeJMESH <- function(dataloc, sep=","){
+  if (!requireNamespace("shotGroups", quietly = TRUE)) {
+    stop("Package 'shotGroups' needed for this function to work. Please install it.",
+         call. = FALSE)
+  }
   MESH <- read.csv(dataloc, header=T, sep=sep)
   meshL <- list()
   meshL$cellList <- MESH
