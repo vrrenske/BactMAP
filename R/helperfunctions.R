@@ -53,7 +53,12 @@ getPixels2um <- function(){
 ##merge spotfiles with only raw coordinates with mesh file with only raw data. add mesh length/width while on it.
 #' @export
 spotsInBox <- function(spotfile, MESH, Xs = "x", Ys = "y", Xm = "X", Ym = "Y"){
-  checkPacks(c("shotGroups", "SDMTools"))
+  if (!requireNamespace("shotGroups", quietly = TRUE)) {
+    stop("Package 'shotGroups' needed for this function to work. Please install this package. Note: packages 'sp' and 'SDMTools' are also necessary for this function." )
+  }
+  if (!requireNamespace("SDMTools", quietly = TRUE)) {
+    stop("Package 'SDMTools' needed for this function to work. Please install this package. Note: packages 'sp' and 'shotGroups' are also necessary for this function." )
+  }
   q <- 0
   b <- 0
    #rewrite colnames if not the same as suggested
@@ -213,7 +218,12 @@ turnraws <- function(rawdatafile, i, n, mp, angle){
 }
 
 turncell <- function(MESHp, u, rawdatafile, a, n, i, ars){
-  checkPacks(c("shotGroups", "sp"))
+  if (!requireNamespace("shotGroups", quietly = TRUE)) {
+    stop("Package 'shotGroups' needed for this function to work. Please install this package. Note: package 'sp' is also necessary for this function." )
+  }
+  if (!requireNamespace("sp", quietly = TRUE)) {
+    stop("Package 'sp' needed for this function to work. Please install this package. Note: package 'shotGroups' is also necessary for this function." )
+  }
   box <- suppressWarnings(shotGroups::getMinBBox(data.frame(x= MESHp$X, y=MESHp$Y))) #bounding box of cell
   lengthwidth <- c(box$width, box$height)
   if(ars==2){
@@ -336,7 +346,7 @@ spotrXYMESH <- function(MESH, x_1="x1", y_1="y1",x_0="x0", y_0="y0" ){
 }
 
 
-mergeframes <- function(REP, MESH, mag="100x_LeicaVeening", cutoff=T, maxfactor=2, minfactor=0.5, remOut=T, ouf=F){
+mergeframes <- function(REP, MESH, mag="No_PixelCorrection", cutoff=T, maxfactor=2, minfactor=0.5, remOut=T, ouf=F){
 
   #REP<- REP[(0<REP$l),]
   if("rel.l" %in% colnames(REP)){
@@ -402,7 +412,9 @@ spotMR <- function(dat){
 }
 
 centrefun <- function(dat, xie="ob_x", yie="ob_y"){
-  checkPacks(c("shotGroups"))
+  if (!requireNamespace("shotGroups", quietly = TRUE)) {
+    stop("Package 'shotGroups' needed for this function to work. Please install this package." )
+  }
   dat <- dat[!is.na(dat$ob_x),]
   dat$centre_x <- NA
   dat$centre_y <- NA
@@ -477,18 +489,6 @@ magnificationList <- "magnificationList"
 magEnv <- new.env()
 assign(magnificationList, mL, envir=magEnv)
 
-checkPacks <- function(list.of.packages){
-  list.of.packages <- c("ggplot2", "Rcpp")
-  new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
-  if(length(new.packages)){
-    message(paste("This function needs packages ", new.packages, ". Do you want to install them now? Type 'y'. Or press any other key to cancel", sep=""))
-    inp <- readline()
-    if(inp=="y"|inp=="Y"){
-      install.packages(new.packages)}
-    if(inp!="y"&inp!="Y"){
-      stop()
-    }
-  }
-}
+
 
 
