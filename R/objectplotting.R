@@ -4,21 +4,25 @@
 ##function to plot object projections (now only possible with oufti output)
 
 #' @export
-plotobjects <- function(obdat, meshdat, groups=1, cellcolor="black", objectcolor="green", transparancy=0.1, getdata=FALSE){
+plotObjects <- function(obdat, meshdat, groups=1, cellcolor="black", objectcolor="green", transparancy=0.1, getdata=FALSE, mag="No_PixelCorrection"){
   if(getdata==TRUE){outlist <- list()}
 
-  obdat <- obdat[order(obdat$max.length, obdat$obnum, obdat$obpath),]
   if(groups>1){
-    obdat$lnum <- c(1:nrow(obdat))
-    obdat$q1 <- cut(obdat$lnum, breaks=groups, labels=c(1:groups))
+    obcellsonly <- unique(obdat[,c("cell","max.length", "frame")])
+    obcellsonly <- obcellsonly[order(obcellsonly$max.length),]
+    obcellsonly$lnum <- c(1:nrow(obcellsonly))
+    obcellsonly$q1 <- cut(obcellsonly$lnum, breaks=groups, labels=c(1:groups))
+    obdat <- merge(obcellsonly, obdat)
   }
   if(groups==1){
     obdat$q1 <- 1
   }
 
+  obdat <- obdat[order(obdat$max.length, obdat$obnum, obdat$obpath),]
+
   if(getdata==TRUE){outlist$object_data <- obdat}
   if(missing(meshdat)==TRUE){
-    outplot <- ggplot2::ggplot(obdat, ggplot2::aes(x=ob_out_x, y=ob_out_y, group=obID)) +
+    outplot <- ggplot2::ggplot(obdat, ggplot2::aes(x=ob_out_x, y=ob_out_y, group=paste(obID,frame))) +
       ggplot2::geom_polygon(alpha=transparancy, fill=objectcolor) +
       ggplot2::facet_grid(q1~.) +
       ggplot2::coord_fixed() +
@@ -29,12 +33,13 @@ plotobjects <- function(obdat, meshdat, groups=1, cellcolor="black", objectcolor
     if(getdata==TRUE){outlist$objectplot <- outplot}
   }
   if(missing(meshdat)!=TRUE){
-    meshdat <- merge(meshdat, obdat[,c("frame", "cell", "q1")])
+    meshdat <- merge(meshdat, obdat[,c("cell", "frame", "q1")])
     meshdat <- meshdat[order(meshdat$frame, meshdat$cell, meshdat$num),]
+    obdat <- obdat[order(obdat$max.length, obdat$obnum, obdat$obpath),]
     p2um <- unlist(get(magnificationList, envir=magEnv)[mag])
     outplot <- ggplot2::ggplot(meshdat) +
-      ggplot2::geom_polygon(ggplot2::aes(x=X_rotum, y=Y_rotum, group=cell), alpha=transparancy, fill=cellcolor) +
-      ggplot2::geom_polygon(data=obdat, ggplot2::aes(x=ob_out_x, y=ob_out_y, group=obID), alpha=transparancy, fill=objectcolor) +
+      ggplot2::geom_polygon(ggplot2::aes(x=Xrotum, y=Yrotum, group=paste(cell,frame)), alpha=transparancy, fill=cellcolor) +
+      ggplot2::geom_polygon(data=obdat, ggplot2::aes(x=ob_out_x, y=ob_out_y, group=paste(obID,frame)), alpha=transparancy, fill=objectcolor) +
       ggplot2::facet_grid(q1~.) +
       ggplot2::coord_fixed() +
       ggplot2::theme_classic() +

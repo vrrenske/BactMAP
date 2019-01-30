@@ -2,7 +2,7 @@
 
 #upload your image stack (one color)
 #' @export
-extr.OriginalStack <- function(picloc){
+extr_OriginalStack <- function(picloc){
   suppressWarnings(im <- tiff::readTIFF(picloc, all=T)) #if you want the best resolution, it needs to be a .tiff file
   im <- lapply(im, function(x) raster::raster(x))
   imdatframe <- lapply(im, function(x) as.data.frame(as(x, "SpatialPixelsDataFrame"))) #get values
@@ -15,7 +15,7 @@ extr.OriginalStack <- function(picloc){
 
 
 #' @export
-extr.OriginalCells <- function(imdatframe, mesh){
+extr_OriginalCells <- function(imdatframe, mesh){
     allcellslist <- lapply(unique(mesh$frame), function(x) pipperframe(imdatframe, mesh, x))
     allcellsframe <- do.call(rbind, allcellslist)
     allcellsframe$cell <- allcellsframe$pip
@@ -213,7 +213,7 @@ plotRaw <- function(tiffdata,
 
 prepForKymo <- function(turnedCells, dimension="length", bins = 25, sizeAV=FALSE){
 
-  turnedCells <- unique(turnedCells[,c("values", "frame", "cell", "X_rot","Y_rot", "max.length", "max.width")])
+  turnedCells <- unique(turnedCells[,c("values", "frame", "cell", "X_rot","Y_rot", "max.length", "max.width", "pointN")])
   groupL <- list()
   for(n in unique(turnedCells$frame)){
 
@@ -280,7 +280,7 @@ prepForKymo <- function(turnedCells, dimension="length", bins = 25, sizeAV=FALSE
 ##############plot#########
 #' @export
 
-bactKymo <- function(groupL, timeD = FALSE, dimension = "length", bins=25, sizeAV=FALSE, cells="all", prep=TRUE, percDiv=FALSE){
+bactKymo <- function(groupL, timeD = FALSE, dimension = "length", bins=25, sizeAV=FALSE, cells="all", prep=TRUE, percDiv=FALSE, cutoff_demograph = 0.975){
   if(percDiv==TRUE){
     if("percentage_binned"%in%colnames(groupL)!=TRUE){
       groupP <- perc_Division(unique(groupL[,c("cell", "frame", "max.length")]), av=FALSE, plotgrowth=FALSE)$timelapse
@@ -317,6 +317,9 @@ bactKymo <- function(groupL, timeD = FALSE, dimension = "length", bins=25, sizeA
   }
 
   if(timeD==FALSE&percDiv==F){
+    #97.5 % cutoff for outlying superbright stuff
+
+    groupL <- groupL[groupL$values<quantile(groupL$values, cutoff_demograph),]
 
     if(dimension=="length"&sizeAV==FALSE){
       plot1 <- ggplot2::ggplot(groupL, ggplot2::aes(x=cellnum.length,y=group, fill=values)) +
@@ -331,7 +334,7 @@ bactKymo <- function(groupL, timeD = FALSE, dimension = "length", bins=25, sizeA
     if(dimension=="length"&sizeAV==TRUE){
       groupL$cellnum.length[groupL$frameh=="a"|groupL$frameh=="d"] <- groupL$cellnum.length[groupL$frameh=="a"|groupL$frameh=="d"] + 0.5
       groupL$cellnum.length[groupL$frameh=="b"|groupL$frameh=="c"] <- groupL$cellnum.length[groupL$frameh=="b"|groupL$frameh=="c"] - 0.5
-      plot1 <- ggplot2::ggplot(groupL, ggplot2::aes(x=cellnum.length,y=y_coords, group=paste(X_rot, cell, frame, sep="_"), fill=values)) +
+      plot1 <- ggplot2::ggplot(groupL, ggplot2::aes(x=cellnum.length,y=y_coords, group=paste(X_rot, cell, frame, pointN, sep="_"), fill=values)) +
         ggplot2::geom_polygon() +
         ggplot2::theme_minimal() +
         ggplot2::xlab("n(th) cell ordered by cell length") +
@@ -350,7 +353,7 @@ bactKymo <- function(groupL, timeD = FALSE, dimension = "length", bins=25, sizeA
     if(dimension=="width"&sizeAV==TRUE){
       groupL$cellnum.width[groupL$frameh=="a"|groupL$frameh=="d"] <- groupL$cellnum.width[groupL$frameh=="a"|groupL$frameh=="d"] + 0.5
       groupL$cellnum.width[groupL$frameh=="b"|groupL$frameh=="c"] <- groupL$cellnum.width[groupL$frameh=="b"|groupL$frameh=="c"] - 0.5
-      plot1 <- ggplot2::ggplot(groupL, ggplot2::aes(x=cellnum.width,y=y_coords, group=paste(X_rot, cell, frame, sep="_"), fill=values)) +
+      plot1 <- ggplot2::ggplot(groupL, ggplot2::aes(x=cellnum.width,y=y_coords, group=paste(X_rot, cell, frame, pointN, sep="_"), fill=values)) +
         ggplot2::geom_polygon() +
         ggplot2::theme_minimal() +
         ggplot2::xlab("n(th) cell ordered by cell width") +
@@ -394,20 +397,20 @@ bactKymo <- function(groupL, timeD = FALSE, dimension = "length", bins=25, sizeA
 
   if(timeD==TRUE&sizeAV==TRUE&percDiv==FALSE){
     if(cells=="all"){
-        plot1 <- lapply(unique(ggplot2::groupL$cell), function(x) ggplot2::ggplot(groupL[groupL$cell==x,]) +
-                          ggplot2::geom_polygon(ggplot2::aes(x=x_coords, y=y_coords, fill=values, group=X_rot)) +
+        plot1 <- lapply(unique(groupL$cell[order(groupL$cell)]), function(x) ggplot2::ggplot(groupL[groupL$cell==x,]) +
+                          ggplot2::geom_polygon(ggplot2::aes(x=x_coords, y=y_coords, fill=values, group=paste(X_rot,pointN,values))) +
                           ggplot2::theme_minimal() +
                           ggplot2::xlab("Time (frames)") +
                           ggplot2::ylab(paste(dimension, "(in pixels)", sep=" ")) +
                           ggplot2::scale_fill_viridis_c() +
                           ggtitle(x)
         )
-        plot1 <- !is.na(plot1)
+        plot1 <- plot1[!is.na(plot1)]
 
     }
     if(is.numeric(cells)==TRUE&length(cells)>1){
       plot1 <- lapply(cells, function(x) ggplot2::ggplot(groupL[groupL$cell==x,]) +
-                        ggplot2::geom_polygon(ggplot2::aes(x=x_coords, y=y_coords, fill=values, group=X_rot)) +
+                        ggplot2::geom_polygon(ggplot2::aes(x=x_coords, y=y_coords, fill=values, group=paste(X_rot, pointN,values))) +
                         ggplot2::theme_minimal() +
                         ggplot2::xlab("Time (frames)") +
                         ggplot2::ylab(paste(dimension, "(in pixels)", sep=" ")) +
@@ -417,10 +420,10 @@ bactKymo <- function(groupL, timeD = FALSE, dimension = "length", bins=25, sizeA
     }
     if(is.numeric(cells)==TRUE&length(cells)==1){
       plot1 <- ggplot2::ggplot(groupL[groupL$cell==cells,]) +
-        ggplot2::geom_polygon(ggplot2::aes(x=x_coords, y=y_coords, fill=values, group=X_rot)) +
+        ggplot2::geom_polygon(ggplot2::aes(x=x_coords, y=y_coords, fill=values, group=paste(X_rot,pointN,values))) +
         ggplot2::theme_minimal() +
         ggplot2::xlab("Time (frames)") +
-        ggplot2::ylab(paste("bin (by cell ", dimension, ")", sep="")) +
+        ggplot2::ylab(paste(dimension, "(in pixels)", sep=" ")) +
         ggplot2::scale_fill_viridis_c()
     }
     if(cells!="all" & is.numeric(cells)==FALSE){
@@ -440,7 +443,7 @@ bactKymo <- function(groupL, timeD = FALSE, dimension = "length", bins=25, sizeA
 
   if(percDiv==TRUE&sizeAV==TRUE){
     plot1 <- ggplot2::ggplot(groupL) +
-      ggplot2::geom_polygon(ggplot2::aes(x=x_coords, y=y_coords, fill=values, group=X_rot)) +
+      ggplot2::geom_polygon(ggplot2::aes(x=x_coords, y=y_coords, fill=values, group=paste(X_rot,values))) +
       ggplot2::theme_minimal() +
       ggplot2::xlab("Percentage of division") +
       ggplot2::ylab(paste("length (by cell ", dimension, ")", sep="")) +

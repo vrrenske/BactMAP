@@ -3,7 +3,7 @@
 
 #########################merging GFP and RFP data############################################
 
-#' @export
+#
 spotrMerge <- function(datasetlist, samecells=TRUE, namesetlist=list("GFP","RFP", "CFP", "YFP", "DAPI", "CY5"), groups = 4, groupby = "max.length"){
 ##we need to get both datasets in one. only, we need to keep them apart. that's why we need to add an extra column
 #indicating which spot is gfp (or any name you want) and which is RFP (idem).
@@ -57,7 +57,7 @@ return(QRall)
 #########################################################################################################################
 
 #plotting
-#' @export
+#
 plotMultiChannel <- function(dataset, cpalette=bm_Colors, colorpicks){
   if(missing(colorpicks)==TRUE){
     cdots <- lapply(1:length(unique(dataset$q1)), function(x) plotallsides(dataset[dataset$q1==x,], x, cpalette))

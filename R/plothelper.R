@@ -139,6 +139,7 @@ superfun <- function(dat, bins,mag){
 #or two, by quartiles of the number of cells:
 #' @export
 createPlotlist <- function(REP, inp =4 , MESH, colorpalette="GreenYellow", mag="No_PixelCorrection", AllPlot=F, Xm="X", Ym="Y", viridis=FALSE){
+
   if(missing(mag)!=T&is.numeric(unlist(get(magnificationList,envir=magEnv)[mag]))==FALSE){
     stop("Magnification conversion factor not recognized. Please use addPixels2um('pixelName', pixelsize) to add your conversion factor")
   }
@@ -156,6 +157,10 @@ createPlotlist <- function(REP, inp =4 , MESH, colorpalette="GreenYellow", mag="
   }
   if("Lmid"%in%colnames(REP)==F&"l"%in%colnames(REP)==F){
     MR <- mergeframes(REP, MESH, mag)
+  }
+  if("obID"%in%colnames(REP)){
+    MR <- unique(MR[,c("num", "frame", "cell", "max.length", "max.width", "Dum", "Lmid", "pole1", "pole2", "cellnum")])
+    MR <- MR[!is.na(MR$cell),]
   }
 
   if(viridis==FALSE){
@@ -340,11 +345,11 @@ createPlotlist <- function(REP, inp =4 , MESH, colorpalette="GreenYellow", mag="
   #save all histograms (L coordinates) of the quartiles too:
   for(n in 1:inp){
     if(viridis==FALSE){
-      p1his <- ggplot2::ggplot(allMRs[[n]], ggplot2::aes(x=Lcor)) + ggplot2::geom_density(fill=colc[[2]], color=colc[[2]]) + ggplot2::theme_minimal() + ggplot2::labs(x="Length(\u03BCm)") + ggplot2::coord_cartesian(xlim=c(-1.5,1.5))
+      p1his <- ggplot2::ggplot(allMRs[[n]], ggplot2::aes(x=Lcor)) + ggplot2::geom_density(fill=colc[[2]], color=colc[[2]]) + ggplot2::theme_minimal() + ggplot2::labs(x="Length(\u03BCm)") + ggplot2::coord_cartesian(xlim=c(min(MR$Lcor, na.rm=T),max(MR$Lcor, na.rm=T)))
     }
     if(viridis==TRUE){
       singopt <- viridissinglecols[colc]
-      p1his <- ggplot2::ggplot(allMRs[[n]], ggplot2::aes(x=Lcor)) + ggplot2::geom_density(fill=singopt, color=singopt) + ggplot2::theme_minimal() + ggplot2::labs(x="Length(\u03BCm)") + ggplot2::coord_cartesian(xlim=c(-1.5,1.5))
+      p1his <- ggplot2::ggplot(allMRs[[n]], ggplot2::aes(x=Lcor)) + ggplot2::geom_density(fill=singopt, color=singopt) + ggplot2::theme_minimal() + ggplot2::labs(x="Length(\u03BCm)") + ggplot2::coord_cartesian(xlim=c(min(MR$Lcor,na.rm=T), max(MR$Lcor,na.rm=T)))
 
     }
     hislist <- append(hislist, list(p1his))
@@ -380,7 +385,7 @@ allplot <- function(plot, data, xmax, ymax, empty){
   p1hLg$widths[2:5] <- as.list(maxWidth)
 
   #put the grids together using gridarrange
-  return(gridExtra::arrangeGrob(p1hLg, empty, p1Dg, p1hD, ncol=2, nrow=2, widths=c(10*xmax, 2.5), heights=c(2, 10*ymax)))
+  return(gridExtra::arrangeGrob(p1hLg, empty, p1Dg, p1hD, ncol=2, nrow=2, widths=c(10*xmax, 2.5*xmax), heights=c(2.5*xmax, 10*ymax)))
 }
 
 ##before using the function:
@@ -557,6 +562,18 @@ assign(colopts, cols, envir=colEnv)
 
 
 singcollist <- list("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#000000", "#0072B2", "#D55E00", "#CC79A7")
+
+#'@export
+colorsCUD <- function(colornames){
+  if(!missing(colornames)){
+    outlist <- singcollist[1:length(colornames)]
+    names(outlist) <- colornames
+    return(unlist(outlist))
+  }
+  if(missing(colornames)){
+   return(unlist(singcollist))
+  }
+}
 
 xaxislist <- c("Cell Length (\u03BCm)", "Cell Width (\u03BCm)", "Cell Area (\u03BCm\u00B2)",
                "Spot location in length axis (\u03BCm)", "Spot location on width axis (\u03BCm)")

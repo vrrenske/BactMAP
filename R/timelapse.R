@@ -76,11 +76,11 @@ mark_Percentage <- function(timelapse, av=TRUE){
   coeff <- data.frame("cell"=divL$cell,
                       "division"=divL$division,
                       "coeff" = unlist(lapply(c(1:nrow(divL)),
-                                              function(x) lm(timelapse[timelapse$cell==divL$cell[[x]]&timelapse$division==divL$division[[x]],c("frame", "max.length")])[[1]][[2]])))
+                                              function(x) lm(timelapse[timelapse$cell==divL$cell[[x]]&timelapse$division==divL$division[[x]],c("max.length", "frame")])[[1]][[2]])))
   medco <- median(coeff$coeff,na.rm=T)
 
   coeff$growth <- "u"
-  coeff$growth[coeff$coeff<0.5*medco] <- "none"
+  coeff$growth[coeff$coeff<0.5*medco|is.na(coeff$coeff)] <- "none"
   coeff <- coeff[order(coeff$coeff),]
   coeff$gn <- c(1:nrow(coeff))
   coeff$growth[coeff$growth!="none"] <- cut(coeff$gn[coeff$growth!="none"], breaks=3)

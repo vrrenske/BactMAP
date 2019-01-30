@@ -200,7 +200,7 @@ sprOuftispot <- function(cellList){
   }
 
 #'
-extr.OuftiCSV <- function(dataloc){
+extr_OuftiCSV <- function(dataloc){
   if(missing(dataloc)){
     dataloc <- file.choose()
   }
@@ -209,12 +209,12 @@ extr.OuftiCSV <- function(dataloc){
   outlist <- list()
   outlist$cellList <- C
   outlist$mesh <- MESH
-  #if(length(unique(C$spots))>1){
-    #SPOTS <- sprOuftispot(C)
-    #outlist$spotframe <- SPOTS
-  #}
+  if(length(unique(C$spots))>1){
+    SPOTS <- sprOuftispot(C)
+    outlist$spotframe <- SPOTS
+  }
   if(length(unique(C$objects))>1){
-    OBJ <- sprOuftiobject(C)
+    OBJ <- suppressWarnings(sprOuftiobject(C))
     outlist$objectframe <- OBJ
   }
   return(outlist)

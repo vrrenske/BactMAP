@@ -8,7 +8,7 @@
 
 ##MicrobeJ
 
-extr.MicrobeJMESH <- function(dataloc, sep=","){
+extr_MicrobeJMESH <- function(dataloc, sep=","){
   MESH <- read.csv(dataloc, header=T, sep=sep)
   meshL <- list()
   meshL$cellList <- MESH
@@ -17,13 +17,18 @@ extr.MicrobeJMESH <- function(dataloc, sep=","){
   MESH$frame <- MESH$POSITION
   MESH$cellID <- MESH$NAME.id
   MESH <- MESH[,c("X", "Y", "cell", "frame", "cellID")]
+  bblist <- lapply(unique(MESH$cellID), function(x) as.numeric(suppressWarnings(shotGroups::getMinBBox(data.frame(x= MESH[MESH$cellID==x,]$X, y=MESH[MESH$cellID==x,]$Y))[c("width","height")])))
+  lengthlist <- lapply(c(1:length(bblist)), function(x) max(bblist[[x]]))
+  widthlist <- lapply(c(1:length(bblist)), function(x) min(bblist[[x]]))
+  MESHb <- data.frame("cellID"=unique(MESH$cellID), "max.length" = unlist(lengthlist), "max.width"=unlist(widthlist))
+  MESH <- merge(MESH, MESHb)
   MESH$num <- c(1:nrow(MESH))
   meshL$meshList <- MESH
   return(meshL)
 }
 
 
-extr.MicrobeJSpots <- function(spotloc ,mag, sep=","){
+extr_MicrobeJSpots <- function(spotloc ,mag, sep=","){
   SPOTS <- read.csv(spotloc, header=F, sep=sep)
   colnamesspot <- SPOTS[1,]
   colnamesspot <- colnamesspot[!is.na(colnamesspot)]
@@ -56,7 +61,7 @@ extr.MicrobeJSpots <- function(spotloc ,mag, sep=","){
 }
 
 #' @export
-extr.MicrobeJ <- function(dataloc, spotloc, mag, sepspot=",", sepmesh=","){
+extr_MicrobeJ <- function(dataloc, spotloc, mag, sepspot=",", sepmesh=","){
   if(missing(spotloc)!=T&missing(dataloc)!=T&missing(mag)){
     stop("Magnification conversion needed for proper intercellular measurements! MicrobeJ already converted the spot localizations for you, but not the contours.")
   }
@@ -65,7 +70,7 @@ extr.MicrobeJ <- function(dataloc, spotloc, mag, sepspot=",", sepmesh=","){
   }
   outlist <- list()
   if(missing(dataloc)!=T){
-    MESHout <- extr.MicrobeJMESH(dataloc, sepmesh)
+    MESHout <- extr_MicrobeJMESH(dataloc, sepmesh)
     cellList <- MESHout$cellList
     MESH <- MESHout$meshList
     if(missing(spotloc)==T){
@@ -78,7 +83,7 @@ extr.MicrobeJ <- function(dataloc, spotloc, mag, sepspot=",", sepmesh=","){
     if(missing(mag)){
       mag <- "No_PixelCorrection"
     }
-    spotsout <- extr.MicrobeJSpots(spotloc ,mag, sep=sepspot)
+    spotsout <- extr_MicrobeJSpots(spotloc ,mag, sep=sepspot)
     SPOTS <- spotsout$spotList
     cellList2 <- spotsout$cellList
     if(missing(dataloc)==T){
@@ -97,24 +102,34 @@ extr.MicrobeJ <- function(dataloc, spotloc, mag, sepspot=",", sepmesh=","){
     }
     spot_mesh <- mergeframes(listbox$spots_relative, listbox$mesh, mag)
     outlist$spots_relative <- spot_mesh
-    outlist$pixel2um <- unlist(get(magnificationList, envir=magEnv)[mag])
+
     outlist$mesh <- listbox$mesh
     cellList3 <- list()
     cellList3$Mesh <- cellList
     cellList3$Spots <- cellList2
     outlist$cellList <- cellList3
   }
+  if(missing(dataloc)!=T){
+    if("X_rot"%in%colnames(outlist$mesh)!=T){
+      outlist$mesh <- meshTurn(outlist$mesh)
+    }
+    outlist$mesh$Xrotum <- outlist$mesh$X_rot * unlist(get(magnificationList, envir=magEnv)[mag])
+    outlist$mesh$Yrotum <- outlist$mesh$Y_rot * unlist(get(magnificationList, envir=magEnv)[mag])
+    outlist$mesh$max_um <- outlist$mesh$max.length * unlist(get(magnificationList, envir=magEnv)[mag])
+    outlist$mesh$maxwum <- outlist$mesh$max.width * unlist(get(magnificationList, envir=magEnv)[mag])
+  }
+  outlist$pixel2um <- unlist(get(magnificationList, envir=magEnv)[mag])
   return(outlist)
 }
 
 ##ISBatch
 #' @export
-extr.ISBatch <- function(dataloc){
+extr_ISBatch <- function(dataloc, seperator=","){
   if(substr(dataloc, nchar(dataloc)-3, nchar(dataloc))==".txt"){
     SPOTS <- read.table(dataloc, header=T, sep="\t")
   }
   if(substr(dataloc, nchar(dataloc)-3, nchar(dataloc))==".csv"){
-    SPOTS <- read.csv(dataloc, header=T)
+    SPOTS <- read.csv(dataloc, header=T, sep=seperator)
   }
   SPOTS$frame  <- SPOTS$slice
   SPOTS$slice <- NULL
@@ -133,7 +148,7 @@ extr.ISBatch <- function(dataloc){
 
 #ObjectJ - mostly manual entry.
 #' @export
-extr.ObjectJ <- function(dataloc, mag="No_PixelCorrection"){
+extr_ObjectJ <- function(dataloc, mag="No_PixelCorrection"){
   #prepare list for output
   outlist <- list()
   #read out .txt file

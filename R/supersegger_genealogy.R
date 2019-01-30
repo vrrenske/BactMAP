@@ -7,7 +7,7 @@
 
 
 #' @export
-extr.SuperSeggerClist <- function(matfile, filetype = "Genealogy", trim.orphans=TRUE){
+extr_SuperSeggerClist <- function(matfile, filetype = "Genealogy", trim.orphans=TRUE){
   clist <- R.matlab::readMat(matfile)
   datasegger <- as.data.frame(clist$data)
   colnames(datasegger) <- unlist(clist$def)
@@ -34,7 +34,7 @@ extr.SuperSeggerClist <- function(matfile, filetype = "Genealogy", trim.orphans=
 }
 
 #' @export
-plottree.basic <- function(phylo, extradata, yscalechange = FALSE, showClade = FALSE, layout = "rectangular", ydata, cellNumber, open.angle, linesize = 1, linecolor = "black", lines=TRUE, colors=FALSE){
+plottreeBasic <- function(phylo, extradata, yscalechange = FALSE, showClade = FALSE, layout = "rectangular", ydata, cellNumber, open.angle, linesize = 1, linecolor = "black", lines=TRUE, colors=FALSE){
   if(showClade==TRUE){
     if(missing(cellNumber)){stop("cellNumber missing. Please state the ancestor cell you want to follow to show it's clade.")}
     NodeNumber <- extradata$node[extradata$cell==cellNumber]

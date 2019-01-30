@@ -9,44 +9,55 @@
 
 #function to get all cell files into R as a list per frame number
 upperdir <- function(frameN, loc){
-  cellnameList <- list.files(path=paste(loc, "\\xy", frameN, "\\cell", sep=""), pattern="cell")
+  cellnameList <- list.files(path=paste(loc, "\\xy", frameN, "\\cell", sep=""))
   matlist <- lapply(cellnameList, function(x) R.matlab::readMat(paste(loc, "\\xy", frameN, "\\cell\\", x, sep="")))
   return(matlist)
 }
 
 #getting a list of cell files from frame 0:frames-1
 readallsegcells <- function(frames, loc){
-  allcells <- lapply(c(0:(frames-1)), function(x) upperdir(x, loc))
+  allcells <- lapply(c(1:(frames)), function(x) upperdir(x, loc))
   return(allcells)
 }
 
 #getting the cell mask out of the cell lists
-celmask <- function(matf){
-  ras <- matf$CellA[[1]][[1]][[4]]
+celmask <- function(matf, n, b){
+  ras <- matf$CellA[[n]][[1]][[4]]
   ras[ras==0] <- NA
   ras <- raster::raster(ras,
-                        xmn=min(matf$CellA[[1]][[1]][[2]]),
-                        xmx = max(matf$CellA[[1]][[1]][[2]]),
-                        ymn = min(matf$CellA[[1]][[1]][[3]]),
-                        ymx = max(matf$CellA[[1]][[1]][[3]])
+                        xmn=min(matf$CellA[[n]][[1]][[2]]),
+                        xmx = max(matf$CellA[[n]][[1]][[2]]),
+                        ymn = min(matf$CellA[[n]][[1]][[3]]),
+                        ymx = max(matf$CellA[[n]][[1]][[3]])
   )
   rasp <- raster::rasterToPolygons(ras, dissolve=TRUE)
   rasp <- as.data.frame(rasp@polygons[[1]]@Polygons[[1]]@coords)
+  rasp$frame <- (n-1+as.numeric(b))
   return(rasp)
+}
 
+getallmaskstime <- function(matf){
+  if((matf$death-matf$birth)>0){
+    rangeC <- c(1:length(matf$CellA))
+  }
+  if((matf$death==matf$birth)){
+    rangeC <- 1
+  }
+  celmasklist <- lapply(rangeC, function(x) celmask(matf, x, matf$birth))
+  return(celmasklist)
 }
 
 #getting a list of length x (amount of cells) containing the cell mask for each cell (y)
 getallmasks <- function(matlist){
   matlength <- length(matlist)
-  celmasklist <- lapply(1:matlength, function(x) lapply(matlist[[x]], function(y) celmask(y)))
+  celmasklist <- lapply(1:matlength, function(x) lapply(matlist[[x]], function(y) getallmaskstime(y)))
   return(celmasklist)
 }
 
 
 #turn the dataframes
 flipallcells <- function(celllists){
-  cellflip <- lapply(1:length(celllists), function(x) lapply(celllists[[x]], function(y) as.data.frame(t(as.data.frame(y$CellA[[1]][[1]])))))
+  cellflip <- lapply(1:length(celllists), function(x) lapply(celllists[[x]], function(z) lapply(z$CellA, function(y)  as.data.frame(t(as.data.frame(y[[1]]))))))
   return(cellflip)
 }
 
@@ -68,22 +79,39 @@ bindallcellsandmeshes <- function(cellflip, cellmask){
   cellflipout <- list()
   for(n in 1:length(cellflip)){
     for(u in 1:length(cellflip[[n]])){
-      cellflip[[n]][[u]]$cell <- u
-      cellmask[[n]][[u]]$cell <- u
-      cellflip[[n]][[u]]$cellmask <- list(cellmask[[n]][[u]])
-      cellmask[[n]][[u]]$num <- c(1:nrow(cellmask[[n]][[u]]))
+      if(length(cellmask[[n]][[u]])==1){cellflip[[n]][[u]][[2]]<-NULL}
+      for(z in 1:length(cellmask[[n]][[u]])){
+        cellflip[[n]][[u]][[z]]$cell <- u
+        cellmask[[n]][[u]][[z]]$cell <- u
+        cellflip[[n]][[u]][[z]]$cellmask <- list(cellmask[[n]][[u]][[z]])
+        cellmask[[n]][[u]][[z]]$num <- c(1:nrow(cellmask[[n]][[u]][[z]]))
+        cellflip[[n]][[u]][[z]]$frame <- unique(cellmask[[n]][[u]][[z]]$frame)
+      }
+      cellflip[[n]][[u]] <- do.call('rbind', cellflip[[n]][[u]])
+      cellmask[[n]][[u]] <- do.call('rbind', cellmask[[n]][[u]])
     }
     cellflipframe <- do.call('rbind', cellflip[[n]])
-    cellflipframe$frame <- n
+    if("frame"%in%colnames(cellflipframe)){
+      cellflipframe$location <- n
+    }
+    if("frame"%in%colnames(cellflipframe)!=T){
+      cellflipframe$frame <- n
+    }
     cellmaskframe <- do.call('rbind', cellmask[[n]])
-    cellmaskframe$frame <- n
+    if("frame"%in%colnames(cellmaskframe)){
+      cellmaskframe$location <- n
+    }
+    if("frame"%in%colnames(cellmaskframe)!=T){
+      cellmaskframe$frame <- n
+    }
+
     if(n==1){
       cellflipout$cellList <- cellflipframe
-      cellflipout$MESH <- cellmaskframe
+      cellflipout$mesh <- cellmaskframe
     }
     else{
       cellflipout$cellList <- rbind(cellflipout$cellList, cellflipframe)
-      cellflipout$MESH <- rbind(cellflipout$MESH, cellmaskframe)
+      cellflipout$mesh <- rbind(cellflipout$mesh, cellmaskframe)
     }
   }
   return(cellflipout)
@@ -94,12 +122,26 @@ bindallcellsandmeshes <- function(cellflip, cellmask){
 ##extract function for exporting.
 
 #' @export
-extr.SuperSeggerCells <- function(loc, frames){
+extr_SuperSeggerCells <- function(loc, frames, mag){
   segcells <- readallsegcells(frames=frames, loc=loc)
   segmasks <- getallmasks(segcells)
   finalframe <- bindallcellsandmeshes(flipallcells(segcells), segmasks)
-  finalframe$MESH <- meshTurn(finalframe$MESH, "x", "y")
-  finalframe$MESH$Y <- finalframe$MESH$Ymid + (finalframe$MESH$Ymid - finalframe$MESH$Y)
-  finalframe$MESH$Y_rot <- -finalframe$MESH$Y_rot
+  finalframe$mesh <- meshTurn(finalframe$mesh, "x", "y")
+  finalframe$mesh$Y <- finalframe$mesh$Ymid + (finalframe$mesh$Ymid - finalframe$mesh$Y)
+  finalframe$mesh$Y_rot <- -finalframe$mesh$Y_rot
+  if(!missing(mag)){
+    if(is.numeric(unlist(get(magnificationList,envir=magEnv)[mag]))==FALSE){
+      stop("Magnification conversion factor not recognized. Please use addPixels2um('pixelName', pixelsize) to add your conversion factor")
+    }
+    finalframe$mesh$Yrotum <- finalframe$mesh$Y_rot * unlist(get(magnificationList,envir=magEnv)[mag])
+    finalframe$mesh$Xrotum <- finalframe$mesh$X_rot * unlist(get(magnificationList,envir=magEnv)[mag])
+    finalframe$mesh$max_um <- finalframe$mesh$max.length* unlist(get(magnificationList, envir=magEnv)[mag])
+    finalframe$mesh$maxwum <- finalframe$mesh$max.width *  unlist(get(magnificationList, envir=magEnv)[mag])
+    finalframe$mesh$area_um <- finalframe$mesh$area *  unlist(get(magnificationList, envir=magEnv)[mag])^2
+    finalframe$pixel2um <- unlist(get(magnificationList,envir=magEnv)[mag])
+  }
+  if(missing(mag)){
+    finalframe$pixel2um <- c("No_PixelCorrection" = 1)
+  }
   return(finalframe)
 }
