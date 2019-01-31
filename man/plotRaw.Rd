@@ -81,9 +81,4 @@ plotRaw(TIF_image)
 
 #zoom in and add title
 plotRaw(TIF_image, xrange=(c(200,500)), yrange=c(400,600)) + ggplot2::ggtitle("This is DnaX-GFP")
-
-
-% Add one or more standard keywords, see file 'KEYWORDS' in the
-% R documentation directory.
-\keyword{  }% use one of  RShowDoc("KEYWORDS")
-\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line
+}
