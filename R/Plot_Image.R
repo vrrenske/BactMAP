@@ -130,7 +130,7 @@ plotcellsframelist <- function(TRframe, maxframes, minframes, updown=F, movie=F,
     p <- ggplot2::ggplot(TRframe, aes(frame=frame)) +
       ggplot2::geom_polygon(ggplot2::aes(x=xt,y=yt,fill=values,group=pointN),color=NA) +
       ggimage::theme_transparent() + ggplot2::coord_fixed() +
-      viridis::scale_fill_viridis(option=viridisoption) +
+      ggplot2::scale_fill_viridis_c(option=viridisoption) +
       ggplot2::xlim(c(min(TRframe$xt, na.rm=TRUE), max(TRframe$xt, na.rm=TRUE))) +
       ggplot2::ylim(c(min(TRframe$yt, na.rm=TRUE), max(TRframe$yt, na.rm=TRUE))) +
       ggplot2::xlab(NULL) +
@@ -185,7 +185,7 @@ plotRaw <- function(tiffdata,
   plotcells <- ggplot2::ggplot(tiffdata[[frameN]]) + #plot raw image
     ggplot2::geom_raster(ggplot2::aes(x=x,y=y,fill=values)) + #use geom_raster to remake image out of dataframe
     ggplot2::theme_classic() + #simple theme, no backgrounds
-    viridis::scale_fill_viridis(option=viridisoption) + #well-working color scheme for gradient values
+    ggplot2::scale_fill_viridis_c(option=viridisoption) + #well-working color scheme for gradient values
     ggplot2::theme(legend.position="none") # remove legend for easy viewing
   }
   if(missing(tiffdata)==T){
@@ -340,7 +340,7 @@ bactKymo <- function(groupL, timeD = FALSE, dimension = "length", bins=25, sizeA
         ggplot2::theme_minimal() +
         ggplot2::xlab("n(th) cell ordered by cell length") +
         ggplot2::ylab("bin (by cell length)") +
-        viridis::scale_fill_viridis(name="Fluorescence\nIntensity")
+        ggplot2::scale_fill_viridis_c(name="Fluorescence\nIntensity")
     }
 
     if(dimension=="length"&sizeAV==TRUE){
@@ -351,7 +351,7 @@ bactKymo <- function(groupL, timeD = FALSE, dimension = "length", bins=25, sizeA
         ggplot2::theme_minimal() +
         ggplot2::xlab("n(th) cell ordered by cell length") +
         ggplot2::ylab("location on length axis (micron)") +
-        viridis::scale_fill_viridis(name="Fluorescence\nIntensity")
+        ggplot2::scale_fill_viridis_c(name="Fluorescence\nIntensity")
     }
     if(dimension=="width"&sizeAV==FALSE){
       plot1 <- ggplot2::ggplot(groupL, ggplot2::aes(x=cellnum.width,y=group, fill=values)) +
@@ -360,7 +360,7 @@ bactKymo <- function(groupL, timeD = FALSE, dimension = "length", bins=25, sizeA
         ggplot2::theme_minimal() +
         ggplot2::xlab("n(th) cell ordered by cell width") +
         ggplot2::ylab("bin (by cell width)") +
-        viridis::scale_fill_viridis(name="Fluorescence\nIntensity")
+        ggplot2::scale_fill_viridis_c(name="Fluorescence\nIntensity")
     }
     if(dimension=="width"&sizeAV==TRUE){
       groupL$cellnum.width[groupL$frameh=="a"|groupL$frameh=="d"] <- groupL$cellnum.width[groupL$frameh=="a"|groupL$frameh=="d"] + 0.5
@@ -370,7 +370,7 @@ bactKymo <- function(groupL, timeD = FALSE, dimension = "length", bins=25, sizeA
         ggplot2::theme_minimal() +
         ggplot2::xlab("n(th) cell ordered by cell width") +
         ggplot2::ylab("location on length axis (micron)") +
-        viridis::scale_fill_viridis(name="Fluorescence\nIntensity")
+        ggplot2::scale_fill_viridis_c(name="Fluorescence\nIntensity")
     }
   }
 
@@ -426,7 +426,7 @@ bactKymo <- function(groupL, timeD = FALSE, dimension = "length", bins=25, sizeA
                         ggplot2::theme_minimal() +
                         ggplot2::xlab("Time (frames)") +
                         ggplot2::ylab(paste(dimension, "(in pixels)", sep=" ")) +
-                        viridis::scale_fill_viridis() +
+                        ggplot2::scale_fill_viridis_c() +
                         ggtitle(x)
       )
     }
