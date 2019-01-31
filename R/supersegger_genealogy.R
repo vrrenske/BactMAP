@@ -50,7 +50,9 @@ plottreeBasic <- function(phylo, extradata, yscalechange = FALSE, showClade = FA
   if (!requireNamespace("ggtree", quietly = TRUE)) {
     inp <- readline("Packages 'ggtree' needed for this function to work. Press 'y' to install, or any other key to cancel.")
     if(inp=="y"|inp=="Y"){
-      devtools::install_github("GuangchuangYu/ggtree")}else{stop("Canceled")}
+        if (!requireNamespace("BiocManager", quietly = TRUE))install.packages("BiocManager")
+      BiocManager::install("ggtree", version = "3.8")
+    }
   }
   if(showClade==TRUE){
     if(missing(cellNumber)){stop("cellNumber missing. Please state the ancestor cell you want to follow to show it's clade.")}

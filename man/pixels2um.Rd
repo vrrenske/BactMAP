@@ -1,4 +1,5 @@
 \name{Pixels2um}
+\alias{Pixels2um}
 \alias{Pixel2um}
 \alias{getPixels2um}
 \alias{addPixels2um}
