@@ -85,7 +85,8 @@ plotOverlay <- function(meshdata,
                         mag,
                         objectcolor=c("#E69F00", "#56B4E9", "#009E73", "#F0E442"),
                         spotcolor = c("#0072B2", "#D55E00", "#CC79A7", "000000"),
-                        histogram_outline = NA){
+                        histogram_outline = NA,
+                        his_scales = "free"){
 
   #check type input
   if(type!="all"&type!="projection"&type!="histogram"&type!="length"&type!="width"){type <- readline("Please give type of plot: 'histogram', 'length', 'width', 'projection', or 'all' and press enter to confirm.")
@@ -334,7 +335,7 @@ plotOverlay <- function(meshdata,
       meshdata$quant_by <- meshdata[,quantiles_by]
       his_mesh <- ggplot2::ggplot(meshdata) + ggplot2::geom_density(ggplot2::aes(x=quant_by), fill="black", color=histogram_outline) + ggplot2::theme_minimal()
       if(by!="channel"){
-        his_mesh <- his_mesh + ggplot2::facet_grid(.~condition)
+        his_mesh <- his_mesh + ggplot2::facet_grid(.~condition, scales = his_scales)
       }
 
 
@@ -363,10 +364,10 @@ plotOverlay <- function(meshdata,
         his_obj <- ggplot2::ggplot(objectdata) + ggplot2::geom_density(ggplot2::aes(x=Lmid), fill="black", color=histogram_outline)
       }
       if(by!="channel"&quantiles>1){
-        his_obj <- his_obj + ggplot2::facet_grid(quantiles~condition)
+        his_obj <- his_obj + ggplot2::facet_grid(quantiles~condition, scales = his_scales)
       }
       if(by=="channel"&quantiles>1){
-        his_obj <- his_obj + ggplot2::facet_grid(quantiles~.)
+        his_obj <- his_obj + ggplot2::facet_grid(quantiles~., scales = his_scales)
       }
       histograms$objects <- his_obj
     }
@@ -392,10 +393,10 @@ plotOverlay <- function(meshdata,
         his_spot <- ggplot2::ggplot(spotdata) + ggplot2::geom_density(ggplot2::aes(x=Lmid), fill="black", color=histogram_outline)
       }
       if(by!="channel"&quantiles>1){
-        his_spot <- his_spot + ggplot2::facet_grid(quantiles~condition)
+        his_spot <- his_spot + ggplot2::facet_grid(quantiles~condition, scales = his_scales)
       }
       if(by=="channel"&quantiles>1){
-        his_spot <- his_spot + ggplot2::facet_grid(quantiles~.)
+        his_spot <- his_spot + ggplot2::facet_grid(quantiles~. , scales = his_scales)
       }
       histograms$spots <- his_spot
     }
