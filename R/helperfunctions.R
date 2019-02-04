@@ -52,7 +52,7 @@ getPixels2um <- function(){
 
 ##merge spotfiles with only raw coordinates with mesh file with only raw data. add mesh length/width while on it.
 #' @export
-spotsInBox <- function(spotfile, MESH, Xs = "x", Ys = "y", Xm = "X", Ym = "Y"){
+spotsInBox <- function(spotdata, mesh, Xs = "x", Ys = "y", Xm = "X", Ym = "Y"){
   if (!requireNamespace("shotGroups", quietly = TRUE)) {
     inp <- readline("Package 'shotGroups' needed for this function to work. Press 'y' to install, or any other key to cancel.")
     if(inp=="y"|inp=="Y"){install.packages("shotGroups")}else{stop("Canceled")}
@@ -65,42 +65,42 @@ spotsInBox <- function(spotfile, MESH, Xs = "x", Ys = "y", Xm = "X", Ym = "Y"){
   b <- 0
    #rewrite colnames if not the same as suggested
   if(Xs!="x"){
-    colnames(spotfile)[colnames(spotfile)==Xs] <- "x"
+    colnames(spotdata)[colnames(spotdata)==Xs] <- "x"
   }
   if(Ys!="y"){
-    colnames(spotfile)[colnames(spotfile)==Ys] <- "y"
+    colnames(spotdata)[colnames(spotdata)==Ys] <- "y"
   }
   if(Xm!="X"){
-    colnames(MESH)[colnames(MESH)==Xm] <- "X"
+    colnames(mesh)[colnames(mesh)==Xm] <- "X"
   }
   if(Ym!="Y"){
-    colnames(MESH)[colnames(MESH)==Ym] <- "Y"
+    colnames(mesh)[colnames(mesh)==Ym] <- "Y"
   }
 
-  if("max.width"%in%colnames(MESH)==T){u <- 1}
-  if("max.width"%in%colnames(MESH)==F){u<-2}
+  if("max.width"%in%colnames(mesh)==T){u <- 1}
+  if("max.width"%in%colnames(mesh)==F){u<-2}
 
-  if("length"%in%colnames(MESH)==T){a <- 1}
-  if("length"%in%colnames(MESH)==F){a<-2} #if length and max width are already defined, don't touch them.
+  if("length"%in%colnames(mesh)==T){a <- 1}
+  if("length"%in%colnames(mesh)==F){a<-2} #if length and max width are already defined, don't touch them.
 
-  min.i <- min(MESH$frame)
-  for(i in unique(MESH$frame)){ #per frame
-    min.n <- min(MESH$cell[MESH$frame==i])
-    spotfilep <- spotfile[spotfile$frame==i,]
-    for(n in unique(MESH$cell[MESH$frame==i])){ #per cell
-      MESHp <- MESH[MESH$cell==n&MESH$frame==i,] #define part of the frame to run faster
+  min.i <- min(mesh$frame)
+  for(i in unique(mesh$frame)){ #per frame
+    min.n <- min(mesh$cell[mesh$frame==i])
+    spotdatap <- spotdata[spotdata$frame==i,]
+    for(n in unique(mesh$cell[mesh$frame==i])){ #per cell
+      meshp <- mesh[mesh$cell==n&mesh$frame==i,] #define part of the frame to run faster
 
-      box <- suppressWarnings(shotGroups::getMinBBox(data.frame(x= MESHp$X, y=MESHp$Y))) #bounding box of cell
+      box <- suppressWarnings(shotGroups::getMinBBox(data.frame(x= meshp$X, y=meshp$Y))) #bounding box of cell
       lengthwidth <- c(box$width, box$height)
 
       if(u==2){
-        MESHp$max.width <- min(lengthwidth)
+        meshp$max.width <- min(lengthwidth)
       }
       if(a==2){
-        MESHp$max.length <- max(lengthwidth) #take length/width if not already defined
+        meshp$max.length <- max(lengthwidth) #take length/width if not already defined
       }
 
-      pinps <- suppressWarnings(SDMTools::pnt.in.poly(spotfilep[,c("x","y")], data.frame(MESHp$X,MESHp$Y))) #find spot/object coordinates inside cell
+      pinps <- suppressWarnings(SDMTools::pnt.in.poly(spotdatap[,c("x","y")], data.frame(meshp$X,meshp$Y))) #find spot/object coordinates inside cell
       if(nrow(pinps)>0){
         pinps <- pinps[pinps$pip==1,]
       }
@@ -130,23 +130,23 @@ spotsInBox <- function(spotfile, MESH, Xs = "x", Ys = "y", Xm = "X", Ym = "Y"){
       }
 
       mp <- c(mean(lengthline$x), mean(lengthline$y)) #midpoint
-      X_cor <- MESHp$X-mp[1]
-      Y_cor <- MESHp$Y-mp[2]
+      X_cor <- meshp$X-mp[1]
+      Y_cor <- meshp$Y-mp[2]
       angle <- (-box$angle)*pi/180 #angle to lay cell flat on x axis
 
-      MESHp$X_rot <- X_cor * cos(angle) - Y_cor * sin(angle)
-      MESHp$Y_rot <- X_cor * sin(angle) + Y_cor * cos(angle) #rotate cell
+      meshp$X_rot <- X_cor * cos(angle) - Y_cor * sin(angle)
+      meshp$Y_rot <- X_cor * sin(angle) + Y_cor * cos(angle) #rotate cell
 
       if(nrow(pinps)>0){ #rotate spot/object points
         Lc <- pinps$x-mp[1]
         Dc <- pinps$y-mp[2]
         pinps$l <- -(Lc*cos(angle)-Dc*sin(angle))
         pinps$d <- -(Lc*sin(angle) +Dc*cos(angle))
-        pinps$max.width <- unique(MESHp$max.width)
-        if("max_length"%in%colnames(MESHp)){pinps$max.length <- unique(MESHp$max_length)
-                                            MESH$max.length <- MESH$max_length
-                                            MESH$max_length <- NULL}
-        else{pinps$max.length <- unique(MESHp$max.length)}
+        pinps$max.width <- unique(meshp$max.width)
+        if("max_length"%in%colnames(meshp)){pinps$max.length <- unique(meshp$max_length)
+                                            mesh$max.length <- mesh$max_length
+                                            mesh$max_length <- NULL}
+        else{pinps$max.length <- unique(meshp$max.length)}
         pinps$cell <- n
         pinps$frame <- i
       }
@@ -154,7 +154,7 @@ spotsInBox <- function(spotfile, MESH, Xs = "x", Ys = "y", Xm = "X", Ym = "Y"){
       #  if(nrow(pinps)>0){
       #    REP <- pinps
     #    }
-      #  Mfull <- MESHp
+      #  Mfull <- meshp
     #  }
 
           if(nrow(pinps)>0){
@@ -167,12 +167,12 @@ spotsInBox <- function(spotfile, MESH, Xs = "x", Ys = "y", Xm = "X", Ym = "Y"){
           }
         }
         if(b==0){
-          Mfull <- MESHp
+          Mfull <- meshp
           b <- 1
         }
         if(b!=0){
          #bind the rest to it
-          Mfull <- rbind(Mfull, MESHp)
+          Mfull <- rbind(Mfull, meshp)
         }
 
 

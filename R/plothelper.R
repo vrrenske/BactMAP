@@ -71,7 +71,7 @@ colorchoiceplot <- function(colchoice, nums, pname){
 #' @export
 pal2Default <- function(){
   assign(colopts, cols, envir=colEnv)
-  print("Colorpalettes back to default")
+  message("Colorpalettes back to default")
 }
 
 #wat basisplotfuncties
@@ -145,7 +145,7 @@ superfun <- function(dat, bins,mag){
 
 #or two, by quartiles of the number of cells:
 #' @export
-createPlotlist <- function(REP, inp =4 , MESH, colorpalette="GreenYellow", mag="No_PixelCorrection", AllPlot=F, Xm="X", Ym="Y", viridis=FALSE){
+createPlotlist <- function(spotdata,  meshdata, groups =4 , colorpalette="GreenYellow", mag="No_PixelCorrection", AllPlot=F, Xm="X", Ym="Y", viridis=FALSE){
   if (!requireNamespace("MASS", quietly = TRUE)) {
   inp_P <- readline("Package 'MASS' needed for this function to work. Press 'y' to install, or any other key to cancel.")
   if(inp_P=="y"|inp_P=="Y"){install.packages("MASS")}else{stop("Canceled")}
@@ -159,22 +159,22 @@ createPlotlist <- function(REP, inp =4 , MESH, colorpalette="GreenYellow", mag="
   if(missing(mag)!=T&is.numeric(unlist(get(magnificationList,envir=magEnv)[mag]))==FALSE){
     stop("Magnification conversion factor not recognized. Please use addPixels2um('pixelName', pixelsize) to add your conversion factor")
   }
-  if("Lmid"%in%colnames(REP)==T){
-    MR <- REP
+  if("Lmid"%in%colnames(spotdata)==T){
+    MR <- spotdata
     MR$cellnum <- MR$num
   }
-  if("l"%in%colnames(REP)==T&"Lmid"%in%colnames(REP)==F){
-    MR <- REP
-    MR <- LimDum(REP, pix2um = unlist(get(magnificationList, envir=magEnv)[mag]))
+  if("l"%in%colnames(spotdata)==T&"Lmid"%in%colnames(spotdata)==F){
+    MR <- spotdata
+    MR <- LimDum(spotdata, pix2um = unlist(get(magnificationList, envir=magEnv)[mag]))
     MR <- MR[order(MR$max.length, MR$max.width),]
     MR <- MR[!is.na(MR$cell),]
     MR$num <- c(1:nrow(MR))
     MR$cellnum <- MR$num
   }
-  if("Lmid"%in%colnames(REP)==F&"l"%in%colnames(REP)==F){
-    MR <- mergeframes(REP, MESH, mag)
+  if("Lmid"%in%colnames(spotdata)==F&"l"%in%colnames(spotdata)==F){
+    MR <- mergeframes(spotdata, meshdata, mag)
   }
-  if("obID"%in%colnames(REP)){
+  if("obID"%in%colnames(spotdata)){
     MR <- unique(MR[,c("num", "frame", "cell", "max.length", "max.width", "Dum", "Lmid", "pole1", "pole2", "cellnum")])
     MR <- MR[!is.na(MR$cell),]
   }
@@ -187,7 +187,7 @@ createPlotlist <- function(REP, inp =4 , MESH, colorpalette="GreenYellow", mag="
     colc <- colorpalette
   }
 
-  MR$q1 <- cut(MR$cellnum, breaks=inp, labels = 1:inp)
+  MR$q1 <- cut(MR$cellnum, breaks=groups, labels = 1:groups)
 
 
   xmax <- 0.5*max(MR$max.length, na.rm=TRUE)
@@ -207,7 +207,7 @@ createPlotlist <- function(REP, inp =4 , MESH, colorpalette="GreenYellow", mag="
   ##plotting! -> coordinate plots
   allMRs <- split(MR, MR$q1)
   plist <- list()
-  for(n in 1:inp){
+  for(n in 1:groups){
     p <- ggplot2::ggplot(allMRs[[n]], ggplot2::aes(x=Lcor, y=Dcor))
     p <- densityplot(p)
     plist <- append(plist, list(p))
@@ -242,7 +242,7 @@ createPlotlist <- function(REP, inp =4 , MESH, colorpalette="GreenYellow", mag="
   mp<- max(sapply(allMRLmids, function(x) median(range(MASS::kde2d(x$Lmid,x$Dum)$z))))
   #create n-tile plots saved in a list.
   phlist <- list()
-  for(n in 1:inp){
+  for(n in 1:groups){
     p <- heatmap(plist[[n]], mp, colc, viridis)
     p <- coplot(p, xmax, ymax)
     phlist <- append(phlist, list(p))
@@ -273,41 +273,41 @@ createPlotlist <- function(REP, inp =4 , MESH, colorpalette="GreenYellow", mag="
   }
   u$widthplot <- pWD
 
-  if(missing(MESH)){
+  if(missing(meshdata)){
     u$qplots <- phlist
   }
 
-  #################add mesh data###############################################################################################
-  if(!missing(MESH)){
+  #################add meshdata data###############################################################################################
+  if(!missing(meshdata)){
 
-    if("X_rot"%in%colnames(MESH)!=T){
-    print("Turning the cells... this may take a while.")
+    if("X_rot"%in%colnames(meshdata)!=T){
+    message("Turning the cells... this may take a while.")
 
-    MESH <- meshTurn(MESH, Xm, Ym)
-    print("Finished turning the cells")
+    meshdata <- meshTurn(meshdata, Xm, Ym)
+    message("Finished turning the cells")
     }
     p2um <- as.numeric(get(magnificationList, envir=magEnv)[mag])
-    if("max_um"%in%colnames(MESH)!=T){
-    MESH$max_um <- MESH$max.length*p2um
-    MESH$maxwum <- MESH$max.width*p2um
+    if("max_um"%in%colnames(meshdata)!=T){
+    meshdata$max_um <- meshdata$max.length*p2um
+    meshdata$maxwum <- meshdata$max.width*p2um
     }
 
 
-    MESH <- merge(MESH, MR[,c("cell", "frame", "q1")], all=T)
-    MESHlist <- split(MESH, MESH$q1)
-    print("Calculating mean cell outlines..")
-    if(nrow(unique(MESH[MESH$max.length==max(MESH$max.length),]))< 12){
+    meshdata <- merge(meshdata, MR[,c("cell", "frame", "q1")], all=T)
+    MESHlist <- split(meshdata, meshdata$q1)
+    message("Calculating mean cell outlines..")
+    if(nrow(unique(meshdata[meshdata$max.length==max(meshdata$max.length),]))< 12){
       means <- lapply(MESHlist, function(x) superfun(x, 12, p2um))
     }
-    if(nrow(unique(MESH[MESH$max.length==max(MESH$max.length),]))>11){
+    if(nrow(unique(meshdata[meshdata$max.length==max(meshdata$max.length),]))>11){
      means <- lapply(MESHlist, function(x)superfun(x, round(min(x$max.length), digits=0), p2um))
     }
     u$mean_outlines <- means
-    print("Finished calculating mean cell outlines")
+    message("Finished calculating mean cell outlines")
 
     phmlist <- list()
-    for(n in 1:inp){
-      p <- phlist[[n]] + ggplot2::geom_path(data=means[[n]], ggplot2::aes(x=x,y=y), colour="white") + ggplot2::coord_fixed(xlim=c(min(means[[inp]]$x)*1.2, max(means[[inp]]$x*1.2)), ylim=c(min(means[[inp]]$y)*1.2, max(means[[inp]]$y*1.2)))
+    for(n in 1:groups){
+      p <- phlist[[n]] + ggplot2::geom_path(data=means[[n]], ggplot2::aes(x=x,y=y), colour="white") + ggplot2::coord_fixed(xlim=c(min(means[[groups]]$x)*1.2, max(means[[groups]]$x*1.2)), ylim=c(min(means[[groups]]$y)*1.2, max(means[[groups]]$y*1.2)))
       phmlist <- append(phmlist, list(p))
     }
     if(AllPlot==F){
@@ -317,12 +317,12 @@ createPlotlist <- function(REP, inp =4 , MESH, colorpalette="GreenYellow", mag="
     #and create the plots:
     if(AllPlot==T){
       phmalist <- list()
-      for(n in 1:inp){
-        if(missing(MESH)!=TRUE){
-          p1_all <- suppressMessages(allplot(phmlist[[n]], allMRs[[n]], max(means[[inp]]$x*1.2), max(means[[inp]]$y*1.2), empty))
+      for(n in 1:groups){
+        if(missing(meshdata)!=TRUE){
+          p1_all <- suppressMessages(allplot(phmlist[[n]], allMRs[[n]], max(means[[groups]]$x*1.2), max(means[[groups]]$y*1.2), empty))
         }
-        if(missing(MESH)==TRUE){
-          p1_all <- suppressMessages(allplot(phlist[[n]], allMRs[[n]], mean(allMRs[[inp]]$max.length)*1.2, mean(allMRs[[inp]]$max.width)*1.2, empty))
+        if(missing(meshdata)==TRUE){
+          p1_all <- suppressMessages(allplot(phlist[[n]], allMRs[[n]], mean(allMRs[[groups]]$max.length)*1.2, mean(allMRs[[groups]]$max.width)*1.2, empty))
         }
         phmalist <- append(phmalist,list(p1_all))
         u$qplots <- phmalist
@@ -337,11 +337,11 @@ createPlotlist <- function(REP, inp =4 , MESH, colorpalette="GreenYellow", mag="
     pall <- heatmap(pall, mppall, colc, viridis)
 
 
-    if(nrow(unique(MESH[MESH$max.length==max(MESH$max.length),]))< 12){
-      meantotal <- superfun(MESH, 12, p2um)
+    if(nrow(unique(meshdata[meshdata$max.length==max(meshdata$max.length),]))< 12){
+      meantotal <- superfun(meshdata, 12, p2um)
     }
-    if(nrow(unique(MESH[MESH$max.length==max(MESH$max.length),]))> 11){
-      meantotal <- superfun(MESH, 30, p2um)
+    if(nrow(unique(meshdata[meshdata$max.length==max(meshdata$max.length),]))> 11){
+      meantotal <- superfun(meshdata, 30, p2um)
     }
     pall <- coplot(pall,max(meantotal$x)*1.2, max(meantotal$y)*1.2)
     pall <- pall + ggplot2::geom_path(data=meantotal, ggplot2::aes(x=x,y=y), colour="white")
@@ -359,7 +359,7 @@ createPlotlist <- function(REP, inp =4 , MESH, colorpalette="GreenYellow", mag="
 
   hislist <- list()
   #save all histograms (L coordinates) of the quartiles too:
-  for(n in 1:inp){
+  for(n in 1:groups){
     if(viridis==FALSE){
       p1his <- ggplot2::ggplot(allMRs[[n]], ggplot2::aes(x=Lcor)) + ggplot2::geom_density(fill=colc[[2]], color=colc[[2]]) + ggplot2::theme_minimal() + ggplot2::labs(x="Length(\u03BCm)") + ggplot2::coord_cartesian(xlim=c(min(MR$Lcor, na.rm=T),max(MR$Lcor, na.rm=T)))
     }
@@ -373,11 +373,11 @@ createPlotlist <- function(REP, inp =4 , MESH, colorpalette="GreenYellow", mag="
 
   u$histograms <- hislist
   u$spotdata <- MR
-  if(!missing(MESH)){
-  	u$meshdata <- MESH
+  if(!missing(meshdata)){
+  	u$meshdata <- meshdata
   }
   u$pixel2um <- p2um
-  print("Done plotting.")
+  message("Done plotting.")
   return(u)
 }
 
@@ -422,7 +422,7 @@ empty <- ggplot2::ggplot(data.frame(u=1), ggplot2::aes(u,u)) +
 
 ###################################################
 
-# Function to change the color and/or "inp" of createPlotList function.
+# Function to change the color and/or "groups" of createPlotList function.
 
 #' @export
 changePlotlist <- function(plotlist, changecolor = TRUE, changegrouping = FALSE, colorpalette="ColdBlue", viridis=FALSE, groups = 4){

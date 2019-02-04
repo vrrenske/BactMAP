@@ -84,7 +84,8 @@ plotOverlay <- function(meshdata,
                         quantiles_by = "max.length",
                         mag,
                         objectcolor=c("#E69F00", "#56B4E9", "#009E73", "#F0E442"),
-                        spotcolor = c("#0072B2", "#D55E00", "#CC79A7", "000000")){
+                        spotcolor = c("#0072B2", "#D55E00", "#CC79A7", "000000"),
+                        histogram_outline = NA){
 
   #check type input
   if(type!="all"&type!="projection"&type!="histogram"&type!="length"&type!="width"){type <- readline("Please give type of plot: 'histogram', 'length', 'width', 'projection', or 'all' and press enter to confirm.")
@@ -331,7 +332,7 @@ plotOverlay <- function(meshdata,
       }
       meshdata <- merge(meshdata, onlycells)
       meshdata$quant_by <- meshdata[,quantiles_by]
-      his_mesh <- ggplot2::ggplot(meshdata) + ggplot2::geom_density(ggplot2::aes(x=quant_by), fill="black") + ggplot2::theme_minimal()
+      his_mesh <- ggplot2::ggplot(meshdata) + ggplot2::geom_density(ggplot2::aes(x=quant_by), fill="black", color=histogram_outline) + ggplot2::theme_minimal()
       if(by!="channel"){
         his_mesh <- his_mesh + ggplot2::facet_grid(.~condition)
       }
@@ -356,10 +357,10 @@ plotOverlay <- function(meshdata,
 
 
       if(by=="channel"|by=="both"){
-        his_obj <- ggplot2::ggplot(objectdata) + ggplot2::geom_density(ggplot2::aes(x=Lmid, fill=channel), alpha=0.5) + ggplot2::theme_minimal()
+        his_obj <- ggplot2::ggplot(objectdata) + ggplot2::geom_density(ggplot2::aes(x=Lmid, fill=channel), color=histogram_outline, alpha=0.5) + ggplot2::theme_minimal()
       }
       if(by=="condition"){
-        his_obj <- ggplot2::ggplot(objectdata) + ggplot2::geom_density(ggplot2::aes(x=Lmid), fill="black")
+        his_obj <- ggplot2::ggplot(objectdata) + ggplot2::geom_density(ggplot2::aes(x=Lmid), fill="black", color=histogram_outline)
       }
       if(by!="channel"&quantiles>1){
         his_obj <- his_obj + ggplot2::facet_grid(quantiles~condition)
@@ -385,10 +386,10 @@ plotOverlay <- function(meshdata,
 
 
       if(by=="channel"|by=="both"){
-        his_spot <- ggplot2::ggplot(spotdata) + ggplot2::geom_density(ggplot2::aes(x=Lmid, fill=channel), alpha=0.5) + ggplot2::theme_minimal() + ggplot2::scale_fill_manual(values=spotcolor)
+        his_spot <- ggplot2::ggplot(spotdata) + ggplot2::geom_density(ggplot2::aes(x=Lmid, fill=channel), alpha=0.5, color=histogram_outline) + ggplot2::theme_minimal() + ggplot2::scale_fill_manual(values=spotcolor)
       }
       if(by=="condition"){
-        his_spot <- ggplot2::ggplot(spotdata) + ggplot2::geom_density(ggplot2::aes(x=Lmid), fill="black")
+        his_spot <- ggplot2::ggplot(spotdata) + ggplot2::geom_density(ggplot2::aes(x=Lmid), fill="black", color=histogram_outline)
       }
       if(by!="channel"&quantiles>1){
         his_spot <- his_spot + ggplot2::facet_grid(quantiles~condition)
