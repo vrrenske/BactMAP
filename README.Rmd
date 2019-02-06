@@ -1,7 +1,9 @@
 ---
 title: "BacTMAP"
 output:
-  github_document
+  github_document:
+    fig_width: 2
+    fig_height: 2
     
 ---
 
@@ -12,7 +14,7 @@ library(bactMAP)
 
 ## BacTMAP - Bacteria Tool for Microscopy Analysis & Plotting
 
-![](README_files/figure-markdown_github/logo_bactmap_pink.png){ width="3" }
+![](README_files/figure-markdown_github/logo_bactmap_pink.png)
 
 This package is meant to make it easier for microbiologists to combine and analyse segmentation & fluorescence data derived from custom software like Oufti, Morphometrics, MicrobeJ or Supersegger. There are standard functions for importing several popular programs, but also options for importing CSVs or Matlab files with a specific structure. If your favorite segmentation or spot detection program is missing, don't hesitate to ask!
 
