@@ -3,7 +3,7 @@ BacTMAP
 
 ## BacTMAP - Bacteria Tool for Microscopy Analysis & Plotting
 
-![](figure/logo_bactmap_pink.PNG)
+![](README_files/figure-markdown_github/logo_bactmap_pink.PNG)
 
 This package is meant to make it easier for microbiologists to combine
 and analyse segmentation & fluorescence data derived from custom
