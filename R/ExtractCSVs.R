@@ -152,7 +152,11 @@ extr_ISBatch <- function(dataloc, seperator=","){
 
 #ObjectJ - mostly manual entry.
 #' @export
-extr_ObjectJ <- function(dataloc, mag="No_PixelCorrection"){
+extr_ObjectJ <- function(dataloc,
+                         mag="No_PixelCorrection",
+                         boundingBoxX= c("X1","X2","X3","X4","X5","X6","X7","X8", "X9","X10","X11"),
+                         boundingBoxY =c("Y1","Y2","Y3","Y4","Y5","Y6","Y7","Y8", "Y9","Y10","Y11"),
+                         turn_meshes = TRUE){
   #prepare list for output
   outlist <- list()
   #read out .txt file
@@ -193,10 +197,10 @@ extr_ObjectJ <- function(dataloc, mag="No_PixelCorrection"){
   oj <- oj[!is.na(oj$CellAxis),]
 
   #combine all x/y axes of the bounding boxes around the cells.
-  oj2 <- reshape2::melt(oj, measure.vars=c("X1","X2","X3","X4","X5","X6","X7","X8", "X9","X10","X11"), value.name="Xum",
+  oj2 <- reshape2::melt(oj, measure.vars=boundingBoxX, value.name="Xum",
                         variable.name="index_X")
 
-  oj2 <- reshape2::melt(oj2, measure.vars=c("Y1","Y2","Y3","Y4","Y5","Y6","Y7","Y8", "Y9","Y10","Y11"), value.name="Yum",
+  oj2 <- reshape2::melt(oj2, measure.vars=boundingBoxY, value.name="Yum",
                         variable.name="index_Y")
 
   oj2$index_X <- lapply(oj2$index_X, function(x) strsplit(as.character(x), "X")[[1]][[2]])
@@ -214,15 +218,21 @@ extr_ObjectJ <- function(dataloc, mag="No_PixelCorrection"){
   oj2$cell <- oj2$n
   oj2$chainID <- oj2$ParentID
 
-  oj3 <- unique(oj2[,c("cell", "max.length", "chainID", "GFPfluor", "GFPMean", "GFPMax", "GFPMid", "allSepta", "manSepta", "manTrace", "Thr", "startX", "startY", "barX", "barY", "barW", "barH", "SeptaPos", "frame")])
-
+  oj3 <- unique(oj2[,colnames(oj2)[colnames(oj2)%in%c("n", "ChainAxis", "ChainDia","CellAxis", "DiaP", "CellDiaM", boundingBoxX, boundingBoxY)!=TRUE]])
   outlist$GFPframe <- oj3
 
   oj2 <- oj2[,c("cell", "frame","max.length", "chainID", "Xum", "Yum", "num")]
   p2um <- as.numeric(get(magnificationList, envir=magEnv)[mag])
 
-  oj2$X <- oj2$Xum/p2um
-  oj2$Y <- oj2$Yum/p2um
+  oj2$X <- oj2$Xum
+  oj2$Y <- oj2$Yum
+
+  if(turn_meshes ==TRUE){
+    oj2 <- meshTurn(oj2)
+    oj2$Xrotum <- oj2$X_rot * p2um
+    oj2$Yrotum <- oj2$Y_rot * p2um
+  }
+
 
   oj2 <- oj2[order(oj2$frame, oj2$cell, oj2$num),]
   outlist$mesh <- oj2

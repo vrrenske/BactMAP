@@ -7,7 +7,7 @@
 
 
 #' @export
-extr_SuperSeggerClist <- function(matfile, filetype = "Genealogy", trim.orphans=TRUE){
+extr_SuperSeggerClist <- function(matfile, trim.orphans=TRUE){
   if (!requireNamespace("R.matlab", quietly = TRUE)) {
     inp <- readline("Packages 'R.matlab' needed for this function to work. Press 'y' to install, or any other key to cancel.")
     if(inp=="y"|inp=="Y"){install.packages("R.matlab")}else{stop("Canceled")}
