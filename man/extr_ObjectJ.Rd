@@ -63,76 +63,21 @@ Renske van Raaphorst
 It is possible to define your own column names in ObjectJ - but (apart from the bounding box columns) bactMAP recognises the standard names only. See the [example objectJ settings file](https://github.com/vrrenske/bactMAPdata/blob/master/objectJ_settings.ojj) for the standard column names.
 }
 
-%% ~Make other sections like Warning with \section{Warning }{....} ~
 
-\seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
-}
 \examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or do  help(data=index)  for the standard data sets.
 
-## The function is currently defined as
-function (dataloc, mag = "No_PixelCorrection", boundingBoxX = c("X1",
-    "X2", "X3", "X4", "X5", "X6", "X7", "X8", "X9", "X10", "X11"),
-    boundingBoxY = c("Y1", "Y2", "Y3", "Y4", "Y5", "Y6", "Y7",
-        "Y8", "Y9", "Y10", "Y11"))
-{
-    outlist <- list()
-    oj <- read.table(dataloc, header = T, sep = "\t")
-    celldats <- data.frame(Frame = unique(oj$Frame))
-    celldats <- data.frame(Frame = celldats[order(celldats$Frame),
-        ])
-    celldats$f <- c(1:nrow(celldats))
-    oj <- merge(celldats, oj)
-    oj$frame <- oj$f
-    oj$f <- NULL
-    oj$Frame <- NULL
-    oj_chain <- oj[!is.na(oj$ChainAxis), ]
-    oj_chain$chainID <- oj_chain$n
-    if (length(unique(oj_chain$GFPfluor) > 1)) {
-        oj_chain <- oj_chain[, c("chainID", "ChainAxis", "ChainDia",
-            "frame", "GFPfluor", "GFPMax", "GFPMean", "GFPMid")]
-    }
-    else {
-        oj_chain <- oj_chain[, c("chainID", "ChainAxis", "ChainDia",
-            "frame")]
-    }
-    outlist$cellList <- oj
-    outlist$chainframe <- oj_chain
-    oj <- oj[!is.na(oj$CellAxis), ]
-    oj2 <- reshape2::melt(oj, measure.vars = boundingBoxX, value.name = "Xum",
-        variable.name = "index_X")
-    oj2 <- reshape2::melt(oj2, measure.vars = boundingBoxY, value.name = "Yum",
-        variable.name = "index_Y")
-    oj2$index_X <- lapply(oj2$index_X, function(x) strsplit(as.character(x),
-        "X")[[1]][[2]])
-    oj2$index_Y <- lapply(oj2$index_Y, function(x) strsplit(as.character(x),
-        "Y")[[1]][[2]])
-    oj2$index_X <- as.numeric(oj2$index_X)
-    oj2$index_Y <- as.numeric(oj2$index_Y)
-    oj2 <- oj2[oj2$index_X == oj2$index_Y, ]
-    oj2$num <- oj2$index_X
-    oj2$max.length <- oj2$CellAxis
-    oj2$cell <- oj2$n
-    oj2$chainID <- oj2$ParentID
-    oj3 <- unique(oj2[, c("cell", "max.length", "chainID", "GFPfluor",
-        "GFPMean", "GFPMax", "GFPMid", "allSepta", "manSepta",
-        "manTrace", "Thr", "startX", "startY", "barX", "barY",
-        "barW", "barH", "SeptaPos", "frame")])
-    outlist$GFPframe <- oj3
-    oj2 <- oj2[, c("cell", "frame", "max.length", "chainID",
-        "Xum", "Yum", "num")]
-    p2um <- as.numeric(get(magnificationList, envir = magEnv)[mag])
-    oj2$X <- oj2$Xum/p2um
-    oj2$Y <- oj2$Yum/p2um
-    oj2 <- oj2[order(oj2$frame, oj2$cell, oj2$num), ]
-    outlist$mesh <- oj2
-    return(outlist)
-  }
+  #Take ObjectJ file from R package environment
+
+  #Using pipes:
+  library(tidyverse)
+
+  ObjectJ_output <- system.file("extdata", "bsubtilis_box.txt", package="bactMAP") \%>\% extr_ObjectJ()
+
+  #check summary
+  ObjectJ_output \%>\% summary()
+
+  #plot chain length distribution
+  ggplot(ObjectJ_output$chainframe, aes(x=ChainAxis)) + geom_histogram()
+
 }
-% Add one or more standard keywords, see file 'KEYWORDS' in the
-% R documentation directory.
-\keyword{ ~kwd1 }% use one of  RShowDoc("KEYWORDS")
-\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line
+

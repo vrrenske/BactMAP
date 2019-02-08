@@ -1,5 +1,5 @@
-\name{extr.ISBatch}
-\alias{extr.ISBatch}
+\name{extr_ISBatch}
+\alias{extr_ISBatch}
 \alias{peakfitter}
 \alias{ISBatch}
 
@@ -10,39 +10,27 @@ Upload ISBatch/Peakfitter data into R
 
 }
 \usage{
-extr.ISBatch(dataloc)
+extr_ISBatch(dataloc)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{dataloc}{
-  Path to the results table from the "peakfitter" option of the ISBatch imageJ plugin saved as comma-separated file.
+  Path to the results table from the "peakfitter" option of the ISBatch imageJ plugin saved as .CSV or tab-delimited .TXT.
 }
+  \item{seperator}{
+  When .CSV is not comma-separated but by something else, indicate this here.
+  }
 }
 \details{
 %%  ~~ If necessary, more details than the description above ~~
 }
 \value{
-Dataframe containing the following columns:
-\item{$X1}{index number of the detected spot}
-\item{$baseline}{baseline of peak intensity}
-\item{$height}{height of detected peak}
-\item{$x}{x coordinate of detected peak}
-\item{$y}{y coordinate of detected peak}
-\item{$sigma_x}{}
-\item{$sigma_y}{}
-\item{$fwhm_x}{full width half max (x direction) of detected peak}
-\item{$fwhm_y}{full width half max (y direction) of detected peak}
-\item{$fwhm}{average full width half max of detected peak}
-\item{$error_baseline}{error of the baseline}
-\item{$error_height}{error of the height}
-\item{$error_x}{error of the x coordinate}
-\item{$error_y}{error of the y coordinate}
-\item{$error_sigma_x}{}
-\item{$error_sigma_y}{}
-\item{$error_fwhm_x}{}
-\item{$error_fwhm_y}{}
-\item{$error_fwhm}{}
-\item{$frame}{frame of the image stack the spot was detected in}
+  \item{cellList}{
+  copy of original data as dataframe
+  }
+  \item{spotframe}{
+  when data is made using ISBatch's peak fitter only, this data frame contains only x, y -coordinates and frame numbers. When trajectories are recorded, it also contains the squared-displacement, trajectory ID and trajectory length.
+  }
 }
 \references{
 \url{http://singlemolecule.github.io/iSBatch/}
@@ -50,21 +38,16 @@ Dataframe containing the following columns:
 Caldas, V.E., Punter, C.M., Ghodke, H., Robinson, A. and van Oijen, A.M., 2015. iSBatch: a batch-processing platform for data analysis and exploration of live-cell single-molecule microscopy images and other hierarchical datasets. \emph{Molecular BioSystems}, 11(10), pp.2699-2708.
 }
 \author{
-%%  ~~who you are~~
+Renske van Raaphorst
 }
-\note{
-%%  ~~further notes~~
-}
-
-%% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
+Use \href{https://github.com/vrrenske/BactMAP/wiki/spotsInBox}{spotsInBox} to combine the spot data with segmentation data from another program.
 }
 \examples{
 ##Choose ISBatch peakfitter output file
 dataloc <- file.choose()
 ##Convert to dataframe
-spotframe <- extr.ISBatch(dataloc)
+spotframe <- extr_ISBatch(dataloc)
 }
 

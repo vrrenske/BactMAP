@@ -61,8 +61,8 @@ spotsInBox <- function(spotdata, mesh, Xs = "x", Ys = "y", Xm = "X", Ym = "Y"){
     inp <- readline("Package 'SDMTools' needed for this function to work. Press 'y' to install, or any other key to cancel.")
     if(inp=="y"|inp=="Y"){install.packages("SDMTools")}else{stop("Canceled")}
   }
-  q <- 0
-  b <- 0
+  #q <- 0
+  #b <- 0
    #rewrite colnames if not the same as suggested
   if(Xs!="x"){
     colnames(spotdata)[colnames(spotdata)==Xs] <- "x"
@@ -83,110 +83,101 @@ spotsInBox <- function(spotdata, mesh, Xs = "x", Ys = "y", Xm = "X", Ym = "Y"){
   if("length"%in%colnames(mesh)==T){a <- 1}
   if("length"%in%colnames(mesh)==F){a<-2} #if length and max width are already defined, don't touch them.
 
-  min.i <- min(mesh$frame)
-  for(i in unique(mesh$frame)){ #per frame
-    min.n <- min(mesh$cell[mesh$frame==i])
-    spotdatap <- spotdata[spotdata$frame==i,]
-    for(n in unique(mesh$cell[mesh$frame==i])){ #per cell
-      meshp <- mesh[mesh$cell==n&mesh$frame==i,] #define part of the frame to run faster
 
-      box <- suppressWarnings(shotGroups::getMinBBox(data.frame(x= meshp$X, y=meshp$Y))) #bounding box of cell
-      lengthwidth <- c(box$width, box$height)
+#for-loop to re-write
+  #cellframe_mesh <- paste(mesh$cell, mesh$frame, sep="_")
 
-      if(u==2){
-        meshp$max.width <- min(lengthwidth)
-      }
-      if(a==2){
-        meshp$max.length <- max(lengthwidth) #take length/width if not already defined
-      }
-
-      pinps <- suppressWarnings(SDMTools::pnt.in.poly(spotdatap[,c("x","y")], data.frame(meshp$X,meshp$Y))) #find spot/object coordinates inside cell
-      if(nrow(pinps)>0){
-        pinps <- pinps[pinps$pip==1,]
-      }
-
-      pts <- data.frame(box$pts) #get midpoint of the bounding box + define median lines
-      shadowpts <- rbind(pts[2:4,], pts[1,])
-      distances <- (pts+shadowpts)/2 #coordinates of median lines
-
-      d1 <- data.frame(x = abs(distances$x-distances$x[1]), y =abs(distances$y-distances$y[1]))
-      d1$pointn <- 1:4
-      d1 <- d1[-1,]
-      d1$dist <- sqrt(d1$x^2+d1$y^2)
-
-      un <- data.frame(table(round(d1$dist, 5)))
-
-      partdist <- un$Var1[un$Freq==1]
-      partner <- d1$pointn[round(d1$dist,5)==partdist]
-      rest <- d1$pointn[round(d1$dist,5)!=partdist]
-
-      if(round(d1$dist[d1$pointn==partner],5)==round(min(lengthwidth),5)){
-        widthline <- distances[c(1,partner),]
-        lengthline <- distances[rest,]
-      }
-      if(round(d1$dist[d1$pointn==partner],5)==round(max(lengthwidth),5)){
-        widthline <- distances[rest,]
-        lengthline <- distances[c(1,partner),] #pick which line is length/width
-      }
-
-      mp <- c(mean(lengthline$x), mean(lengthline$y)) #midpoint
-      X_cor <- meshp$X-mp[1]
-      Y_cor <- meshp$Y-mp[2]
-      angle <- (-box$angle)*pi/180 #angle to lay cell flat on x axis
-
-      meshp$X_rot <- X_cor * cos(angle) - Y_cor * sin(angle)
-      meshp$Y_rot <- X_cor * sin(angle) + Y_cor * cos(angle) #rotate cell
-
-      if(nrow(pinps)>0){ #rotate spot/object points
-        Lc <- pinps$x-mp[1]
-        Dc <- pinps$y-mp[2]
-        pinps$l <- -(Lc*cos(angle)-Dc*sin(angle))
-        pinps$d <- -(Lc*sin(angle) +Dc*cos(angle))
-        pinps$max.width <- unique(meshp$max.width)
-        if("max_length"%in%colnames(meshp)){pinps$max.length <- unique(meshp$max_length)
-                                            mesh$max.length <- mesh$max_length
-                                            mesh$max_length <- NULL}
-        else{pinps$max.length <- unique(meshp$max.length)}
-        pinps$cell <- n
-        pinps$frame <- i
-      }
-      #if(i==min.i&&n==min.n){ #first data frame in dataset
-      #  if(nrow(pinps)>0){
-      #    REP <- pinps
-    #    }
-      #  Mfull <- meshp
-    #  }
-
-          if(nrow(pinps)>0){
-          if(q==0){
-            REP <- pinps
-            q <- 1
-          }
-          if(q!=0){
-            REP <- rbind(REP, pinps)
-          }
-        }
-        if(b==0){
-          Mfull <- meshp
-          b <- 1
-        }
-        if(b!=0){
-         #bind the rest to it
-          Mfull <- rbind(Mfull, meshp)
-        }
-
-
-    }
-
-
-  }
+  o <- pbapply::pblapply(unique(mesh$frame), function(x) lapply(unique(mesh[mesh$frame==x,]$cell), function(y) getSpotsInBox(meshp=mesh[mesh$frame==x&mesh$cell==y,],
+                                                                                                                     spotdatap=spotdata[spotdata$frame==x,],
+                                                                                                                     u,
+                                                                                                                     a)))
+  #min.i <- min(mesh$frame)
+  #for(i in unique(mesh$frame)){ #per frame
+    #min.n <- min(mesh$cell[mesh$frame==i])
+    #spotdatap <- spotdata[spotdata$frame==i,]
+    #for(n in unique(mesh$cell[mesh$frame==i])){ #per cell
+    #}
+  #}
   outs <- list()
-  REP <- spotMR(REP)
-  outs$spots_relative <- REP
-  outs$mesh <- Mfull
+  outs$spots_relative <- do.call('rbind', pbapply::pbapply(o, function(x) do.call('rbind', lapply(x, function(y) y$REP))))
+  outs$mesh <-  do.call('rbind', lapply(o, function(x) do.call('rbind', lapply(x, function(y) y$MESH))))
+
+  names(outs) <- c("spots_relative", "mesh")
   return(outs) #return datasets as list of dataframes
 
 }
+
+getSpotsInBox <- function(meshp, spotdatap, u, a){
+
+  box <- suppressWarnings(shotGroups::getMinBBox(data.frame(x= meshp$X, y=meshp$Y))) #bounding box of cell
+  lengthwidth <- c(box$width, box$height)
+
+  if(u==2){
+    meshp$max.width <- min(lengthwidth)
+  }
+  if(a==2){
+    meshp$max.length <- max(lengthwidth) #take length/width if not already defined
+  }
+
+  pinps <- suppressWarnings(SDMTools::pnt.in.poly(spotdatap[,c("x","y")], data.frame(meshp$X,meshp$Y))) #find spot/object coordinates inside cell
+  if(nrow(pinps)>0){
+    pinps <- pinps[pinps$pip==1,]
+  }
+
+  pts <- data.frame(box$pts) #get midpoint of the bounding box + define median lines
+  shadowpts <- rbind(pts[2:4,], pts[1,])
+  distances <- (pts+shadowpts)/2 #coordinates of median lines
+
+  d1 <- data.frame(x = abs(distances$x-distances$x[1]), y =abs(distances$y-distances$y[1]))
+  d1$pointn <- 1:4
+  d1 <- d1[-1,]
+  d1$dist <- sqrt(d1$x^2+d1$y^2)
+
+  un <- data.frame(table(round(d1$dist, 5)))
+
+  partdist <- un$Var1[un$Freq==1]
+  partner <- d1$pointn[round(d1$dist,5)==partdist]
+  rest <- d1$pointn[round(d1$dist,5)!=partdist]
+
+  if(round(d1$dist[d1$pointn==partner],5)==round(min(lengthwidth),5)){
+    widthline <- distances[c(1,partner),]
+    lengthline <- distances[rest,]
+  }
+  if(round(d1$dist[d1$pointn==partner],5)==round(max(lengthwidth),5)){
+    widthline <- distances[rest,]
+    lengthline <- distances[c(1,partner),] #pick which line is length/width
+  }
+
+  mp <- c(mean(lengthline$x), mean(lengthline$y)) #midpoint
+  X_cor <- meshp$X-mp[1]
+  Y_cor <- meshp$Y-mp[2]
+  angle <- (-box$angle)*pi/180 #angle to lay cell flat on x axis
+
+  meshp$X_rot <- X_cor * cos(angle) - Y_cor * sin(angle)
+  meshp$Y_rot <- X_cor * sin(angle) + Y_cor * cos(angle) #rotate cell
+
+  if(nrow(pinps)>0){ #rotate spot/object points
+    Lc <- pinps$x-mp[1]
+    Dc <- pinps$y-mp[2]
+    pinps$l <- -(Lc*cos(angle)-Dc*sin(angle))
+    pinps$d <- -(Lc*sin(angle) +Dc*cos(angle))
+    pinps$max.width <- unique(meshp$max.width)
+    if("max_length"%in%colnames(meshp)){pinps$max.length <- unique(meshp$max_length)
+    mesh$max.length <- mesh$max_length
+    mesh$max_length <- NULL}
+    else{pinps$max.length <- unique(meshp$max.length)}
+
+  }
+  #if(i==min.i&&n==min.n){ #first data frame in dataset
+  #  if(nrow(pinps)>0){
+  #    REP <- pinps
+  #    }
+  #  Mfull <- meshp
+  #  }
+
+  return(list("REP" = pinps, "MESH" = meshp))
+}
+
 
 getpointsaround <- function(datsaround, angle){
   xlist <- c()
@@ -337,12 +328,7 @@ spotrXYMESH <- function(MESH, x_1="x1", y_1="y1",x_0="x0", y_0="y0" ){
   MESH0$xy <- 0
   colnames(MESH1) <- gsub("1", "", colnames(MESH1))
   colnames(MESH0) <- gsub("0", "", colnames(MESH0))
-  for(n in unique(MESH1$frame)){
-    #print(n)
-    for(i in unique(MESH1$cell[MESH1$frame==n])){
-      MESH1$num[MESH1$cell==i&MESH1$frame==n] <- 1 + max(MESH1$num[MESH1$cell==i&MESH1$frame==n], na.rm=T)*2 - MESH1$num[MESH1$cell==i&MESH1$frame==n]
-    }
-  }
+  lapply(unique(MESH1[,"cell","frame"]), function(x) mesh1Fun(MESH1[MESH1$cell==x$cell&MESH1$frame==x$frame,]))
   MESH <- merge(MESH0, MESH1, all=T)
   colnames(MESH)[colnames(MESH)=="x"] <- "X"
   colnames(MESH)[colnames(MESH)=="y"] <- "Y"
@@ -350,6 +336,10 @@ spotrXYMESH <- function(MESH, x_1="x1", y_1="y1",x_0="x0", y_0="y0" ){
   return(MESH)
 }
 
+mesh1Fun <- function(MESH1){
+  MESH1$num[MESH1$cell==i&MESH1$frame==n] <- 1 + max(MESH1$num[MESH1$cell==i&MESH1$frame==n], na.rm=T)*2 - MESH1$num[MESH1$cell==i&MESH1$frame==n]
+  return(MESH1)
+}
 
 mergeframes <- function(REP, MESH, mag="No_PixelCorrection", cutoff=T, maxfactor=2, minfactor=0.5, remOut=T, ouf=F){
 
