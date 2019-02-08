@@ -87,7 +87,7 @@ spotsInBox <- function(spotdata, mesh, Xs = "x", Ys = "y", Xm = "X", Ym = "Y"){
 #for-loop to re-write
   #cellframe_mesh <- paste(mesh$cell, mesh$frame, sep="_")
 
-  o <- pbapply::pblapply(unique(mesh$frame), function(x) lapply(unique(mesh[mesh$frame==x,]$cell), function(y) getSpotsInBox(meshp=mesh[mesh$frame==x&mesh$cell==y,],
+  o <- lapply(unique(mesh$frame), function(x) lapply(unique(mesh[mesh$frame==x,]$cell), function(y) getSpotsInBox(meshp=mesh[mesh$frame==x&mesh$cell==y,],
                                                                                                                      spotdatap=spotdata[spotdata$frame==x,],
                                                                                                                      u,
                                                                                                                      a)))
@@ -99,7 +99,7 @@ spotsInBox <- function(spotdata, mesh, Xs = "x", Ys = "y", Xm = "X", Ym = "Y"){
     #}
   #}
   outs <- list()
-  outs$spots_relative <- do.call('rbind', pbapply::pbapply(o, function(x) do.call('rbind', lapply(x, function(y) y$REP))))
+  outs$spots_relative <- do.call('rbind', lapply(o, function(x) do.call('rbind', lapply(x, function(y) y$REP))))
   outs$mesh <-  do.call('rbind', lapply(o, function(x) do.call('rbind', lapply(x, function(y) y$MESH))))
 
   names(outs) <- c("spots_relative", "mesh")
@@ -166,7 +166,8 @@ getSpotsInBox <- function(meshp, spotdatap, u, a){
     mesh$max.length <- mesh$max_length
     mesh$max_length <- NULL}
     else{pinps$max.length <- unique(meshp$max.length)}
-
+    pinps$cell <- unique(meshp$cell)
+    pinps$frame <- unique(meshp$frame)
   }
   #if(i==min.i&&n==min.n){ #first data frame in dataset
   #  if(nrow(pinps)>0){
