@@ -164,15 +164,40 @@ createPlotlist <- function(spotdata,  meshdata, groups =4 , colorpalette="GreenY
     MR$cellnum <- MR$num
   }
   if("l"%in%colnames(spotdata)==T&"Lmid"%in%colnames(spotdata)==F){
-    MR <- spotdata
     MR <- LimDum(spotdata, pix2um = unlist(get(magnificationList, envir=magEnv)[mag]))
+    #if(length(which(unique(meshdata$cell)%in%spotdata$cell!=T))==0){MR <- spotdata}else{
+      MR <- merge(MR, unique(meshdata[,c("cell",
+                                              "frame",
+                                              "max.width",
+                                              "max.length")]),
+                  all=TRUE)
+      #}
+    MR$totalspot[is.na(MR$totalspot)] <- 0
     MR <- MR[order(MR$max.length, MR$max.width),]
     MR <- MR[!is.na(MR$cell),]
     MR$num <- c(1:nrow(MR))
     MR$cellnum <- MR$num
   }
   if("Lmid"%in%colnames(spotdata)==F&"l"%in%colnames(spotdata)==F){
-    MR <- mergeframes(spotdata, meshdata, mag)
+    message("Did not find cell data in spot dataset. Running spotsInBox to connect spots to meshes...")
+    combineframes <- spotsInBox(spotdata, meshdata, Xm=Xm,Ym=Ym)
+    meshdata <- combineframes$mesh
+    spotdata <- combineframes$spots_relative
+
+    MR <- LimDum(spotdata, pix2um = unlist(get(magnificationList, envir=magEnv)[mag]))
+    MR <- spotMR(MR)
+    #if(length(which(unique(meshdata$cell)%in%spotdata$cell!=T))==0){MR <- spotdata}else{
+    MR <- merge(MR, unique(meshdata[,c("cell",
+                                       "frame",
+                                       "max.width",
+                                       "max.length")]),
+                all=TRUE)
+    #}
+    MR$totalspot[is.na(MR$totalspot)] <- 0
+    MR <- MR[order(MR$max.length, MR$max.width),]
+    MR <- MR[!is.na(MR$cell),]
+    MR$num <- c(1:nrow(MR))
+    MR$cellnum <- MR$num
   }
   if("obID"%in%colnames(spotdata)){
     MR <- unique(MR[,c("num", "frame", "cell", "max.length", "max.width", "Dum", "Lmid", "pole1", "pole2", "cellnum")])
@@ -377,6 +402,7 @@ createPlotlist <- function(spotdata,  meshdata, groups =4 , colorpalette="GreenY
   	u$meshdata <- meshdata
   }
   u$pixel2um <- p2um
+  u$data_summary <- makePlotListSummary_2(MR, groups=groups)
   message("Done plotting.")
   return(u)
 }
@@ -566,6 +592,34 @@ changePlotlist <- function(plotlist, changecolor = TRUE, changegrouping = FALSE,
   return(plotlist)
 }
 
+makePlotListSummary_1 <- function(spotdata, timelapse=FALSE){
+
+  totalcells <- nrow(unique(spotdata[,c("cell", "frame")]))
+  localization_x <- summary(spotdata$Lmid)
+  localization_y <- summary(spotdata$Dum)
+  max_length <- summary(unique(spotdata[,c("cell", "frame","max_um")])$max_um)
+  max_width <- summary(unique(spotdata[,c("cell", "frame","maxwum")])$maxwum)
+  spotscell <- summary(as.factor(unique(spotdata[,c("cell", "frame","totalspot")])$totalspot))
+  return(list("Total_amount_of_cells" = totalcells,
+                   "Spot_distance_from_midcell_length_axis" = localization_x,
+                   "Spot_distance_from_midcell_width_axis" = localization_y,
+                   "Cell_length" = max_length,
+                   "Cell_width" = max_width,
+                   "Distribution_spots_per_cell" = spotscell))
+}
+
+makePlotListSummary_2 <- function(spotdata, groups){
+  if(groups==1){
+    return(makePlotListSummary_1(spotdata))
+  }
+  if(groups>1){
+    Full_dataset <- makePlotListSummary_1(spotdata)
+    grouplist <- lapply(c(1:groups), function(x) makePlotListSummary_1(spotdata[spotdata$q1==x,]))
+    names(grouplist) <- paste("Group", c(1:groups), sep="_")
+    grouplist$Full_dataset <- Full_dataset
+    return(grouplist)
+  }
+}
 
 ###################################################
 

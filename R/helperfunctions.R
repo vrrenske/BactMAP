@@ -356,8 +356,7 @@ mergeframes <- function(REP, MESH, mag="No_PixelCorrection", cutoff=T, maxfactor
   }
   if("area"%in%colnames(MESH)){
     M <- unique(MESH[,c("cell", "frame", "max.length", "max.width", "area")])
-  }
-  else{M <- unique(MESH[,c("cell", "frame", "max.length", "max.width")])}
+  }else{M <- unique(MESH[,c("cell", "frame", "max.length", "max.width")])}
   M <- M[order(M$max.length),]
   M$cellnum <- c(1:nrow(M))
 
@@ -367,9 +366,10 @@ mergeframes <- function(REP, MESH, mag="No_PixelCorrection", cutoff=T, maxfactor
   #remove MR's cells which have NA's in the cell area
   MR <- MR[!is.na(MR$max.length),]
   #remove duplicated rows
-  MR <- MR[!duplicated(MR$l)&!duplicated(MR$d),]
+  MR <- MR[!duplicated(MR$l)|is.na(MR$l)&!duplicated(MR$d)|is.na(MR$d),]
 
   MR <- spotMR(MR)
+  MR$totalspot[is.na(MR$totalspot)] <- 0
 
   #if needed: remove smallest and largest ones (cutoff: smaller than 1/2 mean and larger than 2x mean)
   if(cutoff==T){
@@ -392,18 +392,20 @@ spotMR <- function(dat){
   if("spot" %in% colnames(dat)){
     #NA in spots replaced by "0"
     dat$spot[is.na(dat$spot)] <- 0
-  } else {
+  }else{
     dat <-dat[order(dat$frame, dat$cell,dat$max.length),]
     dat$spot <- 1
     for(n in 1:(nrow(dat)-1)){
       if(dat$max.length[n+1]==dat$max.length[n]){
         dat$spot[n+1] <- dat$spot[n] + 1
       } }
-    dat$spot[is.na(dat$spot)] <- 0
-  }
-  dat$cellframe <- paste(dat$cell, dat$frame, sep=".")
+    dat$spot[is.na(dat$spot)] <- 0 }
+  if("totalspot"%in%colnames(dat)){
+    dat$totalspot[is.na(dat$totalspot)] <- 0
+  }else{dat$cellframe <- paste(dat$cell, dat$frame, sep=".")
   spotn <- data.frame(cellframe = unique(dat$cellframe), totalspot = unlist(lapply(unique(dat$cellframe), function(x)max(dat$spot[dat$cellframe==x]))))
   dat <- merge(dat, spotn)
+  }
   return(dat)
 }
 
@@ -475,8 +477,8 @@ LimDum <- function(MR, pix2um, remOut=T, ouf=F){
   MR$max_um <- MR$max.length*pix2um
   MR$maxwum <- MR$max.width*pix2um
   if(remOut==T){
-    MR <- MR[abs(MR$Lmid)<MR$pole2,]
-    MR <- MR[abs(MR$Dum)<(MR$max.width/2),]
+    MR <- MR[abs(MR$Lmid)<MR$pole2|is.na(MR$Lmid),]
+    MR <- MR[abs(MR$Dum)<(MR$max.width/2)|is.na(MR$Lmid),]
   }
   return(MR)
 }

@@ -4,14 +4,14 @@
 
 \title{Convert original TIFF image stack used to gather spot and cell outline data.
 }
-\description{extr.OriginalStack() converts the original TIFF stack used to gather spot and cell outline data to a data frame containing the pixel x,y coordinates and the pixel value.
+\description{extr_OriginalStack() converts the original TIFF stack used to gather spot and cell outline data to a data frame containing the pixel x,y coordinates and the pixel value.
 
 extr.OriginalCells() is connecting the cells from a
 }
 \usage{
-extr.OriginalStack(picloc)
+extr_OriginalStack(picloc)
 
-extr.OriginalCells(imdatframe, mesh)
+extr_OriginalCells(imdatframe, mesh)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -37,8 +37,11 @@ extr_OriginalCells needs "SMDTools" and "raster" to function
 %%  ~~who you are~~
 }
 \note{
+
 1. extr_OriginalCells is a heavy function since it's turning all pixels of each cell!
-2. extr_OriginalStack works for single TIFFs and stacks. It only works with greyscale stacks!
+
+2. extr_OriginalStack works for single TIFFs and stacks. It only works with greyscale stacks.
+
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
@@ -48,16 +51,19 @@ extr_OriginalCells needs "SMDTools" and "raster" to function
 }
 \examples{
 
-TIFFfilepath <- file.choose()
+#get tif
+TIFFfilepath <- system.file("extdata", "DnaX-GFP.TIF", package = "bactMAP"))
 
 TIFFstack <- extr_OriginalStack(TIFFfilepath)
 
 #plot stack
-
 bactMAP::plotRaw(TIFFstack, frameN=1)
 
+#get cell meshes
+Meshpath <- system.file("extdata", "DnaX-mesh.mat", package="bactMAP")
+meshes <- extr_Oufti(Meshpath)
 
-% Add one or more standard keywords, see file 'KEYWORDS' in the
-% R documentation directory.
-\keyword{ ~kwd1 }% use one of  RShowDoc("KEYWORDS")
-\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line
+#combine cells & tiff
+extr_OriginalCells(TIFFstack, meshes$mesh)
+
+
