@@ -165,6 +165,7 @@ createPlotlist <- function(spotdata,  meshdata, groups =4 , colorpalette="GreenY
   }
   if("l"%in%colnames(spotdata)==T&"Lmid"%in%colnames(spotdata)==F){
     MR <- LimDum(spotdata, pix2um = unlist(get(magnificationList, envir=magEnv)[mag]))
+    MR <- spotMR(MR)
     #if(length(which(unique(meshdata$cell)%in%spotdata$cell!=T))==0){MR <- spotdata}else{
       MR <- merge(MR, unique(meshdata[,c("cell",
                                               "frame",
@@ -193,6 +194,7 @@ createPlotlist <- function(spotdata,  meshdata, groups =4 , colorpalette="GreenY
                                        "max.length")]),
                 all=TRUE)
     #}
+
     MR$totalspot[is.na(MR$totalspot)] <- 0
     MR <- MR[order(MR$max.length, MR$max.width),]
     MR <- MR[!is.na(MR$cell),]
