@@ -1,6 +1,8 @@
 \name{Pixels2um}
 \alias{Pixels2um}
 \alias{Pixel2um}
+\alias{pixels2um}
+\alias{pixel2um}
 \alias{getPixels2um}
 \alias{addPixels2um}
 %- Also NEED an '\alias' for EACH other topic documented here.
@@ -12,13 +14,13 @@
 \usage{
 getPixels2um()
 
-addPixels2um("ConversionName", conversionfactor)
+addPixels2um(pixelName, pixels2um)
 }
 
 \arguments{
-  \item{"ConversionName"}{A character string identifying your new conversion factor
+  \item{pixelName}{A character string identifying your new conversion factor
   }
-  \item{conversionfactor}{A numerical value to convert the pixel values to microns}
+  \item{pixels2um}{A numerical value to convert the pixel values to microns}
 
   }
 

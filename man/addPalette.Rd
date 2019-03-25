@@ -51,7 +51,6 @@ listofcolors <- list("orangered", "darkseagreen", "burlywood1")
 ##Add to the color palettes inside shinyspots
 addPalette(listofcolors, "MyBeautifulPalette")
 
-##Make a nice plot using your palette
 }
 
 \keyword{~color}

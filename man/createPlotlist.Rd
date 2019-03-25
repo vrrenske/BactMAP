@@ -5,21 +5,28 @@
 Function to create descriptive plots of spot localization per group of cells
 }
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+\code{createPlotlist()} is a plotting function which combines detected fluorescent spot localization with mesh outline information to plot demographs, projections, histograms and a data summary in one go. These functions are all combined because they need similar data preparation. The idea is that after using this function, you have a good overview of the localization of your protein inside the cells. Sometimes this analysis can be enough to show where a protein localizes, but in other cases (when proteins are very mobile or localize heterogeneously, for instance), this may rather serve as a starting point for more detailed analysis. Therefore, the data generated to make these plots is also returned by the function.
 }
 \usage{
-createplotlist <- function(Spots, inp=4, bycol="length", MESH, colorpalette="GreenYellow", mag="100x_LeicaVeening", AllPlot=T, Xm="X", Ym="Y")
+createplotlist <- function(spotdata,
+                            meshdata
+                            groups=4,
+                            colorpalette="GreenYellow",
+                            mag="No_PixelCorrection",
+                            AllPlot=T,
+                            Xm="X",
+                            Ym="Y",
+                            viridis="FALSE")
 }
 \arguments{
-  \item{Spots}{Data frame containing -at least- column with relative spot x-localizations, y-localizations, cell ID and frame number.}
-  \item{inp}{Number of groups the data will be divided in. Default = 4.}
-  \item{bycol}{Identifies the column based on which the data will be divided. Default = "length".}
-  \item{MESH}{Data frame containing -at least- the x and y coordinates of the cell meshes, the maximum cell width, maximum cell length, cell ID and frame.Optional.}
+  \item{spotdata}{Data frame containing -at least- column with relative spot x-localizations, y-localizations, cell ID and frame number.}
+  \item{meshdata}{Data frame containing -at least- the x and y coordinates of the cell meshes, the maximum cell width, maximum cell length, cell ID and frame. Optional.}
+  \item{groups}{Number of groups the data will be divided in. Default = 4.}
   \item{colorpalette}{Color palette the heatmap plots will be plotted in. Default is "GreenYellow". Check which palettes are loaded by \code{showColorPaletes()} and add your own palette using \code{addPallete()}}
-  \item{mag}{The name of the conversion factor for pixel to micrometer. Default is "100x_LeicaVeening" which is 0.0499538. Check \code{\link{getPixels2um}} for the loaded conversionfactors and use \code{addPixels2um("ConversionName", conversionfactor)} to add a conversion factor to the list.}
+  \item{mag}{The name of the conversion factor for pixel to micrometer. Default is "No_PixelCorrection" which is 1. Check \code{\link{getPixels2um}} for the loaded conversionfactors and use \code{addPixels2um("ConversionName", conversionfactor)} to add a conversion factor to the list.}
   \item{AllPlot}{When \code{TRUE}, the output x/y plots will have sideplots with histograms of the spot localization. When \code{FALSE}, only the x/y plots will be plotted.}
   \item{Xm and Ym}{By default, the column names of the x/y coordinates in the MESH data frames are "X" and "Y". When this is not the case, one can tell the function by using \code{Xm} and \code{Ym}. Enter a character string with the name of the x-coordinate column for Xm, and the name of the y-coordinate column for Ym.}
-
+  \item{viridis}{when \code{viridis==TRUE}, the \code{colorpalette} needs to be one of the \code{viridis} color palettes ("A", "B", "C", "D", "E", "magma", "cividis", "viridis", "plasma" or "inferno")}
 
 }
 \details{
@@ -31,14 +38,14 @@ A list consisting of the following items:
 \item{$widthplot}{Heatmap histogram plot of the width-axis localizations of the spots ordered by the length of the cell.}
 \item{$qplots}{If the outlines of the cell are not added to the function (dataframe \code{MESH} not indicated), the output will be a list of plots of length \code{inp}, with relative x/y coordinates of the spots plotted as a density function. The data is grouped by the variable \code{bycol}, which is \code{length} by default.If the outlines of the cells are added to the function (dataframe \code{MESH} indicated), the average cell outline of each group will be overlayed on top of each plot. If \code{AllPlot==TRUE}, histograms of the x and y coordinates of the spots will be added as sideplots.}
 \item{$plottotal}{Relative x/y coordinates of all spots with average cell outline overlayed. If \code{AllPlot==TRUE}, the x/y coordinates will be plotted as histograms on the x and y axis of the plot.}
-\item{$histograms}{1D density plots of the spot localization on the length axis of the cells, grouped by \code{bycol} in \code{x==inp} groups.}
+\item{$histograms}{1D density plots of the spot localization on the length axis of the cells, grouped by \code{bycol} in the amount of groups defined by \code{groups}.}
 \item{$spotdata}{data frame containing the groups, relative x/y localizations of the spots and cell length/width}
 \item{$meshdata}{if \code{MESH} is included, the function returns a dataframe including the rotated meshes and groups.}
+\item{$data_summary}{a character vector, or when \code{groups>1}, a list of character vectors summarizing the most important data features of each size group and the full dataset.}
 }
 
 \references{
-
-%% ~put references to the literature/web site here ~
+These plotting functions were developed for: van Raaphorst, Renske, Morten Kjos, and Jan-Willem Veening. "Chromosome segregation drives division site selection in Streptococcus pneumoniae." Proceedings of the National Academy of Sciences 114.29 (2017): E5959-E5968.
 }
 \author{
 Renske van Raaphorst
@@ -55,8 +62,17 @@ This function is meant to give an overview of the data. To modify each individua
 \examples{
 ##use data from example dataset
 
+##1. detected peaks:
+SMC_peaks <- system.file("extdata", "SMC_peaks.txt", package = "bactMAP")
+SMC_extrP <- extr_ISBatch(SMC_peaks)
+
+##2. mesh outlines:
+SMC_morph <- system.file("extdata", "SMC_mesh.MAT", package="bactMAP")
+SMC_mesh <- extr_Morphometrics(SMC_morph)
+
+
 ##create list of plots, ordered by length, grouped in 6 groups.
-GFPlist <- createPlotlist(GFP, 6, bycol="length", MESH, colorpalette="GreenYellow", AllPlot=T)
+GFPlist <- createPlotlist(SMC_extrP, SMC_mesh, 6, bycol="length", colorpalette="GreenYellow", AllPlot=T)
 
 #have a look at the "plottotal" plot
 plot(GFPlist$plottotal)
@@ -64,8 +80,6 @@ plot(GFPlist$plottotal)
 #save PDF of the 6 grouped plots (qplots)
 ggplot2::ggsave(gridExtra::arrangeGrob(GFPlist$qplots, ncol=1, filename="GroupPlots.PDF"))
 
+#see summary:
+GFPlist$data_summary
 }
-% Add one or more standard keywords, see file 'KEYWORDS' in the
-% R documentation directory.
-\keyword{ ~kwd1 }% use one of  RShowDoc("KEYWORDS")
-\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line

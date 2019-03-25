@@ -1,4 +1,5 @@
 \name{extr_Original}
+\alias{extr_Original}
 \alias{extr_OriginalStack}
 \alias{extr_OriginalCells}
 
@@ -67,3 +68,4 @@ meshes <- extr_Oufti(Meshpath)
 extr_OriginalCells(TIFFstack, meshes$mesh)
 
 
+}
