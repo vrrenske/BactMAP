@@ -226,7 +226,7 @@ plotRaw <- function(tiffdata,
 prepForKymo <- function(turnedCells, dimension="length", bins = 25, sizeAV=FALSE){
 
   turnedCells <- unique(turnedCells[,c("values", "frame", "cell", "X_rot","Y_rot", "max.length", "max.width", "pointN")])
-  groupL <- list()
+  originalCells <- list()
   for(n in unique(turnedCells$frame)){
 
     U <- turnedCells[turnedCells$frame==n,]
@@ -271,70 +271,86 @@ prepForKymo <- function(turnedCells, dimension="length", bins = 25, sizeAV=FALSE
     Umeansall$group <- Umeansall$Group.1
     Umeansall$Group.1 <- NULL
 
-    groupL[[n]] <- Umeansall
+    originalCells[[n]] <- Umeansall
 
   }
 
-  groupL <- do.call("rbind", groupL)
+  originalCells <- do.call("rbind", originalCells)
 
-  groupL <- groupL[order(groupL$max.length),]
-  cellnumdatframe<- data.frame(cellnum.length = 1:length(unique(groupL$max.length)), max.length = unique(groupL$max.length))
-  groupL <- merge(groupL, cellnumdatframe)
+  originalCells <- originalCells[order(originalCells$max.length),]
+  cellnumdatframe<- data.frame(cellnum.length = 1:length(unique(originalCells$max.length)), max.length = unique(originalCells$max.length))
+  originalCells <- merge(originalCells, cellnumdatframe)
 
-  groupL <- groupL[order(groupL$max.width),]
-  cellnumdatframe<- data.frame(cellnum.width = 1:length(unique(groupL$max.width)), max.width=unique(groupL$max.width))
-  groupL <- merge(groupL, cellnumdatframe)
+  originalCells <- originalCells[order(originalCells$max.width),]
+  cellnumdatframe<- data.frame(cellnum.width = 1:length(unique(originalCells$max.width)), max.width=unique(originalCells$max.width))
+  originalCells <- merge(originalCells, cellnumdatframe)
 
-  return(groupL)
+  return(originalCells)
 }
 
 
 ##############plot#########
 #' @export
 
-bactKymo <- function(groupL, timeD = FALSE, dimension = "length", bins=25, sizeAV=FALSE, cells="all", prep=TRUE, percDiv=FALSE, cutoff_demograph = 0.975){
+bactKymo <- function(originalCells, timeD = FALSE, dimension = "length", bins=25, sizeAV=FALSE, cells="all", prep=TRUE, percDiv=FALSE, cutoff_demograph = 0.975){
   if(percDiv==TRUE){
-    if("percentage_binned"%in%colnames(groupL)!=TRUE){
-      groupP <- perc_Division(unique(groupL[,c("cell", "frame", "max.length")]), av=FALSE, plotgrowth=FALSE)$timelapse
+    if("percentage_binned"%in%colnames(originalCells)!=TRUE){
+      groupP <- perc_Division(unique(originalCells[,c("cell", "frame", "max.length")]), av=FALSE, plotgrowth=FALSE)$timelapse
       groupP <- unique(groupP[,c("cell","frame","percentage_binned")])
     }
-    if("percentage_binned"%in%colnames(groupL)==TRUE){
-      groupP <- unique(groupL[,c("cell", "frame", "percentage_binned")])
+    if("percentage_binned"%in%colnames(originalCells)==TRUE){
+      groupP <- unique(originalCells[,c("cell", "frame", "percentage_binned")])
     }
 
   }
 
   if(prep==TRUE){
-    groupL <- prepForKymo(groupL, dimension=dimension, bins=bins, sizeAV=sizeAV)
+    originalCells <- prepForKymo(originalCells, dimension=dimension, bins=bins, sizeAV=sizeAV)
     if(percDiv==TRUE){
-      groupL <- merge(groupL,groupP)
+      originalCells <- merge(originalCells,groupP)
     }
   }
 
   if(percDiv==TRUE){
-   groupL$frame <- as.numeric(groupL$percentage_binned)
-   groupL$cell <- 1
+   originalCells$frame <- as.numeric(originalCells$percentage_binned)
+   originalCells$cell <- 1
 
    if(sizeAV==FALSE){
-     groupL <- aggregate(groupL[,colnames(groupL)[colnames(groupL)!="group"&colnames(groupL)!="frame"&colnames(groupL)!="percentage_binned"]],
-                         by=list(group=groupL$group, frame=groupL$frame),FUN=mean)
+     originalCells <- aggregate(originalCells[,colnames(originalCells)[colnames(originalCells)!="group"&colnames(originalCells)!="frame"&colnames(originalCells)!="percentage_binned"]],
+                         by=list(group=originalCells$group, frame=originalCells$frame),FUN=mean)
    }
    if(sizeAV==TRUE){
-     groupL <- aggregate(groupL[,colnames(groupL)[colnames(groupL)!="group"&colnames(groupL)!="frameh"&colnames(groupL)!="frame"&colnames(groupL)!="percentage_binned"]],
-                      by=list(group=groupL$group, frameh=groupL$frameh, frame=groupL$frame), FUN=mean)
+     originalCells <- aggregate(originalCells[,colnames(originalCells)[colnames(originalCells)!="group"&colnames(originalCells)!="frameh"&colnames(originalCells)!="frame"&colnames(originalCells)!="percentage_binned"]],
+                      by=list(group=originalCells$group, frameh=originalCells$frameh, frame=originalCells$frame), FUN=mean)
 
-     groupL$x_coords[groupL$frameh=="a"|groupL$frameh=="d"] <- groupL$frame[groupL$frameh=="a"|groupL$frameh=="d"] + 0.5
-     groupL$x_coords[groupL$frameh=="b"|groupL$frameh=="c"] <- groupL$frame[groupL$frameh=="b"|groupL$frameh=="c"] - 0.5
+     originalCells$x_coords[originalCells$frameh=="a"|originalCells$frameh=="d"] <- originalCells$frame[originalCells$frameh=="a"|originalCells$frameh=="d"] + 0.5
+     originalCells$x_coords[originalCells$frameh=="b"|originalCells$frameh=="c"] <- originalCells$frame[originalCells$frameh=="b"|originalCells$frameh=="c"] - 0.5
    }
   }
 
   if(timeD==FALSE&percDiv==F){
     #97.5 % cutoff for outlying superbright stuff
 
-    groupL <- groupL[groupL$values<quantile(groupL$values, cutoff_demograph),]
+    if(cells!="all"){
+      if(length(cells)>1){
+        if(is.numeric(cells)!=TRUE){
+          stop("'cells' is neither numeric nor 'all', please set 'cells' to a numeric vector or 'all'")
+        }
+        if(is.numeric(cells)==TRUE){
+          originalCells <- originalCells[originalCells$cell%in%cells,]
+        }
+      }
+      if(length(cells)<=1){
+        stop("'cells' is of length 1, while there is no time dimension.
+              \n if you want to plot a single cell over time, set 'timeD' to 'TRUE'
+              \n if you want to plot all cells as a demograph, put 'cells' to 'all'.
+              \n if you want to plot a specific group of cells as a demograph, put 'cells' to a vector identifying the cell numbers")
+      }
+    }
+    originalCells <- originalCells[originalCells$values<quantile(originalCells$values, cutoff_demograph),]
 
     if(dimension=="length"&sizeAV==FALSE){
-      plot1 <- ggplot2::ggplot(groupL, ggplot2::aes(x=cellnum.length,y=group, fill=values)) +
+      plot1 <- ggplot2::ggplot(originalCells, ggplot2::aes(x=cellnum.length,y=group, fill=values)) +
         ggplot2::geom_raster() +
         ggplot2::coord_fixed(ratio=20) +
         ggplot2::theme_minimal() +
@@ -344,9 +360,9 @@ bactKymo <- function(groupL, timeD = FALSE, dimension = "length", bins=25, sizeA
     }
 
     if(dimension=="length"&sizeAV==TRUE){
-      groupL$cellnum.length[groupL$frameh=="a"|groupL$frameh=="d"] <- groupL$cellnum.length[groupL$frameh=="a"|groupL$frameh=="d"] + 0.5
-      groupL$cellnum.length[groupL$frameh=="b"|groupL$frameh=="c"] <- groupL$cellnum.length[groupL$frameh=="b"|groupL$frameh=="c"] - 0.5
-      plot1 <- ggplot2::ggplot(groupL, ggplot2::aes(x=cellnum.length,y=y_coords, group=paste(X_rot, cell, frame, pointN, sep="_"), fill=values)) +
+      originalCells$cellnum.length[originalCells$frameh=="a"|originalCells$frameh=="d"] <- originalCells$cellnum.length[originalCells$frameh=="a"|originalCells$frameh=="d"] + 0.5
+      originalCells$cellnum.length[originalCells$frameh=="b"|originalCells$frameh=="c"] <- originalCells$cellnum.length[originalCells$frameh=="b"|originalCells$frameh=="c"] - 0.5
+      plot1 <- ggplot2::ggplot(originalCells, ggplot2::aes(x=cellnum.length,y=y_coords, group=paste(X_rot, cell, frame, pointN, sep="_"), fill=values)) +
         ggplot2::geom_polygon() +
         ggplot2::theme_minimal() +
         ggplot2::xlab("n(th) cell ordered by cell length") +
@@ -354,7 +370,7 @@ bactKymo <- function(groupL, timeD = FALSE, dimension = "length", bins=25, sizeA
         ggplot2::scale_fill_viridis_c(name="Fluorescence\nIntensity")
     }
     if(dimension=="width"&sizeAV==FALSE){
-      plot1 <- ggplot2::ggplot(groupL, ggplot2::aes(x=cellnum.width,y=group, fill=values)) +
+      plot1 <- ggplot2::ggplot(originalCells, ggplot2::aes(x=cellnum.width,y=group, fill=values)) +
         ggplot2::geom_raster() +
         ggplot2::coord_fixed(ratio=20) +
         ggplot2::theme_minimal() +
@@ -363,9 +379,9 @@ bactKymo <- function(groupL, timeD = FALSE, dimension = "length", bins=25, sizeA
         ggplot2::scale_fill_viridis_c(name="Fluorescence\nIntensity")
     }
     if(dimension=="width"&sizeAV==TRUE){
-      groupL$cellnum.width[groupL$frameh=="a"|groupL$frameh=="d"] <- groupL$cellnum.width[groupL$frameh=="a"|groupL$frameh=="d"] + 0.5
-      groupL$cellnum.width[groupL$frameh=="b"|groupL$frameh=="c"] <- groupL$cellnum.width[groupL$frameh=="b"|groupL$frameh=="c"] - 0.5
-      plot1 <- ggplot2::ggplot(groupL, ggplot2::aes(x=cellnum.width,y=y_coords, group=paste(X_rot, cell, frame, pointN, sep="_"), fill=values)) +
+      originalCells$cellnum.width[originalCells$frameh=="a"|originalCells$frameh=="d"] <- originalCells$cellnum.width[originalCells$frameh=="a"|originalCells$frameh=="d"] + 0.5
+      originalCells$cellnum.width[originalCells$frameh=="b"|originalCells$frameh=="c"] <- originalCells$cellnum.width[originalCells$frameh=="b"|originalCells$frameh=="c"] - 0.5
+      plot1 <- ggplot2::ggplot(originalCells, ggplot2::aes(x=cellnum.width,y=y_coords, group=paste(X_rot, cell, frame, pointN, sep="_"), fill=values)) +
         ggplot2::geom_polygon() +
         ggplot2::theme_minimal() +
         ggplot2::xlab("n(th) cell ordered by cell width") +
@@ -376,7 +392,7 @@ bactKymo <- function(groupL, timeD = FALSE, dimension = "length", bins=25, sizeA
 
   if(timeD==TRUE&sizeAV==FALSE&percDiv==FALSE){
     if(cells=="all"){
-      plot1 <- lapply(unique(groupL$cell), function(x) ggplot2::ggplot(groupL[groupL$cell==x,]) +
+      plot1 <- lapply(unique(originalCells$cell), function(x) ggplot2::ggplot(originalCells[originalCells$cell==x,]) +
                         ggplot2::geom_raster(ggplot2::aes(x=frame, y=group, fill=values)) +
                         ggplot2::theme_minimal() +
                         ggplot2::xlab("Time (frames)") +
@@ -386,7 +402,7 @@ bactKymo <- function(groupL, timeD = FALSE, dimension = "length", bins=25, sizeA
 
     }
     if(is.numeric(cells)==TRUE&length(cells)>1){
-      plot1 <- lapply(cells, function(x) ggplot2::ggplot(groupL[groupL$cell==x,]) +
+      plot1 <- lapply(cells, function(x) ggplot2::ggplot(originalCells[originalCells$cell==x,]) +
                         ggplot2::geom_raster(ggplot2::aes(x=frame, y=group, fill=values)) +
                         ggplot2::theme_minimal() +
                         ggplot2::xlab("Time (frames)") +
@@ -395,7 +411,7 @@ bactKymo <- function(groupL, timeD = FALSE, dimension = "length", bins=25, sizeA
       )
     }
     if(is.numeric(cells)==TRUE&length(cells)==1){
-      plot1 <- ggplot2::ggplot(groupL[groupL$cell==cells,]) +
+      plot1 <- ggplot2::ggplot(originalCells[originalCells$cell==cells,]) +
         ggplot2::geom_raster(ggplot2::aes(x=frame, y=group, fill=values)) +
         ggplot2::theme_minimal() +
         ggplot2::xlab("Time (frames)") +
@@ -409,7 +425,7 @@ bactKymo <- function(groupL, timeD = FALSE, dimension = "length", bins=25, sizeA
 
   if(timeD==TRUE&sizeAV==TRUE&percDiv==FALSE){
     if(cells=="all"){
-        plot1 <- lapply(unique(groupL$cell[order(groupL$cell)]), function(x) ggplot2::ggplot(groupL[groupL$cell==x,]) +
+        plot1 <- lapply(unique(originalCells$cell[order(originalCells$cell)]), function(x) ggplot2::ggplot(originalCells[originalCells$cell==x,]) +
                           ggplot2::geom_polygon(ggplot2::aes(x=x_coords, y=y_coords, fill=values, group=paste(X_rot,pointN,values))) +
                           ggplot2::theme_minimal() +
                           ggplot2::xlab("Time (frames)") +
@@ -421,7 +437,7 @@ bactKymo <- function(groupL, timeD = FALSE, dimension = "length", bins=25, sizeA
 
     }
     if(is.numeric(cells)==TRUE&length(cells)>1){
-      plot1 <- lapply(cells, function(x) ggplot2::ggplot(groupL[groupL$cell==x,]) +
+      plot1 <- lapply(cells, function(x) ggplot2::ggplot(originalCells[originalCells$cell==x,]) +
                         ggplot2::geom_polygon(ggplot2::aes(x=x_coords, y=y_coords, fill=values, group=paste(X_rot, pointN,values))) +
                         ggplot2::theme_minimal() +
                         ggplot2::xlab("Time (frames)") +
@@ -431,7 +447,7 @@ bactKymo <- function(groupL, timeD = FALSE, dimension = "length", bins=25, sizeA
       )
     }
     if(is.numeric(cells)==TRUE&length(cells)==1){
-      plot1 <- ggplot2::ggplot(groupL[groupL$cell==cells,]) +
+      plot1 <- ggplot2::ggplot(originalCells[originalCells$cell==cells,]) +
         ggplot2::geom_polygon(ggplot2::aes(x=x_coords, y=y_coords, fill=values, group=paste(X_rot,pointN,values))) +
         ggplot2::theme_minimal() +
         ggplot2::xlab("Time (frames)") +
@@ -444,7 +460,7 @@ bactKymo <- function(groupL, timeD = FALSE, dimension = "length", bins=25, sizeA
   }
 
   if(percDiv==TRUE&sizeAV==FALSE){
-    plot1 <- ggplot2::ggplot(groupL) +
+    plot1 <- ggplot2::ggplot(originalCells) +
       ggplot2::geom_raster(ggplot2::aes(x=frame, y=group, fill=values)) +
       ggplot2::theme_minimal() +
       ggplot2::xlab("Percentage of division") +
@@ -454,7 +470,7 @@ bactKymo <- function(groupL, timeD = FALSE, dimension = "length", bins=25, sizeA
 
 
   if(percDiv==TRUE&sizeAV==TRUE){
-    plot1 <- ggplot2::ggplot(groupL) +
+    plot1 <- ggplot2::ggplot(originalCells) +
       ggplot2::geom_polygon(ggplot2::aes(x=x_coords, y=y_coords, fill=values, group=paste(X_rot,values))) +
       ggplot2::theme_minimal() +
       ggplot2::xlab("Percentage of division") +

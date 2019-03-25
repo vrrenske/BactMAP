@@ -4,7 +4,7 @@ Version: 0.0.1.1
 Authors@R: person("Renske", "van Raaphorst", email = "renske.vanraaphorst@unil.ch", role = c("aut", "cre"))
 Description: Automated import of bacterial cell segmentation and fluorescence data from a range of softwares to uniformally analyze and visualize.
 Depends: R (>= 3.3.2)
-License: GMD-1
+License: MIT
 Encoding: UTF-8
 LazyData: true
 Imports:

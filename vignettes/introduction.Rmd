@@ -1,0 +1,98 @@
+---
+title: "Introduction to BactMAP"
+author: "Renske van Raaphorst"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to BactMAP}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+Welcome to BactMAP! This package is made to make it easier for microbiologists to combine and analyse segmentation & fluorescence data derived from custom software like Oufti, Morphometrics, MicrobeJ or Supersegger. There are standard functions for importing several popular programs, but also options for importing CSVs or Matlab files with a specific structure. If your favorite segmentation or spot detection program is missing, let me know by opening an issue/request on [this page](www.github.com/vrrenske/bactmap/issues).
+
+BactMAP's functionality can basically be ordered in three groups: data import, data visualization & custum analysis. uses ggplot to make visual summaries of the segmentation & fluorescence data, show the cell genealogy, plot protein trajectories in the cell and many other things. This can give you a quick overview of your data to make a decision on further analysis and custom visualization.
+
+This manual contains information each function and a set of vignettes with tutorials to get you started. An online, up-to-date version can also be found on the [bactMAP wiki](www.github.com/vrrenske/bactmap/wiki). 
+
+![](overview4.jpg){width=100%}
+
+## Data Import
+
+### Data from segmentation programs
+
+Depending on the input program and the type of analysis done, the output of the extr_-functions is a list of datasets. The programs, what detection features are imported into bactMAP and the functions to import the data are listed below:
+
+program                       | bactMAP can import:                                                                        | function:                                                      |                     
+----------------------------- | ---------------------------------------------------------------------------- | ------------------------------------------------------------------ 
+[Oufti](www.oufti.org)        | cell meshes; spots; objects; genealogy| [extr_Oufti()](https://github.com/vrrenske/BactMAP/wiki/extr_Oufti) |
+[SuperSegger](https://github.com/wiggins-lab/SuperSegger/wiki) | cell meshes; spots; genealogy | [extr_SuperSeggerClist and extr_SuperSeggerCells](https://github.com/vrrenske/BactMAP/wiki/extr_SuperSeggerCells-and-extr_SuperSeggerClist) |
+[ObjectJ](https://sils.fnwi.uva.nl/bcb/objectj/)         | cell bounding box | [extr_ObjectJ](https://github.com/vrrenske/BactMAP/wiki/extr_ObjectJ)() |
+[Morphometrics](https://simtk.org/projects/morphometrics)  | cell meshes; objects | [extr_Morphometrics()](https://github.com/vrrenske/BactMAP/wiki/extr_Morphometrics) |
+[MicrobeJ](www.microbej.org)  | cell meshes; spots; objects | [extr_MicrobeJ()](https://github.com/vrrenske/BactMAP/wiki/extr_MicrobeJ) |
+Custom import from other program | cell meshes; spots; objects | [extr_Meshes()](https://github.com/vrrenske/BactMAP/wiki/extr_Meshes), [extr_Spots()](https://github.com/vrrenske/BactMAP/wiki/extr_Spots) and [extr_Objects()](https://github.com/vrrenske/BactMAP/wiki/extr_Objects) |
+
+
+### Data from spot detection
+
+Now, only the peak fitter and tracker output data from ISBatch are standardly importable in BactMAP. Other spot tracking output can be imported from .CSV or .TXT using *extr_Spots**.
+
+program                                             | function:
+--------------------------------------------------- | -----------------------------------------------------------------------
+[ISBatch](http://singlemolecule.github.io/iSBatch/) | [extr_ISBatch()](https://github.com/vrrenske/BactMAP/wiki/extr_ISBatch)
+custom import from other program                    | [extr_Spots()](https://github.com/vrrenske/BactMAP/wiki/extr_Spots)
+
+
+### TIFF data
+
+Uploading the raw tiff stacks can be useful for making kymographs or projections without doing spot or object detection first, or to check your segmentation/detection visually.
+
+data type | function:
+--------- | --------------
+greyscale, single channel TIFF/TIF image or image stack | [extr_OriginalStack]()
+
+## Data Visualization
+
+In short, the included data visualization functions of BactMAP can be grouped in 3 categories: functions visualizing the fluorescence intensity values directly from uploaded microscopy images, functions for the visualization of subcellular localizations and functions specifically designed to visualize timelapse movies. Below you see an overview of all plotting functions. 
+
+![](supfigfunctions.jpg){width=100%}
+
+### Plot the (raw) fluorescence
+
+When using multiple programs to detect cell outlines, internal 
+## Custom Analysis
+
+The figure sizes have been customised so that you can easily put two images side-by-side. 
+
+```{r, fig.show='hold'}
+plot(1:10)
+plot(10:1)
+```
+
+You can enable figure captions by `fig_caption: yes` in YAML:
+
+    output:
+      rmarkdown::html_vignette:
+        fig_caption: yes
+
+Then you can use the chunk option `fig.cap = "Your figure caption."` in **knitr**.
+
+## More Examples
+
+You can write math expressions, e.g. $Y = X\beta + \epsilon$, footnotes^[A footnote here.], and tables, e.g. using `knitr::kable()`.
+
+```{r, echo=FALSE, results='asis'}
+knitr::kable(head(mtcars, 10))
+```
+
+Also a quote using `>`:
+
+> "He who gives up [code] safety for [code] speed deserves neither."
+([via](https://twitter.com/hadleywickham/status/504368538874703872))

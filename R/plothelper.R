@@ -54,17 +54,28 @@ showCurrentPalettes <- function(colchoice = get(colopts, envir=colEnv)){
   plotlist <- list()
   namelist <- names(colchoice)
   for(n in 1:length(colchoice)){
-    p <- colorchoiceplot(colchoice[[n]], n, namelist[n])
+    p <- suppressWarnings(colorchoiceplot(colchoice[[n]], n, namelist[n]))
     plotlist <- append(plotlist,list(p))
   }
   return(do.call(gridExtra::grid.arrange,c(plotlist, ncol=2)))
 }
 
+#' @export
+getPalette <- function(palName){
+  if(missing(palName)){
+    return(get(colopts, envir=colEnv))
+  }else{
+    collist <- get(colopts, envir=colEnv)
+    return(collist[palName][[1]])
+  }
+}
+
+
 colorchoiceplot <- function(colchoice, nums, pname){
 
   z <- mvtnorm::rmvnorm(100, mean=c(3,5), sigma=matrix(c(1,0.5,0.5,2), nrow=2))
   z <- data.frame(z)
-  return(ggplot2::ggplot(z, ggplot2::aes(x=X1, y=X2)) + ggplot2::stat_density2d(ggplot2::aes(fill=..density..), geom="raster", contour=FALSE) + ggplot2::scale_fill_gradient2(low = colchoice[1], mid= colchoice[2], high = colchoice[3], midpoint=0.06) + ggplot2::theme_minimal() + ggplot2::theme(legend.position="none") + ggplot2::ggtitle(pname) + ggplot2::xlab("") + ggplot2::ylab("") + ggplot2::xlim(0,5) + ggplot2::ylim(0,10) + ggplot2::theme(axis.text=ggplot2::element_blank()))
+  return(suppressWarnings(ggplot2::ggplot(z, ggplot2::aes(x=X1, y=X2)) + ggplot2::stat_density2d(ggplot2::aes(fill=..density..), geom="raster", contour=FALSE) + ggplot2::scale_fill_gradient2(low = colchoice[1], mid= colchoice[2], high = colchoice[3], midpoint=0.06) + ggplot2::theme_minimal() + ggplot2::theme(legend.position="none") + ggplot2::ggtitle(pname) + ggplot2::xlab("") + ggplot2::ylab("") + ggplot2::xlim(0,5) + ggplot2::ylim(0,10) + ggplot2::theme(axis.text=ggplot2::element_blank())))
 
 }
 

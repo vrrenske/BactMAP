@@ -199,7 +199,7 @@ sprOuftispot <- function(cellList){
     return(OBJn)
   }
 
-#'
+#
 extr_OuftiCSV <- function(dataloc){
   if(missing(dataloc)){
     dataloc <- file.choose()

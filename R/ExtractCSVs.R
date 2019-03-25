@@ -150,6 +150,32 @@ extr_ISBatch <- function(dataloc, seperator=","){
 }
 
 
+#' @export
+extr_Spots <- function(dataloc, seperator=","){
+  if(substr(dataloc, nchar(dataloc)-3, nchar(dataloc))==".txt"){
+    SPOTS <- read.table(dataloc, header=T, sep=seperator)
+  }
+  if(substr(dataloc, nchar(dataloc)-3, nchar(dataloc))==".csv"){
+    SPOTS <- read.csv(dataloc, header=T, sep=seperator)
+  }
+  colSPOTS <- c("x", "y", "frame")
+  if("trajectory"%in%colnames(SPOTS)){
+    colSPOTS <- c(colSPOTS, "trajectory")
+  }
+  if("trajectory_length"%in%colnames(SPOTS)){
+    colSPOTS <- c(colSPOTS, "trajectory_length")
+  }
+  if("displacement_sq"%in%colnames(SPOTS)){
+    colSPOTS <- c(colSPOTS, "displacement_sq")
+  }
+  spotminimal <- SPOTS[,colSPOTS]
+  listout <- list()
+  listout$cellList <- SPOTS
+  listout$spotframe <- spotminimal
+  return(listout)
+}
+
+
 #ObjectJ - mostly manual entry.
 #' @export
 extr_ObjectJ <- function(dataloc,
@@ -266,3 +292,57 @@ spotrExtractSpotsObjectJ <- function(SF){
   Sframe <- Sframe[order(Sframe$cell, Sframe$L),]
   return(Sframe)
 }
+
+
+#' @export
+extr_Meshes <- function(dataloc, sep=",", turn=TRUE, mag){
+  if (!requireNamespace("shotGroups", quietly = TRUE)) {
+    inp <- readline("Package 'shotGroups' needed for this function to work. Press 'y' to install, or any other key to cancel.")
+    if(inp=="y"|inp=="Y"){install.packages("shotGroups")}else{stop("Canceled")}
+  }
+  if(substr(dataloc, nchar(dataloc)-3, nchar(dataloc))==".txt"){
+    MESH <- read.table(dataloc, header=T, sep=sep)
+  }
+  if(substr(dataloc, nchar(dataloc)-3, nchar(dataloc))==".csv"){
+    MESH <- read.csv(dataloc, header=T, sep=sep)
+  }
+  meshL <- list()
+  meshL$cellList <- MESH
+  MESH$cellID <- paste(MESH$cell, MESH$frame, sep="_")
+  if("max.length"%in%colnames(MESH)==F){
+    bblist <- lapply(unique(MESH$cellID), function(x) as.numeric(suppressWarnings(shotGroups::getMinBBox(data.frame(x= MESH[MESH$cellID==x,]$X, y=MESH[MESH$cellID==x,]$Y))[c("width","height")])))
+    lengthlist <- lapply(c(1:length(bblist)), function(x) max(bblist[[x]]))
+    MESHb <- data.frame("cellID"=unique(MESH$cellID), "max.length" = unlist(lengthlist))
+    if("max.width"%in%colnames(MESH)==F){
+      widthlist <- lapply(c(1:length(bblist)), function(x) min(bblist[[x]]))
+      MESHb$max.width <- unlist(widthlist)
+    }
+    MESH <- merge(MESH, MESHb)
+  }
+
+  if("max.length"%in%colnames(MESH)==T&"max.width"%in%colnames(MESH)==F){
+    bblist <- lapply(unique(MESH$cellID), function(x) as.numeric(suppressWarnings(shotGroups::getMinBBox(data.frame(x= MESH[MESH$cellID==x,]$X, y=MESH[MESH$cellID==x,]$Y))[c("width","height")])))
+    widthlist <- lapply(c(1:length(bblist)), function(x) min(bblist[[x]]))
+    MESHb <- data.frame("cellID"=unique(MESH$cellID), "max.width" = unlist(widthlist))
+    MESH <- merge(MESH, MESHb)
+  }
+
+  MESH <- MESH[,c("X", "Y", "cell", "frame", "cellID", "max.length", "max.width")]
+  MESH$num <- c(1:nrow(MESH))
+  meshL$mesh <- MESH
+
+  if(turn==TRUE){
+    meshL$mesh <- meshTurn(meshL$mesh)
+  }
+  if(!missing(mag)){
+  if(turn==TRUE){
+    meshL$mesh$Xrotum <- meshL$mesh$X_rot * unlist(get(magnificationList, envir=magEnv)[mag])
+    meshL$mesh$Yrotum <- meshL$mesh$Y_rot * unlist(get(magnificationList, envir=magEnv)[mag])
+  }
+    meshL$mesh$max_um <- meshL$mesh$max.length * unlist(get(magnificationList, envir=magEnv)[mag])
+    meshL$mesh$maxwum <- meshL$mesh$max.width * unlist(get(magnificationList, envir=magEnv)[mag])
+  }
+  return(meshL)
+}
+
+
