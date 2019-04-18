@@ -329,7 +329,10 @@ spotrXYMESH <- function(MESH, x_1="x1", y_1="y1",x_0="x0", y_0="y0" ){
   MESH0$xy <- 0
   colnames(MESH1) <- gsub("1", "", colnames(MESH1))
   colnames(MESH0) <- gsub("0", "", colnames(MESH0))
-  lapply(unique(MESH1[,"cell","frame"]), function(x) mesh1Fun(MESH1[MESH1$cell==x$cell&MESH1$frame==x$frame,]))
+  ##need to fix lapply function - check dapply? mapply? otherwise first make list of each row.
+  MESH1$cf <- paste(MESH1$cell, MESH1$frame, sep="_")
+  MESH1 <- do.call('rbind', lapply(unique(MESH1$cf), function(x) mesh1Fun(MESH1[MESH1$cf==x,])))
+  MESH1$cf <- NULL
   MESH <- merge(MESH0, MESH1, all=T)
   colnames(MESH)[colnames(MESH)=="x"] <- "X"
   colnames(MESH)[colnames(MESH)=="y"] <- "Y"
@@ -338,7 +341,7 @@ spotrXYMESH <- function(MESH, x_1="x1", y_1="y1",x_0="x0", y_0="y0" ){
 }
 
 mesh1Fun <- function(MESH1){
-  MESH1$num[MESH1$cell==i&MESH1$frame==n] <- 1 + max(MESH1$num[MESH1$cell==i&MESH1$frame==n], na.rm=T)*2 - MESH1$num[MESH1$cell==i&MESH1$frame==n]
+  MESH1$num <- 1 + max(MESH1$num, na.rm=T)*2 - MESH1$num
   return(MESH1)
 }
 

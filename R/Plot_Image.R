@@ -127,7 +127,7 @@ plotcellsframelist <- function(TRframe, maxframes, minframes, updown=F, movie=F,
     }
 
 
-    p <- ggplot2::ggplot(TRframe, aes(frame=frame)) +
+    p <- ggplot2::ggplot(TRframe, ggplot2::aes(frame=frame)) +
       ggplot2::geom_polygon(ggplot2::aes(x=xt,y=yt,fill=values,group=pointN),color=NA) +
       ggimage::theme_transparent() + ggplot2::coord_fixed() +
       ggplot2::scale_fill_viridis_c(option=viridisoption) +

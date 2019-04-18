@@ -66,33 +66,121 @@ In short, the included data visualization functions of BactMAP can be grouped in
 
 ### Plot the (raw) fluorescence
 
-When using multiple programs to detect cell outlines, internal 
+When using multiple programs to detect cell outlines or internal fluorescence, or when you want to compare the performance of different programs & algorithm, plotting them all next to each other can be very helpful. For this, you can use [plotRaw()](plotRaw{bactMAP}) to do exactly that. 
+
+When you want to have an overview of the localization of your fluorescent protein over time in one cell, [bactKymo()](bactKymo{bactMAP}) can do this for you. Apart from that, it is possible to plot the internal fluorescence in a group of cells ordered by cell length (demographs), or to bin cells of time-lapses by their division state.
+
+### Plot subcellular localization & compare conditions/channels
+
+Most bactMAP plotting functions are made to visualize fluorescence localization (spots or objects) detected with segmentation or detection software inside the cell. The most general function, made for plotting the localization of fluorescent spots inside the cell, is [createPlotlist()](createPlotlist{bactMAP}). A similar function to this is [plotObjects](plotObjects{bactKymo}), which does the same for intercellular objects as filaments. Then, [plotOverlay()]() can be used to plot datasets with multiple conditions and/or fluorescent channels.
+
+Finally, [plotTracks()]() is a function to plot the localization of fluorescent spots in cells over time.
+
+### Time lapse analysis
+
+For time-lapses, there is the possibility to 1. plot the cell genealogy combined with the internal fluorescence using [plotTreeBasic()](), 2. group the cells by their growth speed using [percDivision()]() and make single-cell movies using [plotCellsTime()]().
+
 ## Custom Analysis
 
-The figure sizes have been customised so that you can easily put two images side-by-side. 
+Finally, after using bactMAP's import & plotting functions you might want to do your specific own analysis; like statistical tests, measurements between localizations, etc. In the [tutorial vignettes]() below you can find some examples of custom analysis you can do when all your data is in one place, but this is by no means limited to that.
 
-```{r, fig.show='hold'}
-plot(1:10)
-plot(10:1)
+## Utilities
+
+### Saving data
+
+To save plots, use *ggsave* from the ggplot2 package:
+
+```{r, eval=FALSE}
+ggsave(myPlot, filename="myPlot.PDF")
 ```
 
-You can enable figure captions by `fig_caption: yes` in YAML:
+To save R dataframes, use *save*:
 
-    output:
-      rmarkdown::html_vignette:
-        fig_caption: yes
-
-Then you can use the chunk option `fig.cap = "Your figure caption."` in **knitr**.
-
-## More Examples
-
-You can write math expressions, e.g. $Y = X\beta + \epsilon$, footnotes^[A footnote here.], and tables, e.g. using `knitr::kable()`.
-
-```{r, echo=FALSE, results='asis'}
-knitr::kable(head(mtcars, 10))
+```{r, eval=FALSE}
+save(myDataFrame, file="myDataFrame.Rda")
 ```
 
-Also a quote using `>`:
+### Color Palettes
 
-> "He who gives up [code] safety for [code] speed deserves neither."
-([via](https://twitter.com/hadleywickham/status/504368538874703872))
+Allmost all of BactMAP's plotting functions use the [viridis color scale](https://cran.r-project.org/web/packages/viridis/vignettes/intro-to-viridis.html) for heatmaps. In addition, the `createPlotlist()` function also recognizes a set of palettes inspired by the [CUD colorblind-friendly palettes](http://jfly.iam.u-tokyo.ac.jp/color/). How to view these palettes or add one palette manually is shown below. For discrete color scales, it is often possible to define your own colors in BactMAP's plotting functions. 
+
+#### Changing the color scale of BactMAP plots
+In BactMAPs plotting functions, you can define the color or the color palette inside the plotting function. So a way to change the color of you plot is to re-make your plot with the color or color palette defined inside the function. Check the documentation on the wiki or further in this document for each function's color options!
+
+However, sometimes it might be easier to change the color of your plot after you made the plot. This is also possible using the ggplot2 commands, for instance:
+
+```{r, eval=FALSE}
+#for discrete scales:
+myPlot_changedColors <- myPlot + scale_fill_brewer("Set1")
+
+#for heatmap scales:
+myHeatmap_changedColors <- myHeatmap + scale_fill_viridis("Magma")
+```
+
+There are many scales and options within ggplot2. Check options for heatmaps [here](https://ggplot2.tidyverse.org/reference/scale_gradient.html) and more general information about using colors in ggplot2 [here.](http://www.cookbook-r.com/Graphs/Colors_(ggplot2)/)
+
+#### Choosing discrete color scales
+
+The CUD colorblind-friendly palette is saved in bactMAP. To get the hex codes of the CUD color palette, type the following command:
+
+```{r, eval=FALSE}
+colorsCUD()
+```
+For more information and vast choice of good color palettes for plots,
+check <http://colorbrewer2.org>
+
+Or if you want to make your own palette, try I want Hue: <http://tools.medialab.sciences-po.fr/iwanthue/>
+
+Finally, for a comprehensive list of R color names, check
+<http://www.stat.columbia.edu/~tzheng/files/Rcolor.pdf>
+
+#### Choosing heatmap color scales
+
+BactMAPs functions use the colorblind-friendly viridis palettes as a standard. However, for the cell projection heatmaps in createPlotlist() a few more palettes inspired by the CUD palette are added. Below you can see examples of how to use these functions - check the full documentation of the palette functions further in this manual or on the wiki for more information.
+
+If you want to make your own continuous color scales, try http://gka.github.io/palettes .
+
+#### Modify and view createPlotlist() palettes 
+ 
+```{r, eval=FALSE}
+##Check the color palettes 
+showCurrentPalettes()
+
+##Pick three colors you like and put them in a list - in the order of lowest value - midpoint - highest value
+listofcolors <- list("orangered", "darkseagreen", "burlywood1")
+
+##Add to the color palettes for createPlotlist()
+addPalette(listofcolors, "MyBeautifulPalette")
+```
+
+### Pixel-micron conversion
+
+To convert pixels to micron, you can save your conversion factor in bactMAP during your R session so you don't have to type it more than once. To do so, use `addPixels2um`:
+
+```{r,eval=FALSE}
+## To check the currently loaded pixel conversion factors:
+getPixels2um()
+
+## To add your pixel conversion factor to bactMAP:
+addPixels2um("MyPixel2um", 0.543)
+```
+
+### Combining multiple datasets
+
+For now, bactMAP doesn't include a standard function for batch-uploading and combining data (though it's certainly on the to-do list!). However, after you uploaded & converted the data you want, you can use `combineDataframes` to put all your data together. Here's an example where GFP & RFP data from two different conditions are analyzed in Oufti and uploaded manually. For more explanation on the function, check the documentation further in the document or go to the wiki page.
+
+```{r, eval=FALSE}
+GFPdata_WT <- extr.Oufti(file.choose())
+RFPdata_WT <- extr.Oufti(file.choose())
+
+RFPdata_mut  <- extr.Oufti(file.choose())
+GFPdata_mut  <- extr.Oufti(file.choose())
+
+combined <- combineDataframes(list(GFPdata_WT, RFPdata_WT, RFPdata_mut, GFPdata_mut),
+                              listofconditions = list("WT", "WT", "mut", "mut"),
+                              listofchannels=list("GFP", "RFP", "RFP", "GFP"))
+```
+
+
+
+
