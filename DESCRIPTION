@@ -30,5 +30,5 @@ Suggests:
   knitr,
   rmarkdown
 Collate: 'ouftidirectlyfrommatlab.R' 'Extr_Morphometrics.R' 'ExtractCSVs.R' 'datamerging.R' 'helperfunctions.R' 'ouftimeshtransform_fullfunction.R' 'plothelper.R' 'Polygon_angle.R' 'supersegger_genealogy.R' 'Plot_Image.R' 'objectplotting.R' 'supersegger_meshes.R' 'combine_analyses.R' 'timelapse.R' 'plotTracks.R'
-RoxygenNote: 6.1.0
+RoxygenNote: 6.1.1
 VignetteBuilder: knitr

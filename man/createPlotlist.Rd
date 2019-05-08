@@ -16,10 +16,10 @@ createplotlist <- function(spotdata,
                             AllPlot=T,
                             Xm="X",
                             Ym="Y",
-                            viridis="FALSE")
+                            viridis=FALSE)
 }
 \arguments{
-  \item{spotdata}{Data frame containing -at least- column with relative spot x-localizations, y-localizations, cell ID and frame number.}
+  \item{spotdata}{Data frame containing -at least- column with spot x-localizations, y-localizations and frame number. When the variable meshdata is not given, additional required columns are cell ID, relative x-localization ("l" or "Lmid") and relative y-localization ("d" or "Dum").}
   \item{meshdata}{Data frame containing -at least- the x and y coordinates of the cell meshes, the maximum cell width, maximum cell length, cell ID and frame. Optional.}
   \item{groups}{Number of groups the data will be divided in. Default = 4.}
   \item{colorpalette}{Color palette the heatmap plots will be plotted in. Default is "GreenYellow". Check which palettes are loaded by \code{showColorPaletes()} and add your own palette using \code{addPallete()}}
@@ -45,13 +45,15 @@ A list consisting of the following items:
 }
 
 \references{
-These plotting functions were developed for: van Raaphorst, Renske, Morten Kjos, and Jan-Willem Veening. "Chromosome segregation drives division site selection in Streptococcus pneumoniae." Proceedings of the National Academy of Sciences 114.29 (2017): E5959-E5968.
+These plotting functions were developed for:
+
+href{}{van Raaphorst, Renske, Morten Kjos, and Jan-Willem Veening. "Chromosome segregation drives division site selection in Streptococcus pneumoniae." Proceedings of the National Academy of Sciences 114.29 (2017): E5959-E5968.}
 }
 \author{
 Renske van Raaphorst
 }
 \note{
-This function is meant to give an overview of the data. To modify each individual plot, look at the shinyspots individual plot functions.
+This function is meant to give an overview of the data. Check the tutorials on the \href{https://github.com/vrrenske/BactMAP/wiki}{wiki page} for examples of modifying individual plots.
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~

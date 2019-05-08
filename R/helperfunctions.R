@@ -175,7 +175,9 @@ getSpotsInBox <- function(meshp, spotdatap, u, a){
   #    }
   #  Mfull <- meshp
   #  }
-
+  if("trajectory"%in%colnames(spotdatap)==T){
+    pinps <- merge(spotdatap[,c("x", "y", "trajectory", "displacement_sq", "trajectory_length")], pinps)
+  }
   return(list("REP" = pinps, "MESH" = meshp))
 }
 
@@ -493,4 +495,7 @@ assign(magnificationList, mL, envir=magEnv)
 
 
 
-
+#'@export
+micron <- function(){
+  return("\u00b5m")
+}
