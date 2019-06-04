@@ -45,6 +45,13 @@ plotCellsTime <- function(celdat,
                            cellN,
                            minf,
                            maxf){
+
+  if(movie==TRUE){
+    if(!requireNamespace("gganimate", quietly = TRUE)){
+      inp <- readline("Package 'gganimate' needed to make an animation. Press 'y' to install it, or any other key to cancel.")
+      if(inp=="y"|inp=="Y"){install.packages("gganimate")}else{stop("Canceled")}
+    }
+  }
   if(missing(minf)){
     minf <- min(celdat$frame)
   }
@@ -127,7 +134,7 @@ plotcellsframelist <- function(TRframe, maxframes, minframes, updown=F, movie=F,
     }
 
 
-    p <- ggplot2::ggplot(TRframe, ggplot2::aes(frame=frame)) +
+    p <- ggplot2::ggplot(TRframe) +
       ggplot2::geom_polygon(ggplot2::aes(x=xt,y=yt,fill=values,group=pointN),color=NA) +
       ggimage::theme_transparent() + ggplot2::coord_fixed() +
       ggplot2::scale_fill_viridis_c(option=viridisoption) +
@@ -154,6 +161,10 @@ plotcellsframelist <- function(TRframe, maxframes, minframes, updown=F, movie=F,
 
     if(updown==F&movie==F){
       p <- p + ggplot2::facet_grid(~frame)
+    }
+
+    if(movie==T){
+      p <- p + gganimate::transition_manual(frame)
     }
     return(p)
   }
@@ -189,7 +200,7 @@ plotRaw <- function(tiffdata,
     ggplot2::theme(legend.position="none") # remove legend for easy viewing
   }
   if(missing(tiffdata)==T){
-    plotcells <- ggplot2::ggplot() + theme_dark()
+    plotcells <- ggplot2::ggplot() + ggplot2::theme_dark()
   }
   #add x and/or y range + fixed coordinates when indicated:
   if(missing(xrange)!=T&missing(yrange)!=T){
@@ -292,7 +303,10 @@ prepForKymo <- function(turnedCells, dimension="length", bins = 25, sizeAV=FALSE
 ##############plot#########
 #' @export
 
-bactKymo <- function(originalCells, timeD = FALSE, dimension = "length", bins=25, sizeAV=FALSE, cells="all", prep=TRUE, percDiv=FALSE, cutoff_demograph = 0.975){
+bactKymo <- function(originalCells, timeD = FALSE, dimension = "length", bins=25, sizeAV=FALSE, cells="all", prep=TRUE, percDiv=FALSE, cutoff_demograph = 0.975, mag){
+
+  measure <- "pixels"
+
   if(percDiv==TRUE){
     if("percentage_binned"%in%colnames(originalCells)!=TRUE){
       groupP <- perc_Division(unique(originalCells[,c("cell", "frame", "max.length")]), av=FALSE, plotgrowth=FALSE)$timelapse
@@ -362,11 +376,16 @@ bactKymo <- function(originalCells, timeD = FALSE, dimension = "length", bins=25
     if(dimension=="length"&sizeAV==TRUE){
       originalCells$cellnum.length[originalCells$frameh=="a"|originalCells$frameh=="d"] <- originalCells$cellnum.length[originalCells$frameh=="a"|originalCells$frameh=="d"] + 0.5
       originalCells$cellnum.length[originalCells$frameh=="b"|originalCells$frameh=="c"] <- originalCells$cellnum.length[originalCells$frameh=="b"|originalCells$frameh=="c"] - 0.5
+
+      if(!missing(mag)){
+        originalCells$y_coords <- originalCells$y_coords * unlist(get(magnificationList, envir=magEnv)[mag])
+        measure <- "micron"
+      }
       plot1 <- ggplot2::ggplot(originalCells, ggplot2::aes(x=cellnum.length,y=y_coords, group=paste(X_rot, cell, frame, pointN, sep="_"), fill=values)) +
         ggplot2::geom_polygon() +
         ggplot2::theme_minimal() +
         ggplot2::xlab("n(th) cell ordered by cell length") +
-        ggplot2::ylab("location on length axis (micron)") +
+        ggplot2::ylab(paste("location on length axis (", measure, ")", sep="")) +
         ggplot2::scale_fill_viridis_c(name="Fluorescence\nIntensity")
     }
     if(dimension=="width"&sizeAV==FALSE){
@@ -381,11 +400,16 @@ bactKymo <- function(originalCells, timeD = FALSE, dimension = "length", bins=25
     if(dimension=="width"&sizeAV==TRUE){
       originalCells$cellnum.width[originalCells$frameh=="a"|originalCells$frameh=="d"] <- originalCells$cellnum.width[originalCells$frameh=="a"|originalCells$frameh=="d"] + 0.5
       originalCells$cellnum.width[originalCells$frameh=="b"|originalCells$frameh=="c"] <- originalCells$cellnum.width[originalCells$frameh=="b"|originalCells$frameh=="c"] - 0.5
+
+      if(!missing(mag)){
+        originalCells$y_coords <- originalCells$y_coords * unlist(get(magnificationList, envir=magEnv)[mag])
+        measure <- "micron"
+      }
       plot1 <- ggplot2::ggplot(originalCells, ggplot2::aes(x=cellnum.width,y=y_coords, group=paste(X_rot, cell, frame, pointN, sep="_"), fill=values)) +
         ggplot2::geom_polygon() +
         ggplot2::theme_minimal() +
         ggplot2::xlab("n(th) cell ordered by cell width") +
-        ggplot2::ylab("location on length axis (micron)") +
+        ggplot2::ylab(paste("location on length axis (", measure, ")", sep="")) +
         ggplot2::scale_fill_viridis_c(name="Fluorescence\nIntensity")
     }
   }
@@ -415,7 +439,7 @@ bactKymo <- function(originalCells, timeD = FALSE, dimension = "length", bins=25
         ggplot2::geom_raster(ggplot2::aes(x=frame, y=group, fill=values)) +
         ggplot2::theme_minimal() +
         ggplot2::xlab("Time (frames)") +
-        ggplot2::ylab(paste("length (by cell ", dimension, ")", sep="")) +
+        ggplot2::ylab(paste("bin (by cell ", dimension, ")", sep="")) +
         ggplot2::scale_fill_viridis_c()
     }
     if(cells!="all" & is.numeric(cells)==FALSE){
@@ -425,11 +449,18 @@ bactKymo <- function(originalCells, timeD = FALSE, dimension = "length", bins=25
 
   if(timeD==TRUE&sizeAV==TRUE&percDiv==FALSE){
     if(cells=="all"){
+
+      if(!missing(mag)){
+        originalCells$y_coords <- originalCells$y_coords * unlist(get(magnificationList, envir=magEnv)[mag])
+        originalCells$x_coords <- originalCells$x_coords * unlist(get(magnificationList, envir=magEnv)[mag])
+        measure <- "micron"
+      }
+
         plot1 <- lapply(unique(originalCells$cell[order(originalCells$cell)]), function(x) ggplot2::ggplot(originalCells[originalCells$cell==x,]) +
                           ggplot2::geom_polygon(ggplot2::aes(x=x_coords, y=y_coords, fill=values, group=paste(X_rot,pointN,values))) +
                           ggplot2::theme_minimal() +
                           ggplot2::xlab("Time (frames)") +
-                          ggplot2::ylab(paste(dimension, "(in pixels)", sep=" ")) +
+                          ggplot2::ylab(paste(dimension, " (in ", measure, ")", sep="")) +
                           ggplot2::scale_fill_viridis_c() +
                           ggtitle(x)
         )
@@ -437,21 +468,31 @@ bactKymo <- function(originalCells, timeD = FALSE, dimension = "length", bins=25
 
     }
     if(is.numeric(cells)==TRUE&length(cells)>1){
+      if(!missing(mag)){
+        originalCells$y_coords <- originalCells$y_coords * unlist(get(magnificationList, envir=magEnv)[mag])
+        originalCells$x_coords <- originalCells$x_coords * unlist(get(magnificationList, envir=magEnv)[mag])
+        measure <- "micron"
+      }
       plot1 <- lapply(cells, function(x) ggplot2::ggplot(originalCells[originalCells$cell==x,]) +
                         ggplot2::geom_polygon(ggplot2::aes(x=x_coords, y=y_coords, fill=values, group=paste(X_rot, pointN,values))) +
                         ggplot2::theme_minimal() +
                         ggplot2::xlab("Time (frames)") +
-                        ggplot2::ylab(paste(dimension, "(in pixels)", sep=" ")) +
+                        ggplot2::ylab(paste(dimension, " (in ", measure, ")", sep="")) +
                         ggplot2::scale_fill_viridis_c() +
                         ggtitle(x)
       )
     }
     if(is.numeric(cells)==TRUE&length(cells)==1){
+      if(!missing(mag)){
+        originalCells$y_coords <- originalCells$y_coords * unlist(get(magnificationList, envir=magEnv)[mag])
+        originalCells$x_coords <- originalCells$x_coords * unlist(get(magnificationList, envir=magEnv)[mag])
+        measure <- "micron"
+      }
       plot1 <- ggplot2::ggplot(originalCells[originalCells$cell==cells,]) +
         ggplot2::geom_polygon(ggplot2::aes(x=x_coords, y=y_coords, fill=values, group=paste(X_rot,pointN,values))) +
         ggplot2::theme_minimal() +
         ggplot2::xlab("Time (frames)") +
-        ggplot2::ylab(paste(dimension, "(in pixels)", sep=" ")) +
+        ggplot2::ylab(paste(dimension, " (in ", measure, ")", sep="")) +
         ggplot2::scale_fill_viridis_c()
     }
     if(cells!="all" & is.numeric(cells)==FALSE){
@@ -470,11 +511,16 @@ bactKymo <- function(originalCells, timeD = FALSE, dimension = "length", bins=25
 
 
   if(percDiv==TRUE&sizeAV==TRUE){
+    if(!missing(mag)){
+      originalCells$y_coords <- originalCells$y_coords * unlist(get(magnificationList, envir=magEnv)[mag])
+      originalCells$x_coords <- originalCells$x_coords * unlist(get(magnificationList, envir=magEnv)[mag])
+      measure <- "micron"
+    }
     plot1 <- ggplot2::ggplot(originalCells) +
       ggplot2::geom_polygon(ggplot2::aes(x=x_coords, y=y_coords, fill=values, group=paste(X_rot,values))) +
       ggplot2::theme_minimal() +
       ggplot2::xlab("Percentage of division") +
-      ggplot2::ylab(paste("length (by cell ", dimension, ")", sep="")) +
+      ggplot2::ylab(paste("length by cell ", dimension, "( in", measure, ")", sep="")) +
       ggplot2::scale_fill_viridis_c()
   }
 

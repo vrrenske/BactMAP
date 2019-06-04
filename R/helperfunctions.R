@@ -64,6 +64,7 @@ spotsInBox <- function(spotdata, mesh, Xs = "x", Ys = "y", Xm = "X", Ym = "Y"){
   #q <- 0
   #b <- 0
    #rewrite colnames if not the same as suggested
+  pb <- txtProgressBar(min=0, max=100, title="Total Progress SpotsInBox:")
   if(Xs!="x"){
     colnames(spotdata)[colnames(spotdata)==Xs] <- "x"
   }
@@ -82,15 +83,24 @@ spotsInBox <- function(spotdata, mesh, Xs = "x", Ys = "y", Xm = "X", Ym = "Y"){
 
   if("length"%in%colnames(mesh)==T){a <- 1}
   if("length"%in%colnames(mesh)==F){a<-2} #if length and max width are already defined, don't touch them.
-
+  setTxtProgressBar(pb, 5)
 
 #for-loop to re-write
   #cellframe_mesh <- paste(mesh$cell, mesh$frame, sep="_")
-
-  o <- lapply(unique(mesh$frame), function(x) lapply(unique(mesh[mesh$frame==x,]$cell), function(y) getSpotsInBox(meshp=mesh[mesh$frame==x&mesh$cell==y,],
+  if (!requireNamespace("pbapply", quietly = TRUE)) {
+    o <- lapply(unique(mesh$frame), function(x) lapply(unique(mesh[mesh$frame==x,]$cell), function(y) getSpotsInBox(meshp=mesh[mesh$frame==x&mesh$cell==y,],
+                                                                                                                               spotdatap=spotdata[spotdata$frame==x,],
+                                                                                                                               u,
+                                                                                                                               a)))
+  }
+  if (requireNamespace("pbapply", quietly = TRUE)) {
+    o <- pbapply::pblapply(unique(mesh$frame), function(x) lapply(unique(mesh[mesh$frame==x,]$cell), function(y) getSpotsInBox(meshp=mesh[mesh$frame==x&mesh$cell==y,],
                                                                                                                      spotdatap=spotdata[spotdata$frame==x,],
                                                                                                                      u,
-                                                                                                                     a)))
+                                                                                                                   a)))
+  }
+
+  setTxtProgressBar(pb, 45)
   #min.i <- min(mesh$frame)
   #for(i in unique(mesh$frame)){ #per frame
     #min.n <- min(mesh$cell[mesh$frame==i])
@@ -100,9 +110,11 @@ spotsInBox <- function(spotdata, mesh, Xs = "x", Ys = "y", Xm = "X", Ym = "Y"){
   #}
   outs <- list()
   outs$spots_relative <- do.call('rbind', lapply(o, function(x) do.call('rbind', lapply(x, function(y) y$REP))))
+  setTxtProgressBar(pb,65)
   outs$mesh <-  do.call('rbind', lapply(o, function(x) do.call('rbind', lapply(x, function(y) y$MESH))))
-
+  setTxtProgressBar(pb, 85)
   names(outs) <- c("spots_relative", "mesh")
+  setTxtProgressBar(pb, 100)
   return(outs) #return datasets as list of dataframes
 
 }
@@ -119,7 +131,7 @@ getSpotsInBox <- function(meshp, spotdatap, u, a){
     meshp$max.length <- max(lengthwidth) #take length/width if not already defined
   }
 
-  pinps <- suppressWarnings(SDMTools::pnt.in.poly(spotdatap[,c("x","y")], data.frame(meshp$X,meshp$Y))) #find spot/object coordinates inside cell
+  pinps <- suppressWarnings(SDMTools::pnt.in.poly(spotdatap[,c("x", "y")], data.frame(meshp$X,meshp$Y))) #find spot/object coordinates inside cell
   if(nrow(pinps)>0){
     pinps <- pinps[pinps$pip==1,]
   }
@@ -422,18 +434,15 @@ centrefun <- function(dat, xie="ob_x", yie="ob_y"){
   dat <- dat[!is.na(dat$ob_x),]
   dat$centre_x <- NA
   dat$centre_y <- NA
-  for(n in unique(dat$frame)){
-    for(u in unique(dat$cell)){
-      if(nrow(dat[dat$cell==u&dat$frame==n,])>0){
-        for(i in unique(dat$obnum[dat$cell==u&dat$frame==n])){
-          woei <- as.matrix(dat[c(xie, yie)][dat$cell==u&dat$frame==n&dat$obnum==i,])
-          cen <- shotGroups::getMinCircle(woei)$ctr
-          dat$centre_x[dat$cell==u&dat$frame==n&dat$obnum==i] <- cen[1]
-          dat$centre_y[dat$cell==u&dat$frame==n&dat$obnum==i] <- cen[2]
-        }
-      }
-    }
-  }
+  dat <- do.call('rbind', pbapply::pblapply(unique(dat$obID), function(x) takeObjectCentre(dat[dat$obID==x,], xie, yie)))
+  return(dat)
+}
+
+takeObjectCentre <- function(dat, xie, yie){
+  woei <- as.matrix(dat[c(xie, yie)])
+  cen <- shotGroups::getMinCircle(woei)$ctr
+  dat$centre_x <- cen[1]
+  dat$centre_y <- cen[2]
   return(dat)
 }
 

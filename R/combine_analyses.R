@@ -195,20 +195,16 @@ plotOverlay <- function(meshdata,
   if(type=="projection"|type=="all"){
     plot <- ggplot2::ggplot() + ggplot2::theme_minimal()
     if(missing(meshdata)!=T){
-      print("M")
       meshdata <- merge(meshdata, onlycells)
       plot <- plot + ggplot2::geom_polygon(data=meshdata, ggplot2::aes(x=Xrotum, y=Yrotum, group=paste(cell,frame)), fill="black", alpha=0.05, color=NA)
     }
     if(missing(objectdata)!=T){
-      print("O")
       objectdata <- merge(objectdata, onlycells)
       objectdata <- objectdata[order(objectdata$frame, objectdata$cell, objectdata$obpath),]
       if(by=="channel"|by=="both"){
-        print("C/B")
         plot <- plot + ggplot2::geom_polygon(data=objectdata, ggplot2::aes(x=ob_out_x, y=ob_out_y, fill=channel, group=paste(frame,obID)), alpha=0.05, color=NA) + ggplot2::scale_fill_manual(values=objectcolor)
       }
       if(by=="condition"){
-        print("CON")
         plot <- plot + ggplot2::geom_polygon(data=objectdata, ggplot2::aes(x=ob_out_x, y=ob_out_y, group=paste(frame,obID)), alpha=0.05, color=NA, fill=objectcolor[1])
       }
     }

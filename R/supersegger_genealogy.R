@@ -96,7 +96,7 @@ getphylolist_SupSeg <- function(CLT, prep=FALSE){
         onephyl$edge2[onephyl$cell%in%onephyl$parent!=T] <- c(1:Ntip)
         onephyl$edge2[onephyl$cell%in%onephyl$parent==T] <- c((Ntip+2):(nrow(onephyl)+1))
         onephyl$edge1 <- lapply(onephyl$parent, function(x) onephyl$edge2[onephyl$cell==x])
-        onephyl$edge1[is.na(onephyl$edge1==0)] <- Ntip+1
+        onephyl$edge1[is.na(onephyl$edge1)&onephyl$edge2==0] <- Ntip+1
         onephyl$edge1 <- as.numeric(as.character(onephyl$edge1))
         onephyltree <- list()
         onephyltree$edge <- matrix(c(as.integer(onephyl$edge1), as.integer(onephyl$edge2)), nrow(onephyl), 2)

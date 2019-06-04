@@ -213,7 +213,12 @@ createPlotlist <- function(spotdata,  meshdata, groups =4 , colorpalette="GreenY
     MR$cellnum <- MR$num
   }
   if("obID"%in%colnames(spotdata)){
-    MR <- unique(MR[,c("num", "frame", "cell", "max.length", "max.width", "Dum", "Lmid", "pole1", "pole2", "cellnum")])
+    if("max_um"%in%colnames(spotdata)!=T){
+      MR <- unique(MR[,c("num", "frame", "cell", "max.length", "max.width", "Dum", "Lmid", "pole1", "pole2", "cellnum", "obnum", "obID")])
+    }
+    if("max_um"%in%colnames(spotdata)){
+      MR <- unique(MR[,c("num", "frame", "cell", "max.length", "max.width", "Dum", "Lmid", "pole1", "pole2", "cellnum", "max_um", "maxwum", "obnum", "obID")])
+    }
     MR <- MR[!is.na(MR$cell),]
   }
 
@@ -225,8 +230,12 @@ createPlotlist <- function(spotdata,  meshdata, groups =4 , colorpalette="GreenY
     colc <- colorpalette
   }
 
-  MR$q1 <- cut(MR$cellnum, breaks=groups, labels = 1:groups)
-
+  if(groups>1){
+    MR$q1 <- cut(MR$cellnum, breaks=groups, labels = 1:groups)
+  }
+  if(groups==1){
+    MR$q1 <- 1
+  }
 
   xmax <- 0.5*max(MR$max.length, na.rm=TRUE)
   ymax <- 0.5*max(MR$max.width, na.rm=TRUE)
@@ -461,164 +470,33 @@ empty <- ggplot2::ggplot(data.frame(u=1), ggplot2::aes(u,u)) +
 
 ###################################################
 
-# Function to change the color and/or "groups" of createPlotList function.
 
-#' @export
-changePlotlist <- function(plotlist, changecolor = TRUE, changegrouping = FALSE, colorpalette="ColdBlue", viridis=FALSE, groups = 4){
-  if(changecolor == TRUE){
-    if(viridis==TRUE){
-      colchoice <- colorpalette
-    }
-    #for the plots which just need a new palette; find mid point for manual gradient option & add new palette.
-    if(viridis==FALSE){
-      colchoice <- get(colopts, envir = colEnv)[colorpalette][[1]]
-      #lengthplot
-      mpL <- MASS::kde2d(plotlist$spotdata$num[!is.na(plotlist$spotdata$Lmid)], plotlist$spotdata$Lmid[!is.na(plotlist$spotdata$Lmid)])
-      mpL1 <- median(range(mpL$z))
-      plotlist$lengthplot <- suppressMessages(plotlist$lengthplot + ggplot2::scale_fill_gradient2(low = colchoice[1], mid= colchoice[2], high = colchoice[3], midpoint =mpL1, space = "Lab"))
-      #widthplot
-      mpW <- MASS::kde2d(plotlist$spotdata$num[!is.na(plotlist$spotdata$Dum)], plotlist$spotdata$Dum[!is.na(plotlist$spotdata$Dum)])
-      mpW1 <- median(range(mpW$z))
-      plotlist$widthplot <- suppressMessages(plotlist$widthplot + ggplot2::scale_fill_gradient2(low = colchoice[1], mid= colchoice[2], high = colchoice[3], midpoint =mpW1, space = "Lab"))
-      #totalplot
-      if(ggplot2::is.ggplot(plotlist$plottotal)==TRUE){
-        mpA <- mean(range(MASS::kde2d(plotlist$spotdata$Lcor[!is.na(plotlist$spotdata$Lcor)&!is.na(plotlist$spotdata$Dcor)],plotlist$spotdata$Dcor[!is.na(plotlist$spotdata$Dcor)&!is.na(plotlist$spotdata$Lcor)])$z))
-        plotlist$plottotal <- suppressMessages(plotlist$plottotal + ggplot2::scale_fill_gradient2(low = colchoice[1], mid= colchoice[2], high = colchoice[3], midpoint =mpA, space = "Lab"))
-      }
-      #listofplots
-      if(changegrouping ==FALSE & ggplot2::is.ggplot(plotlist$qplots[[1]])==TRUE){
-        plotlist$qplots <- suppressMessages(lapply(plotlist$qplots, function(x) x + ggplot2::scale_fill_gradient2(low = colchoice[1], mid= colchoice[2], high = colchoice[3], midpoint =mpA, space = "Lab")))
-      }
-
-    }
-  }
-
-    #remake totalplot when it's a Grob. heatmap function takes viridis so no need to separate on this.
-    if(ggplot2::is.ggplot(plotlist$plottotal)!=TRUE){
-      pall <- ggplot2::ggplot(plotlist$spotdata, ggplot2::aes(x=Lcor, y=Dcor))
-      pall <- densityplot(pall)
-      mppall <- mean(range(MASS::kde2d(plotlist$spotdata$Lcor[!is.na(plotlist$spotdata$Lcor)&!is.na(plotlist$spotdata$Dcor)],plotlist$spotdata$Dcor[!is.na(plotlist$spotdata$Dcor)&!is.na(plotlist$spotdata$Lcor)])$z))
-      pall <- heatmap(pall, mppall, colchoice, viridis)
-      pall <- coplot(pall,max(plotlist$spotdata$max.length)*0.5, max(plotlist$spotdata$max.width)*0.5)
-      if(length(plotlist$meshdata$X)!=0){
-        if(nrow(unique(plotlist$meshdata[plotlist$meshdata$max.length==max(plotlist$meshdata$max.length),]))< 12){
-          meantotal <- superfun(plotlist$meshdata, 12, plotlist$pixel2um)
-        }
-        if(nrow(unique(plotlist$meshdata[plotlist$meshdata$max.length==max(plotlist$meshdata$max.length),]))> 11){
-          meantotal <- superfun(plotlist$meshdata, 30, plotlist$pixel2um)
-        }
-
-        pall <- pall + ggplot2::geom_path(data=meantotal, ggplot2::aes(x=x,y=y), colour="white")
-      }
-
-      pall_all <- suppressMessages(allplot(pall, plotlist$spotdata, max(plotlist$spotdata$max.length)*0.5, max(plotlist$spotdata$max.width)*0.5, empty))
-      plotlist$plottotal <- pall_all
-    }
-
-  if(changecolor==TRUE){
-    #viridis option; bit easier, just add the palette with the option.
-    if(viridis==TRUE){
-      #lengthplot
-      plotlist$lengthplot <- suppressMessages(plotlist$lengthplot + ggplot2::scale_fill_viridis_c(option=colorpalette))
-      #widthplot
-      plotlist$widthplot <- suppressMessages(plotlist$widthplot + ggplot2::scale_fill_viridis_c(option=colorpalette))
-      #totalplot
-      if(ggplot2::is.ggplot(plotlist$plottotal)==TRUE){
-        plotlist$plottotal <- suppressMessages(plotlist$plottotal + ggplot2::scale_fill_viridis_c(option=colorpalette))
-      }
-      #listofplots
-      if(changegrouping ==FALSE & ggplot2::is.ggplot(plotlist$qplots[[1]])==TRUE){
-        plotlist$qplots <- suppressMessages(lapply(plotlist$qplots, function(x) x + ggplot2::scale_fill_viridis_c(option=colorpalette)))
-      }
-    }
-  }
-
-  if(changegrouping==TRUE){
-    plotlist$spotdata$q1 <-  cut(plotlist$spotdata$cellnum, breaks=groups, labels = 1:groups)
-    if(length(plotlist$meshdata$X)!=0){
-      plotlist$meshdata$q1 <- NULL
-      plotlist$meshdata <- merge(plotlist$meshdata, plotlist$spotdata[,c("cell", "frame", "q1")])
-    }
-
-  }
-
-
-  #list of qplots. make in same way as allplot. only run if either the grouping has been changed or when the plot has to be remade becaus it was an AllPlot
-  if(changegrouping==TRUE|ggplot2::is.ggplot(plotlist$qplots[[1]])!=TRUE){
-    spotsplit <- split(plotlist$spotdata, plotlist$spotdata$q1)
-    spotsplitLmids <- split(plotlist$spotdata[,c("Lmid","Dum")][!is.na(plotlist$spotdata$Lmid),], plotlist$spotdata$q1[!is.na(plotlist$spotdata$Lmid)])
-    #get maximum half max density of all groups and apply for each plot to have same scaling.
-    mp <- max(sapply(spotsplitLmids, function(x) median(range(MASS::kde2d(x$Lmid,x$Dum)$z))))
-
-    #if mesh is there; create new mean outlines:
-    if(length(plotlist$meshdata$X)!=0){
-      MESHlist <- split(plotlist$meshdata, plotlist$meshdata$q1)
-      if(nrow(unique(plotlist$meshdata[plotlist$meshdata$max.length==max(plotlist$meshdata$max.length),]))< 12){
-        means <- lapply(MESHlist, function(x) superfun(x, 12, plotlist$pixel2um))
-      }
-      if(nrow(unique(plotlist$meshdata[plotlist$meshdata$max.length==max(plotlist$meshdata$max.length),]))>11){
-        means <- lapply(MESHlist, function(x)superfun(x, round(min(x$max.length), digits=0), plotlist$pixel2um))
-      }
-      plotlist$mean_outlines <- means
-    }
-    #create 1:groups plots saved in a list.
-    phlist <- list()
-
-    xmax <- 0.5*max(plotlist$spotdata$max.length, na.rm=TRUE)
-    ymax <- 0.5*max(plotlist$spotdata$max.width, na.rm=TRUE)
-
-    for(n in 1:groups){
-      p <- ggplot2::ggplot(spotsplit[[n]], ggplot2::aes(x=Lcor, y=Dcor))
-      p <- densityplot(p)
-      p <- heatmap(p, mp, colchoice, viridis)
-      p <- coplot(p, mean(plotlist$spotdata$max.length[plotlist$spotdata$q1==groups])*0.6, mean(plotlist$spotdata$max.width[plotlist$spotdata$q1==groups])*0.6)
-      if(length(plotlist$meshdata$X)!=0){
-        p <- p + ggplot2::geom_path(data=plotlist$mean_outlines[[n]], ggplot2::aes(x=x,y=y), colour="white")
-      }
-      phlist <- append(phlist, list(p))
-    }
-
-    if(ggplot2::is.ggplot(plotlist$qplots[[1]])==TRUE){
-      plotlist$qplots <- phlist
-    }
-    if(ggplot2::is.ggplot(plotlist$qplots[[1]])!=TRUE){
-      phmalist <- list()
-      for(n in 1:groups){
-          p1_all <- suppressMessages(allplot(phlist[[n]], spotsplit[[n]], mean(spotsplit[[groups]]$max.length)*0.6, mean(spotsplit[[groups]]$max.width)*0.6, empty))
-        phmalist <- append(phmalist,list(p1_all))
-      }
-      plotlist$qplots <- phmalist
-    }
-  }
-
-
-  if(viridis==FALSE){
-      #listofhistograms
-      plotlist$histograms <- ggplot2::ggplot(plotlist$spotdata, ggplot2::aes(x=Lcor)) + ggplot2::geom_density(fill=colchoice[2], color=colchoice[2]) + ggplot2::theme_minimal() + ggplot2::facet_grid(q1~.)
-    }
-
-  if(viridis==TRUE){
-      #listofhistograms
-      plotlist$histograms <- suppressWarnings(ggplot2::ggplot(plotlist$spotdata, ggplot2::aes(x=Lcor)) + ggplot2::geom_density(fill=as.character(viridissinglecols[colchoice]), color=as.character(viridissinglecols[colchoice])) + ggplot2::theme_minimal() + ggplot2::facet_grid(q1~.))
-    }
-
-  return(plotlist)
-}
 
 makePlotListSummary_1 <- function(spotdata, timelapse=FALSE){
 
   totalcells <- nrow(unique(spotdata[,c("cell", "frame")]))
   localization_x <- summary(spotdata$Lmid)
   localization_y <- summary(spotdata$Dum)
-  max_length <- summary(unique(spotdata[,c("cell", "frame","max_um")])$max_um)
+
+  max_length <- summary(unique(spotdata[,c("frame","cell", "max_um")])$max_um)
   max_width <- summary(unique(spotdata[,c("cell", "frame","maxwum")])$maxwum)
-  spotscell <- summary(as.factor(unique(spotdata[,c("cell", "frame","totalspot")])$totalspot))
-  return(list("Total_amount_of_cells" = totalcells,
+
+  out<- list("Total_amount_of_cells" = totalcells,
                    "Spot_distance_from_midcell_length_axis" = localization_x,
                    "Spot_distance_from_midcell_width_axis" = localization_y,
                    "Cell_length" = max_length,
-                   "Cell_width" = max_width,
-                   "Distribution_spots_per_cell" = spotscell))
+                   "Cell_width" = max_width
+             )
+  if("totalspot"%in%colnames(spotdata)){
+    spotscell <- summary(as.factor(unique(spotdata[,c("cell", "frame","totalspot")])$totalspot))
+    out$Distribution_spots_per_cell <- spotscell
+  }
+  if("obID"%in%colnames(spotdata)){
+    obcell <- summary(as.factor(aggregate(spotdata$obnum, by=list(spotdata$cell, spotdata$frame), FUN=max)$x))
+    out$Distribution_objects_per_cell <- obcell
+  }
+  return(out)
+
 }
 
 makePlotListSummary_2 <- function(spotdata, groups){

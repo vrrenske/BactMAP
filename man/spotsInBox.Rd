@@ -9,7 +9,7 @@
 Takes a dataframe containing Mesh x/y coordinates and a dataframe containing Spots/Object x/y coordinates and returns the relative localization of the Spots/Objects inside the meshes, and the relative coordinates of the meshes from the mid-point of each mesh, where the longest axis of the cell is horizontal in the x/y plane.
 }
 \usage{
-spotsInBox(spotfile, MESH, Xs = "x", Ys = "y", Xm = "X", Ym = "Y")
+spotsInBox(spotdata, meshdata, Xs = "x", Ys = "y", Xm = "X", Ym = "Y")
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -28,7 +28,7 @@ spotsInBox(spotfile, MESH, Xs = "x", Ys = "y", Xm = "X", Ym = "Y")
 \value{
 A list of two data frames:
 
-\code{REP:}
+\code{spots_relative:}
 \item{$x}{x-coordinate of the spot or object point (same as original dataframe)}
 \item{$y}{y-coordinate of the spot or object point (same as original dataframe)}
 \item{$cell}{identifies the cell the spot/object point belongs to}
@@ -38,7 +38,7 @@ A list of two data frames:
 \item{$L}{relative location of the spot/object point to the length axis of the cell}
 \item{$D}{relative location of the spot/object point to the width axis of the cell}
 
-\code{Mfull:}
+\code{mesh:}
 \item{$X}{x-coordinate of the mesh contour point (same as original dataframe)}
 \item{$Y}{y-coordinate of the mesh contour point (same as original dataframe)}
 \item{$cell}{identifies the cell}

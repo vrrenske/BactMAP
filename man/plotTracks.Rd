@@ -50,36 +50,32 @@ plotTracks( meshdata,
 A \code{\href{https://cran.r-project.org/web/packages/viridis/vignettes/intro-to-viridis.html}{viridis}} palette for the fill of the objects, where color indicates the time in frames. Default = \code{"magma"}.
 }
   \item{dimension}{
-
+Either  \code{"length"},  \code{"width"}, or  \code{c("length", "width")}(default). Indicates the dimensions which will be plotted next to time (frames).
 }
   \item{turn_cells}{
-%%     ~~Describe \code{turn_cells} here~~
+When cell projections are plotted (both cell length & width), it is possible to plot cells with their original x/y coordinates, or turn them so their length axis is parallel to the x-axis with mid-cell at 0. When plotting only one cell dimension, this command is ignored and cells are turned by default.
 }
   \item{mag}{
-%%     ~~Describe \code{mag} here~~
+The magnification converter (see \code{\link{pixels2um}}).
 }
   \item{cell}{
-%%     ~~Describe \code{cell} here~~
+The cell number or numbers as a numeric vector (e.g. \code{c(1,2,10)}), or (default) "all". When more then one cell are indicated, the function returns a plot faceted by cell number.
 }
   \item{transparency}{
-%%     ~~Describe \code{transparency} here~~
+  Transparency of both the objects as the cell polygons. The cell polygons are set to be 5 times more transparent than the object polygons.
 }
 }
 \details{
 %%  ~~ If necessary, more details than the description above ~~
 }
 \value{
-%%  ~Describe the value returned
-%%  If it is a LIST, use
-%%  \item{comp1 }{Description of 'comp1'}
-%%  \item{comp2 }{Description of 'comp2'}
-%% ...
+A plot or a faceted plot of the trajectory of the cell shape, fluorescent spots and/or the localization of detected fluorescent objects in the cell over time. The plots can either by location on the length-axis over time, location on the width-axis over time, or x/y location and shape over time.
 }
 \references{
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  ~~who you are~~
+Renske van Raaphorst
 }
 \note{
 %%  ~~further notes~~
@@ -91,138 +87,17 @@ A \code{\href{https://cran.r-project.org/web/packages/viridis/vignettes/intro-to
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or do  help(data=index)  for the standard data sets.
 
-## The function is currently defined as
-function (meshdata, spotdata, objectdata, tracks = TRUE, ignore_singles = FALSE,
-    movie = FALSE, timepalette_lines = "viridis", timepalette_fill = "magma",
-    dimension = c("length", "width"), turn_cells = TRUE, mag,
-    cell = "all", transparency = 0.2)
-{
-    outplot <- ggplot2::ggplot() + ggplot2::theme_minimal()
-    if (cell[1] != "all" & is.numeric(cell) == FALSE) {
-        stop("Cell number not recognized. Give cell number or keep default (cell='all') to return all cells")
-    }
-    if (missing(meshdata) != TRUE) {
-        if ("length" \%in\% dimension & "width" \%in\% dimension) {
-            if (cell[1] != "all") {
-                meshdata <- meshdata[meshdata$cell \%in\% cell,
-                  ]
-            }
-            if (turn_cells == TRUE) {
-                if ("X_rot" \%in\% colnames(meshdata)) {
-                  if ("Xrotum" \%in\% colnames(meshdata) != T) {
-                    if (missing(mag)) {
-                      stop("Please specify the pixel-micron conversion value 'mag'.")
-                    }
-                    meshdata$Xrotum <- meshdata$X_rot * unlist(get(magnificationList,
-                      envir = magEnv)[mag])
-                    meshdata$Yrotum <- meshdata$Y_rot * unlist(get(magnificationList,
-                      envir = magEnv)[mag])
-                  }
-                }
-                outplot <- outplot + ggplot2::geom_polygon(data = meshdata,
-                  ggplot2::aes(x = Xrotum, y = Yrotum, color = frame,
-                    group = frame), fill = "black", alpha = transparency/5)
-            }
-            if (turn_cells == FALSE) {
-                outplot <- outplot + ggplot2::geom_polygon(data = meshdata,
-                  ggplot2::aes(x = X, y = Y, color = frame, group = frame),
-                  fill = "black", alpha = transparency/5)
-            }
-        }
-    }
-    if (missing(objectdata) != TRUE) {
-        if (cell[1] != "all") {
-            objectdata <- objectdata[objectdata$cell \%in\% cell,
-                ]
-        }
-        if (turn_cells == TRUE) {
-            if ("ob_out_x" \%in\% colnames(objectdata) != TRUE) {
-                if ("ob_x" \%in\% colnames(objectdata) != TRUE) {
-                  stop("Cannot find object coordinate data (ob_out_x/ob_out_y for turned cells, ob_x/ob_y for raw coordinates.")
-                  if (missing(meshdata)) {
-                    stop("Cannot find turned object data or mesh information to connect the objects to the cell localizations.\n                     Replace object dataframe for a dataframe (object_relative) containing this information or add mesh data to convert dataframe.")
-                  }
-                  if (missing(mag)) {
-                    stop("Need pixel to micron conversion factor 'mag' to correctly connect mesh to object data.")
-                  }
-                  objectdata <- suppressWarnings(centrefun(objectframe))
-                  objectdata <- suppressWarnings(midobject(meshdata,
-                    objectframe, get(magnificationList, envir = magEnv)[mag]))
-                }
-            }
-            outplot <- outplot + ggplot2::geom_polygon(data = objectdata,
-                ggplot2::aes(x = ob_out_x, y = ob_out_y, group = (paste(obID,
-                  frame)), fill = frame), color = "black", alpha = transparency)
-        }
-        if (turn_cells != TRUE) {
-            if ("ob_x" \%in\% colnames(objectdata) != TRUE) {
-                stop("Cannot find object coordinates 'ob_x'/'ob_y'.")
-            }
-            outplot <- outplot + ggplot2::geom_polygon(data = objectdata,
-                ggplot2::aes(x = ob_x, y = ob_y, group = paste(obID,
-                  frame), fill = frame), color = "black", alpha = transparency)
-        }
-        outplot <- outplot + scale_fill_viridis_c(option = timepalette_fill)
-    }
-    if (missing(spotdata) != TRUE) {
-        if (cell[1] != "all") {
-            spotdata <- spotdata[spotdata$cell \%in\% cell, ]
-        }
-        if (tracks == TRUE) {
-            if (ignore_singles == TRUE) {
-                spotdata <- spotdata[spotdata$trajectory != -1,
-                  ]
-            }
-        }
-        if (turn_cells == TRUE) {
-            if ("Lmid" \%in\% colnames(spotdata) != T) {
-                if ("l" \%in\% colnames(spotdata) != T) {
-                  stop("Data doesn't include relative spot positions. Please use spotsInBox() to relate spot positions to cells.")
-                }
-                if (missing(mag)) {
-                  stop("Please specify the pixel-micron conversion value 'mag'.")
-                }
-                spotdata$Lmid <- spotdata$l * unlist(get(magnificationList,
-                  envir = magEnv)[mag])
-                spotdata$Dum <- spotdata$d * unlist(get(magnificationList,
-                  envir = magEnv)[mag])
-            }
-            outplot <- outplot + ggplot2::geom_point(data = spotdata,
-                ggplot2::aes(x = Lmid, y = Dum, color = frame),
-                size = 2)
-            if (tracks == TRUE) {
-                outplot <- outplot + ggplot2::geom_path(data = spotdata[spotdata$trajectory !=
-                  -1, ], ggplot2::aes(x = Lmid, y = Dum, group = trajectory,
-                  color = frame), size = 1)
-            }
-        }
-        if (turn_cells == FALSE) {
-            outplot <- outplot + ggplot2::geom_point(data = spotdata,
-                ggplot2::aes(x = x, y = y, color = frame), size = 2)
-            if (tracks == TRUE) {
-                outplot <- outplot + ggplot2::geom_path(data = spotdata[spotdata$trajectory !=
-                  -1, ], ggplot2::aes(x = x, y = y, group = trajectory,
-                  color = frame), size = 1)
-            }
-        }
-    }
-    if (missing(meshdata) != T | missing(spotdata) != T) {
-        outplot <- outplot + ggplot2::scale_color_viridis_c(option = timepalette_lines)
-    }
-    if (turn_cells == TRUE) {
-        outplot <- outplot + ggplot2::coord_fixed() + facet_wrap(~cell)
-    }
-    if (turn_cells == FALSE) {
-        outplot <- outplot + facet_wrap(~cell, scales = "free")
-    }
-    return(outplot)
-  }
+  ##Get example data from bactMAP package
+
+  ##tracked FtsZ
+  FtsZ <- bactMAP::FtsZ_tracks
+
+  ##and corresponding meshes
+  meshes <- bactMAP::DnaX_mesh
+
+  #plot ftsZ on length axis/time
+  plotTracks(meshdata=meshes, spotdata=FtsZ_tracks, dimension="length", mag="100x_DVMolgen", tracks=TRUE, cell=4)
+
+
 }
-% Add one or more standard keywords, see file 'KEYWORDS' in the
-% R documentation directory.
-\keyword{ ~kwd1 }% use one of  RShowDoc("KEYWORDS")
-\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line

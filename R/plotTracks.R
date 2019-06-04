@@ -7,7 +7,7 @@
 plotTracks <- function(meshdata,
                        spotdata,
                        objectdata,
-                       tracks=TRUE,
+                       tracks=FALSE,
                        ignore_singles=FALSE,
                        movie=FALSE,
                        timepalette_lines="viridis",
@@ -77,8 +77,9 @@ plotTracks <- function(meshdata,
 
         objectdata$framemin <- objectdata$frame - 0.1
         objectdata$framemax <- objectdata$frame + 0.1
-        outplot <- outplot + ggplot2::geom_polygon(data=objectdata, ggplot2::aes(xmin = obxmin, xmax=obxmax, ymin=framemin, ymax = framemax, group=paste(obID, frame), fill=frame))
+        outplot <- outplot + ggplot2::geom_rect(data=objectdata, ggplot2::aes(xmin = obxmin, xmax=obxmax, ymin=framemin, ymax = framemax, group=paste(obID, frame), fill=frame))
         if(missing(spotdata)){
+          objectdata <- objectdata[order(objectdata$cell, objectdata$frame),]
           outplot <- outplot + ggplot2::geom_path(data=objectdata, ggplot2::aes(x=pole1, y=frame)) + ggplot2::geom_path(data=objectdata, ggplot2::aes(x=pole2, y=frame))
           outplot <- outplot + ggplot2::xlab("location on cell length axis (\u00b5m)") + ggplot2::ylab("Time (Frames)")
         }
@@ -94,10 +95,11 @@ plotTracks <- function(meshdata,
 
         objectdata$framemin <- objectdata$frame - 0.1
         objectdata$framemax <- objectdata$frame + 0.1
-        outplot <- outplot + ggplot2::geom_polygon(data=objectdata, ggplot2::aes(xmin = obymin, xmax=obymax, ymin=framemin, ymax = framemax, group=paste(obID, frame), fill=frame))
+        outplot <- outplot + ggplot2::geom_rect(data=objectdata, ggplot2::aes(xmin = obymin, xmax=obymax, ymin=framemin, ymax = framemax, group=paste(obID, frame), fill=frame))
         if(missing(spotdata)){
           objectdata$pole1 <- objectdata$maxwum/2
           objectdata$pole2 <- objectdata$pole1*-1
+          objectdata <- objectdata[order(objectdata$cell, objectdata$frame),]
           outplot <- outplot + geom_path(data=objectdata, aes(x=pole1, y=frame)) + geom_path(data=objectdata, aes(x=pole2, y=frame))
           outplot <- outplot + ggplot2::xlab("location on cell length axis (\u00b5m)") + ggplot2::ylab("Time (Frames)")}
       }
@@ -116,7 +118,8 @@ plotTracks <- function(meshdata,
     if(cell[1]!="all"){
       spotdata <- spotdata[spotdata$cell%in%cell,]
     }
-    if(tracks==TRUE){if(ignore_singles==TRUE){spotdata <- spotdata[spotdata$trajectory!=-1,]}}
+    if(tracks==TRUE){
+      if(ignore_singles==TRUE){spotdata <- spotdata[spotdata$trajectory!=-1,]}}
     if(turn_cells==TRUE|("length"%in%dimension&!"width"%in%dimension)|(!"length"%in%dimension&"width"%in%dimension)){
       if("Lmid"%in%colnames(spotdata)!=T){
         if("l"%in%colnames(spotdata)!=T){
@@ -148,6 +151,23 @@ plotTracks <- function(meshdata,
           }
           spotdata$pole1 <- 0.5*spotdata$maxum
           spotdata$pole2 <- -spotdata$pole1
+          spotdata <- spotdata[order(spotdata$cell, spotdata$frame),]
+          outplot <- outplot + ggplot2::geom_path(data=spotdata, ggplot2::aes(x=pole1, y=frame)) + ggplot2::geom_path(data=spotdata, ggplot2::aes(x=pole2, y=frame))
+        }
+
+      }
+      if(!"length"%in%dimension&"width"%in%dimension){
+        outplot <- outplot + ggplot2::geom_point(data=spotdata, ggplot2::aes(x=Dum, y=frame, color=frame), size=2)
+        if(tracks==TRUE){
+          outplot <- outplot + ggplot2::geom_path(data=spotdata[spotdata$trajectory!=-1,], ggplot2::aes(x=Dum, y=frame, group=trajectory, color=frame), size=1)
+        }
+        if(!"pole1"%in%colnames(spotdata)){
+          if(!"maxwum"%in%colnames(spotdata)){
+            spotdata$maxwum <- spotdata$max.width*unlist(get(magnificationList,envir=magEnv)[mag])
+          }
+          spotdata$pole1 <- 0.5*spotdata$maxwum
+          spotdata$pole2 <- -spotdata$pole1
+          spotdata <- spotdata[order(spotdata$cell, spotdata$frame),]
           outplot <- outplot + ggplot2::geom_path(data=spotdata, ggplot2::aes(x=pole1, y=frame)) + ggplot2::geom_path(data=spotdata, ggplot2::aes(x=pole2, y=frame))
         }
 
@@ -166,7 +186,7 @@ plotTracks <- function(meshdata,
     outplot <- outplot + ggplot2::scale_color_viridis_c(option = timepalette_lines)
   }
   if(turn_cells==TRUE&"length"%in%dimension&"width"%in%dimension){
-    outplot <- outplot + ggplot2::cobjectdatard_fixed() + facet_wrap(~cell)
+    outplot <- outplot + ggplot2::coord_fixed() + facet_wrap(~cell)
   }
   if(turn_cells==FALSE|("length"%in%dimension&!"width"%in%dimension)|(!"length"%in%dimension&"width"%in%dimension)){
     outplot <- outplot + facet_wrap(~cell, scales="free")

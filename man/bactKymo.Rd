@@ -26,7 +26,8 @@ bactKymo(originalCells,
           cells = "all",
           prep = TRUE,
           percDiv = FALSE,
-          cutoff_demograph = 0.975)
+          cutoff_demograph = 0.975,
+          mag)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -57,7 +58,11 @@ bactKymo(originalCells,
   \item{cutoff_demograph}{
   to make it easier to look at demographs of all cells, the highest 2.5 percent of the intensity values are removed from the demograph. set the cutoff to 1 to not remove anything, or put it lower to remove more values.
 }
+  \item{mag}{
+  magnification converter (see \code{\link{Pixels2um}}. If used, the pixel values will be converted to micron.
 }
+}
+
 \details{
 Many options are possible within \code{bactKymo()}. Make sure you set the time dimension & cells correctly!
 

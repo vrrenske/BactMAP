@@ -65,7 +65,7 @@ extr_MicrobeJSpots <- function(spotloc ,mag, sep=","){
 }
 
 #' @export
-extr_MicrobeJ <- function(dataloc, spotloc, mag, sepspot=",", sepmesh=","){
+extr_MicrobeJ <- function(dataloc, spotloc, objectloc, mag, sepspot=",", sepmesh=",", sepobj=","){
   if(missing(spotloc)!=T&missing(dataloc)!=T&missing(mag)){
     stop("Magnification conversion needed for proper intercellular measurements! MicrobeJ already converted the spot localizations for you, but not the contours.")
   }
@@ -96,6 +96,18 @@ extr_MicrobeJ <- function(dataloc, spotloc, mag, sepspot=",", sepmesh=","){
       outlist$spotframe <- SPOTS
     }
   }
+  if(missing(objectloc)!=T){
+    objectsout <- extr_MicrobeJMESH(objectloc, sepobj)$meshList
+    colnames(objectsout)[colnames(objectsout)=="X"] <- "ob_x"
+    colnames(objectsout)[colnames(objectsout)=="Y"] <- "ob_y"
+    colnames(objectsout)[colnames(objectsout)=="cellID"] <- "obID"
+    colnames(objectsout)[colnames(objectsout)=="max.length"] <- "oblength"
+    colnames(objectsout)[colnames(objectsout)=="max.width"] <- "obwidth"
+    objectsout$cell <- NULL
+    pathframe <- do.call('rbind',lapply(unique(objectsout$obID), function(x) data.frame("obID"=x, "obpath"=c(1:nrow(objectsout[objectsout$obID==x,])))))
+    objectsout$obpath <- pathframe$obpath
+    outlist$objectframe <- objectsout
+  }
   if(missing(spotloc)!=T&missing(dataloc)!=T){
     IDframe <- unique(MESH[,c("cellID", "cell")])
     SPOTS <- merge(SPOTS, IDframe)
@@ -121,6 +133,10 @@ extr_MicrobeJ <- function(dataloc, spotloc, mag, sepspot=",", sepmesh=","){
     outlist$mesh$Yrotum <- outlist$mesh$Y_rot * unlist(get(magnificationList, envir=magEnv)[mag])
     outlist$mesh$max_um <- outlist$mesh$max.length * unlist(get(magnificationList, envir=magEnv)[mag])
     outlist$mesh$maxwum <- outlist$mesh$max.width * unlist(get(magnificationList, envir=magEnv)[mag])
+  }
+  if(missing(objectloc)!=T&missing(dataloc)!=T){
+    object_relative <- objectInBox(outlist$mesh, outlist$objectframe, mag=mag)
+    outlist$object_relative <- object_relative
   }
   outlist$pixel2um <- unlist(get(magnificationList, envir=magEnv)[mag])
   return(outlist)

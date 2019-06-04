@@ -25,14 +25,11 @@ Compatible software outputs:
 *MicrobeJ<\url{www.microbej.com}>
 *ObjectJ<\url{https://sils.fnwi.uva.nl/bcb/objectj/}>
 *ISBatch<\url{http://singlemolecule.github.io/iSBatch/}>
-*Utrack<\url{http://www.utsouthwestern.edu/labs/danuser/software/#utrack_anc}>
 *Oufti<\url{www.oufti.org}>
 *MicrobeTracker<\url{www.microbetracker.org}>
 *Morphometrics<\url{https://simtk.org/projects/morphometrics}>
 *SuperSegger<\url{https://github.com/wiggins-lab/SuperSegger/wiki}
 
-To be added:
-*DeepCell<\url{https://covertlab.github.io/DeepCell/about/}>
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
