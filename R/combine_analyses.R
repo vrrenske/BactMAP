@@ -195,7 +195,7 @@ plotOverlay <- function(meshdata,
   if(type=="projection"|type=="all"){
     plot <- ggplot2::ggplot() + ggplot2::theme_minimal()
     if(missing(meshdata)!=T){
-      meshdata <- merge(meshdata, onlycells)
+      #meshdata <- merge(meshdata, onlycells)
       plot <- plot + ggplot2::geom_polygon(data=meshdata, ggplot2::aes(x=Xrotum, y=Yrotum, group=paste(cell,frame)), fill="black", alpha=0.05, color=NA)
     }
     if(missing(objectdata)!=T){

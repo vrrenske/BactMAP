@@ -106,3 +106,48 @@
 #'
 "TurnedCell4"
 
+
+
+#' Dataset retrievd from movie previously published in Moreno-Gamez et al., 2017 \href{https://www.ncbi.nlm.nih.gov/pubmed/29021534}{pubMED}. Competence is induced with CSP and ssbB-GFP is expressed. The timeing between cells differs slightly. Cells are tracked using SuperSegger.
+#'
+#' @source Moreno-Gámez, Stefany, et al. "Quorum sensing integrates environmental cues, cell density and cell history to control bacterial competence." Nature communications 8.1 (2017): 854.
+#' @format A data frame with columns:
+#' \describe{
+#'  \item{node}{the number of the node in the genealogy tree}
+#'  \item{birth}{birthframe of this cell}
+#'  \item{cell}{cell identifier. unique per frame.}
+#'  \item{death}{death frame (or frame the cell divides) of this cell}
+#'  \item{edgelength}{the time (in frames) of the cell division}
+#'  \item{fluorsum}{the sum of the total fluorescence inside the cell. inherited from SuperSegger (see \code{\href{https://github.com/wiggins-lab/SuperSegger/wiki}{the SuperSegger Wiki}} for more information)}
+#'  \item{fluormean}{the mean of the total fluorescence inside the cell. inherited from SuperSegger (see \code{\href{https://github.com/wiggins-lab/SuperSegger/wiki}{the SuperSegger Wiki}} for more information)}
+#'  \item{fluorsum_D}{the sum of the fluorescence at cell division. inherited from SuperSegger (see \code{\href{https://github.com/wiggins-lab/SuperSegger/wiki}{the SuperSegger Wiki}} for more information)}
+#'  \item{fluormean_D}{the mean of the total fluorescence at cell division. inherited from SuperSegger (see \code{\href{https://github.com/wiggins-lab/SuperSegger/wiki}{the SuperSegger Wiki}} for more information)}
+#'  \item{parent}{the node of the parent of this cell}
+#'  \item{child1}{the cell number of the daughter cell of this cell}
+#'  \item{child2}{the cell number of the other daughter cell of this cell}
+#'  \item{root}{the root of the genealogy tree. by default, this is 0.}
+#'  \item{nodelabel}{the cell number corresponding to the node}
+#'
+#' }
+#' @examples
+#' \dontrun{
+#'  ssbB_meanfluo
+#' }
+#'
+"ssbB_meanfluo"
+
+
+
+#' Dataset retrievd from movie previously published in Moreno-Gamez et al., 2017 \href{https://www.ncbi.nlm.nih.gov/pubmed/29021534}{pubMED}. Competence is induced with CSP and ssbB-GFP is expressed. The timeing between cells differs slightly. Cells are tracked using SuperSegger.
+#'
+#' @source Moreno-Gámez, Stefany, et al. "Quorum sensing integrates environmental cues, cell density and cell history to control bacterial competence." Nature communications 8.1 (2017): 854.
+#' @format A phylo object containing the genealogy information of this timelapse movie.
+#' \describe{
+#' Phylogenetic tree with 103 tips and 95 internal nodes.
+#' }
+#' @examples
+#' \dontrun{
+#'  ssbB_phylos
+#' }
+#'
+"ssbB_phylos"

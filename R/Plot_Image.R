@@ -133,7 +133,7 @@ plotcellsframelist <- function(TRframe, maxframes, minframes, updown=F, movie=F,
       maxframes <- maxTRframe
     }
 
-
+    TRframe <- TRframe[TRframe$frame>=minframes&TRframe$frame<=maxframes,]
     p <- ggplot2::ggplot(TRframe) +
       ggplot2::geom_polygon(ggplot2::aes(x=xt,y=yt,fill=values,group=pointN),color=NA) +
       ggimage::theme_transparent() + ggplot2::coord_fixed() +
@@ -462,7 +462,7 @@ bactKymo <- function(originalCells, timeD = FALSE, dimension = "length", bins=25
                           ggplot2::xlab("Time (frames)") +
                           ggplot2::ylab(paste(dimension, " (in ", measure, ")", sep="")) +
                           ggplot2::scale_fill_viridis_c() +
-                          ggtitle(x)
+                          ggplot2::ggtitle(x)
         )
         plot1 <- plot1[!is.na(plot1)]
 
@@ -479,7 +479,7 @@ bactKymo <- function(originalCells, timeD = FALSE, dimension = "length", bins=25
                         ggplot2::xlab("Time (frames)") +
                         ggplot2::ylab(paste(dimension, " (in ", measure, ")", sep="")) +
                         ggplot2::scale_fill_viridis_c() +
-                        ggtitle(x)
+                        ggplot2::ggtitle(x)
       )
     }
     if(is.numeric(cells)==TRUE&length(cells)==1){

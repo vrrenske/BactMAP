@@ -188,24 +188,39 @@ extr_Oufti <- function(matfile, mag="No_PixelCorrection", phylo=FALSE){
     if(length(cellList$descendants)>1){
       message("Getting phylogenies from ancestor/descendants information...")
       cellList$parent <- as.numeric(lapply(cellList$ancestors, function(x) tail(as.numeric(x), n=1)))
+      cellList$parent[is.na(cellList$parent)] <- 0
       cellList$child1 <- as.numeric(lapply(cellList$descendants, function(x) as.numeric(x)[1]))
       cellList$child2 <- as.numeric(lapply(cellList$descendants, function(x) as.numeric(x)[2]))
       cellList$death <- unlist(lapply(cellList$cell, function(x) max(cellList$frame[cellList$cell==x])))
+      cellList$birthframe <- as.numeric(as.character(cellList$birthframe))
       cellList$edgelength <- cellList$death-cellList$birthframe
       cellList$root <- 0
-      CL <- unique(cellList[,c("cell", "birthframe", "death", "divisions", "parent", "child1", "child2", "edgelength", "root")])
-      phylolist <- getphylolist(CL)
-      u <-lapply(phylolist$generation_dataframes, function(x) is.data.frame(x))
-      phylolist$generation_dataframes <- phylolist$generation_dataframes[c(1:length(u))[u==T]]
-      phylolist$generation_lists <- phylolist$generation_lists[c(1:length(u))[u==T]]
+      CL <- cellList[cellList$frame==cellList$death,]
+      phylolist <- getphylolist_SupSeg(CL)
+      if(ape::is.rooted.phylo(phylolist$generation_lists)!=T){
+        u <-lapply(phylolist$generation_dataframes, function(x) is.data.frame(x))
+        phylolist$generation_dataframes <- phylolist$generation_dataframes[c(1:length(u))[u==T]]
+        phylolist$generation_lists <- phylolist$generation_lists[c(1:length(u))[u==T]]
+      }
       if(length(cellList$spots)>1){
         message("Saving the relative spot localizations per phylogeny...")
-        phlist_allcells <- lapply(phylolist$generation_dataframes, function(x) merge(data.frame(cell= unique(x$root), birthframe=1, root=unique(x$root), node=unique(x$node[x$node%in%x$parent!=T]), parent =unique(x$node[x$node%in%x$parent!=T])), x, all=T))
-        MRTlist <- lapply(phlist_allcells, function(x) merge(x, spot_mesh[,c("cell","frame", "max.length", "max.width", "spot", "totalspot", "Lmid", "pole1", "pole2", "Dum")]))
-        phylolist$spot_relative_list <- MRTlist
+        if(is.data.frame(phylolist$generation_dataframes)==FALSE){
+          phlist_allcells <- lapply(phylolist$generation_dataframes, function(x) x[,c("node", "cell", "frame", "parent", "child1", "child2", "death", "birthframe", "edgelength", "root", "nodelabel")])
+          MRTlist <- lapply(phlist_allcells, function(x) merge(x, spot_mesh[,c("cell","frame", "max.length", "max.width", "spot", "totalspot", "Lmid", "pole1", "pole2", "Dum")]), all=T)
+          phylolist$spot_relative_list <- MRTlist
+        }
+        if(is.data.frame(phylolist$generation_dataframes)==TRUE){
+          ph <- phylolist$generation_dataframes[,c("node", "cell", "frame", "parent", "child1", "child2", "death", "birthframe", "edgelength", "root", "nodelabel")]
+          phylolist <- merge(ph, spot_mesh[,,c("cell","frame", "max.length", "max.width", "spot", "totalspot", "Lmid", "pole1", "pole2", "Dum") ], all=T)
+        }
       }
       message("Saving cell outlines per phylogeny...")
-      Mlist <- lapply(phylolist$generation_dataframes, function(x) merge(x, Mesh))
+      if(is.data.frame(phylolist$generation_dataframes)==FALSE){
+        Mlist <- lapply(phylolist$generation_dataframes, function(x) merge(x[,c("node", "cell", "frame", "parent", "child1", "child2", "death", "birthframe", "edgelength", "root", "nodelabel")], Mesh))
+      }
+      if(is.data.frame(phylolist$generation_dataframes)==TRUE){
+        Mlist <- merge(phylolist$generation_dataframes[,c("node", "cell", "frame", "parent", "child1", "child2", "death", "birthframe", "edgelength", "root", "nodelabel")], Mesh)
+      }
       phylolist$meshdata <- Mlist
       outlist$timelapsedata <- phylolist
     }

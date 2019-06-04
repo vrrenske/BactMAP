@@ -27,6 +27,12 @@ extr_SuperSeggerClist <- function(matfile, trim.orphans=TRUE){
   out$cellList <- datasegger
   datasegger <- datasegger[,c("Cell ID", "Cell birth time", "Cell death time", "Cell age", "Fluor1 sum", "Fluor1 mean", "Fluor1 sum death", "Fluor1 mean death", "Mother ID", "Daughter1 ID", "Daughter2 ID")]
   colnames(datasegger) <- c("cell", "birth", "death", "edgelength", "fluorsum", "fluormean", "fluorsum_D", "fluormean_D", "parent", "child1", "child2")
+  #datasegger$cell <- datasegger$cell + 1
+  #datasegger$parent <- datasegger$parent + 1
+  #datasegger$child1 <- datasegger$child1 + 1
+  #datasegger$child2 <- datasegger$child2 + 1
+  datasegger$parent[is.na(datasegger$parent)] <- 0
+  rownames(datasegger) <- NULL
   if(trim.orphans==TRUE){
     out$orphans <- (datasegger[datasegger$parent==0&is.na(datasegger$child1)&is.na(datasegger$child2),])
     datasegger  <- datasegger[datasegger$parent!=0|is.na(datasegger$child1)!=TRUE,]
@@ -36,17 +42,17 @@ extr_SuperSeggerClist <- function(matfile, trim.orphans=TRUE){
   datasegger$root <- 0
   out$network <- net
   phylos <- getphylolist_SupSeg(datasegger)
-  out$phylos <- phylos$generation_lists
-  out$data_attributes <- phylos$generation_dataframes
+  out$generation_lists <- phylos$generation_lists
+  out$data_generation_dataframes <- phylos$generation_dataframes
   if(trim.orphans==TRUE){
     out$cellList_trimmed <- phylos$genframe
   }
-  print(summary(out))
+  message(summary(out))
   return(out)
 }
 
 #' @export
-plottreeBasic <- function(phylo, extradata, yscalechange = FALSE, showClade = FALSE, layout = "rectangular", ydata, cellNumber, open.angle, linesize = 1, linecolor = "black", lines=TRUE, colors=FALSE){
+plotTreeBasic <- function(phylo, extradata, yscalechange = FALSE, showClade = FALSE, layout = "rectangular", ydata, cellNumber, open.angle, linesize = 1, linecolor = "black", lines=TRUE, colors=FALSE){
   if (!requireNamespace("ggtree", quietly = TRUE)) {
     inp <- readline("Packages 'ggtree' needed for this function to work. Press 'y' to install, or any other key to cancel.")
     if(inp=="y"|inp=="Y"){
@@ -96,7 +102,7 @@ getphylolist_SupSeg <- function(CLT, prep=FALSE){
         onephyl$edge2[onephyl$cell%in%onephyl$parent!=T] <- c(1:Ntip)
         onephyl$edge2[onephyl$cell%in%onephyl$parent==T] <- c((Ntip+2):(nrow(onephyl)+1))
         onephyl$edge1 <- lapply(onephyl$parent, function(x) onephyl$edge2[onephyl$cell==x])
-        onephyl$edge1[is.na(onephyl$edge1)&onephyl$edge2==0] <- Ntip+1
+        onephyl$edge1[is.na(onephyl$edge1==0)] <- Ntip+1
         onephyl$edge1 <- as.numeric(as.character(onephyl$edge1))
         onephyltree <- list()
         onephyltree$edge <- matrix(c(as.integer(onephyl$edge1), as.integer(onephyl$edge2)), nrow(onephyl), 2)
@@ -122,14 +128,11 @@ getphylolist_SupSeg <- function(CLT, prep=FALSE){
       }
     }
   }
-  fulldatframe <- do.call(rbind, fulldatlist)
+  fulldatframe <- do.call('rbind', fulldatlist)
   if(length(phylolist)>1){
     class(phylolist) <- "multiPhylo"
-  }
-  if(length(phylolist)==1){
+  }else{
     phylolist <- phylolist[[1]]
-  }
-  if(length(fulldatlist)==1){
     fulldatlist <- fulldatlist[[1]]
   }
   return(list(generation_lists = phylolist, generation_dataframes=fulldatlist, genframe = fulldatframe))
