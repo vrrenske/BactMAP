@@ -57,7 +57,7 @@ showCurrentPalettes <- function(colchoice = get(colopts, envir=colEnv)){
     p <- suppressWarnings(colorchoiceplot(colchoice[[n]], n, namelist[n]))
     plotlist <- append(plotlist,list(p))
   }
-  return(do.call(gridExtra::grid.arrange,c(plotlist, ncol=2)))
+  return(suppressWarnings(do.call(gridExtra::grid.arrange,c(plotlist, ncol=2))))
 }
 
 #' @export
@@ -75,7 +75,7 @@ colorchoiceplot <- function(colchoice, nums, pname){
 
   z <- mvtnorm::rmvnorm(100, mean=c(3,5), sigma=matrix(c(1,0.5,0.5,2), nrow=2))
   z <- data.frame(z)
-  return(suppressWarnings(ggplot2::ggplot(z, ggplot2::aes(x=X1, y=X2)) + ggplot2::stat_density2d(ggplot2::aes(fill=..density..), geom="raster", contour=FALSE) + ggplot2::scale_fill_gradient2(low = colchoice[1], mid= colchoice[2], high = colchoice[3], midpoint=0.06) + ggplot2::theme_minimal() + ggplot2::theme(legend.position="none") + ggplot2::ggtitle(pname) + ggplot2::xlab("") + ggplot2::ylab("") + ggplot2::xlim(0,5) + ggplot2::ylim(0,10) + ggplot2::theme(axis.text=ggplot2::element_blank())))
+  return(suppressWarnings(ggplot2::ggplot(z, ggplot2::aes(x=X1, y=X2)) + suppressWarnings(ggplot2::stat_density2d(ggplot2::aes(fill=..density..), geom="raster", contour=FALSE)) + ggplot2::scale_fill_gradient2(low = colchoice[1], mid= colchoice[2], high = colchoice[3], midpoint=0.06) + ggplot2::theme_minimal() + ggplot2::theme(legend.position="none") + ggplot2::ggtitle(pname) + ggplot2::xlab("") + ggplot2::ylab("") + ggplot2::xlim(0,5) + ggplot2::ylim(0,10) + ggplot2::theme(axis.text=ggplot2::element_blank())))
 
 }
 
@@ -110,10 +110,10 @@ heatmap <- function(pdens, mp, colchoice, viridis = F){
 #so all quartile plots will have the same dimensions.
 #the title, y axis and x axis will also be drawn.
 coplot <- function(pheat, xmax, ymax, u="black"){
- return(pheat + ggplot2::xlab("Length (\u00B5m)") + ggplot2::ylab("Width (\u00B5m)") + ggplot2::coord_fixed(xlim = c(-xmax,xmax), ylim=c(-ymax,ymax)) + ggplot2::theme(panel.background = ggplot2::element_rect(fill = u), panel.grid.major = ggplot2::element_blank(), panel.grid.minor = ggplot2::element_blank()))
+ return(suppressMessages(pheat + ggplot2::xlab("Length (\u00B5m)") + ggplot2::ylab("Width (\u00B5m)") + ggplot2::coord_fixed(xlim = c(-xmax,xmax), ylim=c(-ymax,ymax)) + ggplot2::theme(panel.background = ggplot2::element_rect(fill = u), panel.grid.major = ggplot2::element_blank(), panel.grid.minor = ggplot2::element_blank())))
 }
 
-plotlocation_histograms <- function(){}
+#plotlocation_histograms <- function(){}
 
 
 
@@ -156,10 +156,14 @@ superfun <- function(dat, bins,mag){
 
 #or two, by quartiles of the number of cells:
 #' @export
-createPlotlist <- function(spotdata,  meshdata, groups =4 , colorpalette="GreenYellow", mag="No_PixelCorrection", AllPlot=F, Xm="X", Ym="Y", viridis=FALSE){
+createPlotlist <- function(spotdata,  meshdata, groups =4 , colorpalette="GreenYellow", mag="No_PixelCorrection", AllPlot=F, Xm="X", Ym="Y", viridis=FALSE, showPlot=TRUE){
   if (!requireNamespace("MASS", quietly = TRUE)) {
   inp_P <- readline("Package 'MASS' needed for this function to work. Press 'y' to install, or any other key to cancel.")
   if(inp_P=="y"|inp_P=="Y"){install.packages("MASS")}else{stop("Canceled")}
+  }
+  if (!requireNamespace("gridExtra", quietly = TRUE)) {
+    inp_P <- readline("Package 'gridExtra' needed for this function to work. Press 'y' to install, or any other key to cancel.")
+    if(inp_P=="y"|inp_P=="Y"){install.packages("gridExtra")}else{stop("Canceled")}
   }
   if(AllPlot==T){
     if (!requireNamespace("grid", quietly = TRUE)) {
@@ -372,7 +376,7 @@ createPlotlist <- function(spotdata,  meshdata, groups =4 , colorpalette="GreenY
           p1_all <- suppressMessages(allplot(phlist[[n]], allMRs[[n]], mean(allMRs[[groups]]$max.length)*1.2, mean(allMRs[[groups]]$max.width)*1.2, empty))
         }
         phmalist <- append(phmalist,list(p1_all))
-        u$qplots <- phmalist
+        u$qplots <- gridExtra::arrangeGrob(grobs=phmalist, ncol=1)
       }
     }
 
@@ -418,7 +422,7 @@ createPlotlist <- function(spotdata,  meshdata, groups =4 , colorpalette="GreenY
     hislist <- append(hislist, list(p1his))
   }
 
-  u$histograms <- hislist
+  u$histograms <- gridExtra::arrangeGrob(grobs=hislist, ncol=1)
   u$spotdata <- MR
   if(!missing(meshdata)){
   	u$meshdata <- meshdata
@@ -426,6 +430,51 @@ createPlotlist <- function(spotdata,  meshdata, groups =4 , colorpalette="GreenY
   u$pixel2um <- p2um
   u$data_summary <- makePlotListSummary_2(MR, groups=groups)
   message("Done plotting.")
+  if(showPlot==TRUE){
+    n <- 1
+    while(n%in%c(1:9)){
+    n <- readline("Press the corresponding number to view:\n \n 1. lengthplot \n 2. widthplot \n 3. mean_outlines \n 4. qplots \n 5. histograms \n 6. spotdata \n 7. meshdata \n 8. pixel2um \n 9. data_summary \n 10. exit")
+    if(n==1){
+      message("lengthplot: spot localization on length axis plotted over cells ordered by cell length - density plot")
+      plot(u$lengthplot)
+    }
+    if(n==2){
+      message("widthplot: spot localization on width axis plotted over cells ordered by cell length - density plot")
+      plot(u$widthplot)
+    }
+    if(n==3){
+      message("data frame with the mean x/y coordinates of the cell outlines per size group. summary displayed below:")
+      print(summary(u$mean_outlines))
+    }
+    if(n==4){
+      message(paste("cell projections grouped in ", groups, " groups", sep=""))
+      plot(u$qplots)
+    }
+    if(n==5){
+      message(paste("spot localization on length axis in ", groups, " groups", sep=""))
+      plot(u$histograms)
+    }
+    if(n==6){
+      message("spot dataframe including grouping (column 'q1'). summary:")
+      print(summary(u$spotdata))
+    }
+    if(n==7){
+      message("mesh dataframe including grouping (column 'q1'). summary:")
+      print(summary(u$meshdata))
+    }
+    if(n==8){
+      message("pixel to micron conversion factor:")
+      print(message(u$pixel2um))
+    }
+    if(n==9){
+      message("summary of data")
+      print(u$data_summary)
+    }
+    }
+
+
+  }
+
   return(u)
 }
 

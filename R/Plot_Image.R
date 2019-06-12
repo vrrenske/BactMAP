@@ -27,12 +27,14 @@ extr_OriginalStack <- function(picloc){
 
 
 #' @export
-extr_OriginalCells <- function(imdatframe, mesh){
-    allcellslist <- lapply(unique(mesh$frame), function(x) pipperframe(imdatframe, mesh, x))
+extr_OriginalCells <- function(imdatframe, mesh, surroundings=FALSE, turnCell=TRUE){
+    allcellslist <- lapply(unique(mesh$frame), function(x) pipperframe(imdatframe, mesh, x, surroundings))
     allcellsframe <- do.call(rbind, allcellslist)
     allcellsframe$cell <- allcellsframe$pip
     allcellsframe$pip <- NULL
-    outlist <- meshTurn(mesh, rawdatafile=allcellsframe)
+    if(turnCell==TRUE){
+      outlist <- meshTurn(mesh, rawdatafile=allcellsframe)
+    }else{outlist <- allcellsframe}
   return(outlist)
 }
 
@@ -44,7 +46,11 @@ plotCellsTime <- function(celdat,
                            viridisoption = "magma",
                            cellN,
                            minf,
-                           maxf){
+                           maxf,
+                           outlines=FALSE,
+                           meshdata#,
+                           #overlay=FALSE
+                          ){
 
   if(movie==TRUE){
     if(!requireNamespace("gganimate", quietly = TRUE)){
@@ -58,17 +64,30 @@ plotCellsTime <- function(celdat,
   if(missing(maxf)){
     maxf <- max(celdat$frame)
   }
+
+  if(outlines==TRUE&!missing(meshdata)){
+    meshdata <- meshdata[,c("frame", "cell", "X_rot", "Y_rot", "num")]
+  }
+  if(outlines==TRUE&missing(meshdata)){
+    stop("Outlines is set to TRUE but no meshdata was found. Please specify your mesh dataframe.")
+  }
+  if(outlines==FALSE&!missing(meshdata)){
+    warning("Meshdata was specified, but outlines are set to FALSE. No outlines will be drawn.")
+  }
   #when no cell number is indicated:return a list of plots/movie objects
   if(missing(cellN)){
-    plotout <- lapply( unique(celdat$cell), function(x) plotcellsframelist(celdat[celdat$cell==x,], maxframes=maxf, minframes=minf, updown, movie, viridisoption) + ggplot2::ggtitle(x))
+    plotout <- lapply( unique(celdat$cell), function(x) plotcellsframelist(celdat[celdat$cell==x,], maxframes=maxf, minframes=minf, updown, movie, viridisoption, outlines, meshdata#, overlay
+                                                                           ) + ggplot2::ggtitle(x))
   }
   #and just plot one plot if cellN exists
   if(missing(cellN)!=T){
     if(length(cellN)==1){
-      plotout <- plotcellsframelist(celdat[celdat$cell==cellN,], maxf, minf, updown, movie, viridisoption) + ggplot2::ggtitle(cellN)
+      plotout <- plotcellsframelist(celdat[celdat$cell==cellN,], maxf, minf, updown, movie, viridisoption, outlines, meshdata#, overlay
+                                    ) + ggplot2::ggtitle(cellN)
     }
     if(length(cellN)>1){
-      plotout <- lapply(cellN, function(x) plotcellsframelist(celdat[celdat$cell==x,], maxf, minf,updown,movie,viridisoption) + ggplot2::ggtitle(x))
+      plotout <- lapply(cellN, function(x) plotcellsframelist(celdat[celdat$cell==x,], maxf, minf,updown,movie,viridisoption, outlines, meshdata#, overlay
+                                                              ) + ggplot2::ggtitle(x))
     }
   }
   return(plotout)
@@ -88,25 +107,49 @@ changeres <- function(dat, nx, ny){
 
 
 
-pinping <- function(dat, mesh, x){
-  print(paste("Cell", x))
+pinping <- function(dat, mesh, x, surroundings=FALSE){
+  message(paste("Cell", x))
   mesh <- mesh[mesh$cell==x,]
+
+  if(surroundings==FALSE){
   minmeshx <- min(mesh$X)-2
   minmeshy <- min(mesh$Y)-2
   maxmeshx <- max(mesh$X)+2
   maxmeshy <- max(mesh$Y)+2
   dat <- dat[dat$x>minmeshx&dat$y>minmeshy&dat$x<maxmeshx&dat$y<maxmeshy,]
   p <- SDMTools::pnt.in.poly(dat[,c("x","y")], mesh[mesh$cell==x,][,c("X","Y")])
+  #if pip == 1, the point is inside the polygon. if p==0, it is not.
+  #I replace the pips which are 1 with the cell number x
   p$pip[p$pip!=0] <- x
   datje <- merge(dat, p[p$pip!=0,])
+  }
+  if(surroundings==TRUE){
+  mesh <- unique(mesh[,c("Xmid","Ymid", "max.length", "max.width", "angle")])
+  w <- 2
+  ybox1 <- (0.5*mesh$max.length + w)*sin(pi-mesh$angle)-(0.5*mesh$max.width+w)*cos(pi-mesh$angle) + mesh$Ymid
+  xbox1 <- (0.5*mesh$max.length + w)*cos(pi-mesh$angle)+(0.5*mesh$max.width+w)*sin(pi-mesh$angle)+ mesh$Xmid
+  xbox2 <- (0.5*mesh$max.length+w)*cos(pi-mesh$angle)-(0.5*mesh$max.width+w)*cos(pi-mesh$angle) + mesh$Xmid
+  ybox2 <- (0.5*mesh$max.length+w)*sin(pi-mesh$angle)+(0.5*mesh$max.width+w)*sin(pi-mesh$angle) + mesh$Ymid
+  xbox4 <- mesh$Xmid-(xbox2-mesh$Xmid)
+  ybox4<- mesh$Ymid-(ybox2-mesh$Ymid)
+  xbox3 <- mesh$Xmid-(xbox1-mesh$Xmid)
+  ybox3 <- mesh$Ymid-(ybox1-mesh$Ymid)
+  box <- data.frame("x"=c(xbox1,xbox2,xbox3,xbox4), "y"=c(ybox1, ybox2, ybox3,ybox4))
+  dat <- dat[dat$x>min(box$x)&dat$y>min(box$y)&dat$x<max(box$x)&dat$y<max(box$y),]
+  p <- SDMTools::pnt.in.poly(dat[,c("x","y")], box)
+
+  #add cell number (as pip so it matches the situation with the cell outlines)
+  p$pip[p$pip!=0] <- x
+  datje <- merge(dat, p[p$pip!=0,])
+  }
   return(datje)
 }
 
-pipperframe <- function(dat, mesh, y){
+pipperframe <- function(dat, mesh, y, surroundings=FALSE){
   mesh <- mesh[mesh$frame==y,]
   dat <- dat[[y]]
-  print(paste("Finding & saving the raw data per cell for frame", y))
-  datjeslist <- lapply(unique(mesh$cell), function(x) pinping(dat, mesh, x))
+  message(paste("Finding & saving the raw data per cell for frame", y))
+  datjeslist <- lapply(unique(mesh$cell), function(x) pinping(dat, mesh, x, surroundings))
   datjesframe <- do.call(rbind, datjeslist)
   datjesframe$frame <- y
   return(datjesframe)
@@ -114,7 +157,8 @@ pipperframe <- function(dat, mesh, y){
 
 ##################Plotting cells in a tower/row/movie per cell, per frame
 
-plotcellsframelist <- function(TRframe, maxframes, minframes, updown=F, movie=F, viridisoption="magma"){
+plotcellsframelist <- function(TRframe, maxframes, minframes, updown=F, movie=F, viridisoption="magma", outlines=FALSE,meshdata #, overlay=FALSE
+                               ){
   nframes <- length(TRframe$frame)
   if(missing(minframes)){
     minframes <- min(TRframe$frame)
@@ -134,6 +178,11 @@ plotcellsframelist <- function(TRframe, maxframes, minframes, updown=F, movie=F,
     }
 
     TRframe <- TRframe[TRframe$frame>=minframes&TRframe$frame<=maxframes,]
+
+    if(!missing(meshdata)&outlines==TRUE){
+      meshdata <- meshdata[meshdata$frame>=minframes&meshdata$frame<=maxframes,]
+    }
+
     p <- ggplot2::ggplot(TRframe) +
       ggplot2::geom_polygon(ggplot2::aes(x=xt,y=yt,fill=values,group=pointN),color=NA) +
       ggimage::theme_transparent() + ggplot2::coord_fixed() +
@@ -153,6 +202,10 @@ plotcellsframelist <- function(TRframe, maxframes, minframes, updown=F, movie=F,
             plot.background=ggplot2::element_rect(fill="transparent", colour=NA),
             panel.grid.minor = ggplot2::element_blank(),
             panel.grid.major = ggplot2::element_blank())
+
+    if(overlay==TRUE){
+      p <- p + ggplot2::geom_path(data=meshdata, ggplot2::aes(x=X_rot,y=Y_rot), color="white")
+    }
 
     if(updown==T&movie==F){
 

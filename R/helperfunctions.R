@@ -281,13 +281,13 @@ turncell <- function(MESHp, u, rawdatafile, a, n, i, ars){
   MESHp$X_rot <- X_cor * cos(angle) - Y_cor * sin(angle)
   MESHp$Y_rot <- X_cor * sin(angle) + Y_cor * cos(angle) #rotate cell
 
-  if(missing(rawdatafile)!=T){
-    print(paste("Turning raw data for cell", n))
+  if(!missing(rawdatafile)){
+    message(paste("Turning raw data for cell", n))
 
     rawr <- turnraws(rawdatafile, i, n, mp, angle)
     return(list(mesh=MESHp, rawdat=rawr))
   }
-  if(missing(rawdatafile)==T){return(MESHp)}
+  if(missing(rawdatafile)){return(MESHp)}
 }
 
 
@@ -295,16 +295,13 @@ meshTurn <- function(MESH, Xm="X", Ym="Y", rawdatafile){
   if(Xm!="X"){colnames(MESH)[colnames(MESH)==Xm] <- "X"}
   if(Ym!="Y"){colnames(MESH)[colnames(MESH)==Ym] <- "Y"}
 
-  if("max.width"%in%colnames(MESH)==T){u <- 1}
-  else{u<-2}
-  if("max.length"%in%colnames(MESH)==T){a <- 2}
-  else{a<-1}
-  if("area"%in%colnames(MESH)==T){ars <- 1}
-  else{ars<-2}
+  if("max.width"%in%colnames(MESH)){u <- 1}else{u<-2}
+  if("max.length"%in%colnames(MESH)){a <- 2}else{a<-1}
+  if("area"%in%colnames(MESH)){ars <- 1}else{ars<-2}
   if("x0"%in%colnames(MESH)){
     MESH <- spotrXYMESH(MESH)
   }
-  if(missing(rawdatafile)!=T){
+  if(!missing(rawdatafile)){
     Rlist <- list()
   }
   Mlist <- list()
@@ -313,22 +310,21 @@ meshTurn <- function(MESH, Xm="X", Ym="Y", rawdatafile){
   for(i in unique(MESH$frame)){ #per frame
     #print(paste("Turning meshes for frame", i))
     M <- MESH[MESH$frame==i,]
-    if(missing(rawdatafile)!=T){
+    if(!missing(rawdatafile)){
       Mlistboth <- lapply(unique(M$cell), function(x) turncell(M[M$cell==x,], u, rawdatafile,a, x, i, ars=ars))
       MlistF <- lapply(Mlistboth, function(x) x$mesh)
       RlistF <- lapply(Mlistboth, function(x) x$rawdat)
       Rlist[[i]] <- do.call(rbind, RlistF)
     }
-    if(missing(rawdatafile)==T){MlistF <- lapply(unique(M$cell), function(x) turncell(M[M$cell==x,], u, a=a, n=x, i=i, ars=ars))}
+    if(missing(rawdatafile)){MlistF <- lapply(unique(M$cell), function(x) turncell(M[M$cell==x,], u, a=a, n=x, i=i, ars=ars))}
     Mlist[[i]] <- do.call(rbind,MlistF)
 
   }
 
   Mfull <- do.call(rbind, Mlist)
-  if(missing(rawdatafile)==T){
+  if(missing(rawdatafile)){
     return(Mfull) #return datasets as list of dataframes
-  }
-  else{
+  }else{
     rawdata_turned <- do.call(rbind, Rlist)
     rawdata_turned <- merge(rawdata_turned, unique(Mfull[,c("cell", "frame", "max.length", "max.width", "area")]))
     return(list(mesh = Mfull, rawdata_turned = rawdata_turned))}

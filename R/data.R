@@ -151,3 +151,19 @@
 #' }
 #'
 "ssbB_phylos"
+
+
+
+#' Dataset retrievd from movie previously published in Moreno-Gamez et al., 2017 \href{https://www.ncbi.nlm.nih.gov/pubmed/29021534}{pubMED}. Competence is induced with CSP and ssbB-GFP is expressed. The timeing between cells differs slightly. Cells are tracked using SuperSegger.
+#'
+#' @source Moreno-Gámez, Stefany, et al. "Quorum sensing integrates environmental cues, cell density and cell history to control bacterial competence." Nature communications 8.1 (2017): 854.
+#' @format A phylo object containing the genealogy information of this timelapse movie.
+#' \describe{
+#' iGRAPH network dataset containing the same information as \code{\link{ssbB_phylos}}
+#' }
+#' @examples
+#' \dontrun{
+#'  plot(ssbB_network)
+#' }
+#'
+"ssbB_network"

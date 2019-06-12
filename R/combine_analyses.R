@@ -82,11 +82,15 @@ plotOverlay <- function(meshdata,
                         type="all",
                         quantiles = 1,
                         quantiles_by = "max.length",
+                        equal_groups=TRUE,
                         mag,
                         objectcolor=c("#E69F00", "#56B4E9", "#009E73", "#F0E442"),
                         spotcolor = c("#0072B2", "#D55E00", "#CC79A7", "000000"),
                         histogram_outline = NA,
-                        his_scales = "free"){
+                        his_scales = "free",
+                        transparency  = 0.05,
+                        meshcolor = "black",
+                        dotsize=1){
 
   #check type input
   if(type!="all"&type!="projection"&type!="histogram"&type!="length"&type!="width"){type <- readline("Please give type of plot: 'histogram', 'length', 'width', 'projection', or 'all' and press enter to confirm.")
@@ -182,8 +186,11 @@ plotOverlay <- function(meshdata,
   onlycells <- onlycells[order(onlycells[,quantiles_by]),]
   onlycells$number <- c(1:nrow(onlycells))
 
-  if(quantiles>1){
+  if(quantiles>1&equal_groups==TRUE){
     onlycells$quantiles <- cut(onlycells$number, breaks=quantiles, labels = c(1:quantiles))
+  }
+  if(quantiles>1&equal_groups==FALSE){
+    onlycells$quantiles <- cut(onlycells[,quantiles_by], breaks=quantiles, labels = c(1:quantiles))
   }
 
   onlycells <- onlycells[,colnames(onlycells)[colnames(onlycells)!=quantiles_by]]
@@ -195,26 +202,26 @@ plotOverlay <- function(meshdata,
   if(type=="projection"|type=="all"){
     plot <- ggplot2::ggplot() + ggplot2::theme_minimal()
     if(missing(meshdata)!=T){
-      #meshdata <- merge(meshdata, onlycells)
-      plot <- plot + ggplot2::geom_polygon(data=meshdata, ggplot2::aes(x=Xrotum, y=Yrotum, group=paste(cell,frame)), fill="black", alpha=0.05, color=NA)
+      meshdata <- merge(meshdata, onlycells)
+      plot <- plot + ggplot2::geom_polygon(data=meshdata, ggplot2::aes(x=Xrotum, y=Yrotum, group=paste(cell,frame)), fill=meshcolor, alpha=transparency, color=NA)
     }
     if(missing(objectdata)!=T){
       objectdata <- merge(objectdata, onlycells)
       objectdata <- objectdata[order(objectdata$frame, objectdata$cell, objectdata$obpath),]
       if(by=="channel"|by=="both"){
-        plot <- plot + ggplot2::geom_polygon(data=objectdata, ggplot2::aes(x=ob_out_x, y=ob_out_y, fill=channel, group=paste(frame,obID)), alpha=0.05, color=NA) + ggplot2::scale_fill_manual(values=objectcolor)
+        plot <- plot + ggplot2::geom_polygon(data=objectdata, ggplot2::aes(x=ob_out_x, y=ob_out_y, fill=channel, group=paste(frame,obID)), alpha=transparency, color=NA) + ggplot2::scale_fill_manual(values=objectcolor)
       }
       if(by=="condition"){
-        plot <- plot + ggplot2::geom_polygon(data=objectdata, ggplot2::aes(x=ob_out_x, y=ob_out_y, group=paste(frame,obID)), alpha=0.05, color=NA, fill=objectcolor[1])
+        plot <- plot + ggplot2::geom_polygon(data=objectdata, ggplot2::aes(x=ob_out_x, y=ob_out_y, group=paste(frame,obID)), alpha=transparency, color=NA, fill=objectcolor[1])
       }
     }
     if(missing(spotdata)!=T){
       spotdata <- merge(spotdata, onlycells)
       if(by=="channel"|by=="both"){
-        plot <- plot + ggplot2::geom_point(data=spotdata, ggplot2::aes(x=Lmid, y=Dum, color=channel), size=1, alpha=0.6) + ggplot2::scale_color_manual(values=spotcolor)
+        plot <- plot + ggplot2::geom_point(data=spotdata, ggplot2::aes(x=Lmid, y=Dum, color=channel), size=dotsize, alpha=transparency*10, shape=16) + ggplot2::scale_color_manual(values=spotcolor)
       }
       if(by=="condition"){
-        plot <- plot + ggplot2::geom_point(data=spotdata, ggplot2::aes(x=Lmid, y=Dum), color=spotcolor[1], size=1, alpha=0.6)
+        plot <- plot + ggplot2::geom_point(data=spotdata, ggplot2::aes(x=Lmid, y=Dum), color=spotcolor[1], size=dotsize, alpha=transparency*10, shape=16)
       }
     }
 
@@ -329,7 +336,7 @@ plotOverlay <- function(meshdata,
       }
       meshdata <- merge(meshdata, onlycells)
       meshdata$quant_by <- meshdata[,quantiles_by]
-      his_mesh <- ggplot2::ggplot(meshdata) + ggplot2::geom_density(ggplot2::aes(x=quant_by), fill="black", color=histogram_outline) + ggplot2::theme_minimal()
+      his_mesh <- ggplot2::ggplot(meshdata) + ggplot2::geom_density(ggplot2::aes(x=quant_by), fill=meshcolor, color=histogram_outline) + ggplot2::theme_minimal()
       if(by!="channel"){
         his_mesh <- his_mesh + ggplot2::facet_grid(.~condition, scales = his_scales)
       }
