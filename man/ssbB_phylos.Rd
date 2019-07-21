@@ -3,7 +3,7 @@
 \docType{data}
 \name{ssbB_phylos}
 \alias{ssbB_phylos}
-\title{Dataset retrievd from movie previously published in Moreno-Gamez et al., 2017 \href{https://www.ncbi.nlm.nih.gov/pubmed/29021534}{pubMED}. Competence is induced with CSP and ssbB-GFP is expressed. The timeing between cells differs slightly. Cells are tracked using SuperSegger.}
+\title{Dataset retrieved from movie previously published in Moreno-Gamez et al., 2017 \href{https://www.ncbi.nlm.nih.gov/pubmed/29021534}{pubMED}. Competence is induced with CSP and ssbB-GFP is expressed. The timeing between cells differs slightly. Cells are tracked using SuperSegger.}
 \format{A phylo object containing the genealogy information of this timelapse movie.
 \describe{
 Phylogenetic tree with 103 tips and 95 internal nodes.
@@ -15,7 +15,7 @@ Moreno-Gámez, Stefany, et al. "Quorum sensing integrates environmental cues, ce
 ssbB_phylos
 }
 \description{
-Dataset retrievd from movie previously published in Moreno-Gamez et al., 2017 \href{https://www.ncbi.nlm.nih.gov/pubmed/29021534}{pubMED}. Competence is induced with CSP and ssbB-GFP is expressed. The timeing between cells differs slightly. Cells are tracked using SuperSegger.
+Dataset retrieved from movie previously published in Moreno-Gamez et al., 2017 \href{https://www.ncbi.nlm.nih.gov/pubmed/29021534}{pubMED}. Competence is induced with CSP and ssbB-GFP is expressed. The timeing between cells differs slightly. Cells are tracked using SuperSegger.
 }
 \examples{
 \dontrun{

@@ -25,10 +25,10 @@ extr_ObjectJ( dataloc,
   Magnification conversion factor (see \code{\link{pixels2um}})
 }
   \item{boundingBoxX}{
-  The column names of the 11 X-coordinates of the bounding box of the cells. Put these columns in your ObjectJ analysis manually or download the \href{https://github.com/vrrenske/bactMAPdata/blob/master/objectJ_settings.ojj}{ObjectJ Settings here}.
+  The column names of the 11 X-coordinates of the bounding box of the cells. Put these columns in your ObjectJ analysis manually or download the \href{https://github.com/vrrenske/bactMAP/wiki/objectJ_settings.ojj}{ObjectJ Settings here}.
 }
   \item{boundingBoxY}{
-  The column names of the 11 Y-coordinates of the bounding box of the cells. Put these columns in your ObjectJ analysis manually or download the \href{https://github.com/vrrenske/bactMAPdata/blob/master/objectJ_settings.ojj}{ObjectJ Settings here}.
+  The column names of the 11 Y-coordinates of the bounding box of the cells. Put these columns in your ObjectJ analysis manually or download the \href{https://github.com/vrrenske/bactMAP/wiki/objectJ_settings.ojj}{ObjectJ Settings here}.
 }
   \item{turn_meshes}{
   Default TRUE. When TRUE, the bounding boxes are all turned so the mid-point is at [0,0] while the length axis of the cell is parallel to the X-axis.

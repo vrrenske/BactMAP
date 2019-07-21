@@ -69,10 +69,10 @@ Renske van Raaphorst
 }
 \examples{
 ##get spot data from ISBatch
-spots <- shinyspots::extr.ISBatch(file.choose())
+spots <- bactMAP::extr.ISBatch(file.choose())$spotframe
 
 ##get mesh data from Oufti
-mesh <- shinyspots::extr.Oufti(file.choose())$mesh
+mesh <- bactMAP::extr.Oufti(file.choose())$mesh
 
 ##get relative spot and mesh locations
 outlist <- spotsInBox(spots, mesh, Xm="x", Ym="y")

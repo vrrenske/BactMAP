@@ -3,7 +3,7 @@
 \docType{data}
 \name{ssbB_meanfluo}
 \alias{ssbB_meanfluo}
-\title{Dataset retrievd from movie previously published in Moreno-Gamez et al., 2017 \href{https://www.ncbi.nlm.nih.gov/pubmed/29021534}{pubMED}. Competence is induced with CSP and ssbB-GFP is expressed. The timeing between cells differs slightly. Cells are tracked using SuperSegger.}
+\title{Dataset retrieved from movie previously published in Moreno-Gamez et al., 2017 \href{https://www.ncbi.nlm.nih.gov/pubmed/29021534}{pubMED}. Competence is induced with CSP and ssbB-GFP is expressed. The timeing between cells differs slightly. Cells are tracked using SuperSegger.}
 \format{A data frame with columns:
 \describe{
  \item{node}{the number of the node in the genealogy tree}
@@ -29,7 +29,7 @@ Moreno-Gámez, Stefany, et al. "Quorum sensing integrates environmental cues, ce
 ssbB_meanfluo
 }
 \description{
-Dataset retrievd from movie previously published in Moreno-Gamez et al., 2017 \href{https://www.ncbi.nlm.nih.gov/pubmed/29021534}{pubMED}. Competence is induced with CSP and ssbB-GFP is expressed. The timeing between cells differs slightly. Cells are tracked using SuperSegger.
+Dataset retrieved from movie previously published in Moreno-Gamez et al., 2017 \href{https://www.ncbi.nlm.nih.gov/pubmed/29021534}{pubMED}. Competence is induced with CSP and ssbB-GFP is expressed. The timeing between cells differs slightly. Cells are tracked using SuperSegger.
 }
 \examples{
 \dontrun{

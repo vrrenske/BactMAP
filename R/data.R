@@ -108,7 +108,7 @@
 
 
 
-#' Dataset retrievd from movie previously published in Moreno-Gamez et al., 2017 \href{https://www.ncbi.nlm.nih.gov/pubmed/29021534}{pubMED}. Competence is induced with CSP and ssbB-GFP is expressed. The timeing between cells differs slightly. Cells are tracked using SuperSegger.
+#' Dataset retrieved from movie previously published in Moreno-Gamez et al., 2017 \href{https://www.ncbi.nlm.nih.gov/pubmed/29021534}{pubMED}. Competence is induced with CSP and ssbB-GFP is expressed. The timeing between cells differs slightly. Cells are tracked using SuperSegger.
 #'
 #' @source Moreno-Gámez, Stefany, et al. "Quorum sensing integrates environmental cues, cell density and cell history to control bacterial competence." Nature communications 8.1 (2017): 854.
 #' @format A data frame with columns:
@@ -138,7 +138,7 @@
 
 
 
-#' Dataset retrievd from movie previously published in Moreno-Gamez et al., 2017 \href{https://www.ncbi.nlm.nih.gov/pubmed/29021534}{pubMED}. Competence is induced with CSP and ssbB-GFP is expressed. The timeing between cells differs slightly. Cells are tracked using SuperSegger.
+#' Dataset retrieved from movie previously published in Moreno-Gamez et al., 2017 \href{https://www.ncbi.nlm.nih.gov/pubmed/29021534}{pubMED}. Competence is induced with CSP and ssbB-GFP is expressed. The timeing between cells differs slightly. Cells are tracked using SuperSegger.
 #'
 #' @source Moreno-Gámez, Stefany, et al. "Quorum sensing integrates environmental cues, cell density and cell history to control bacterial competence." Nature communications 8.1 (2017): 854.
 #' @format A phylo object containing the genealogy information of this timelapse movie.
@@ -154,7 +154,7 @@
 
 
 
-#' Dataset retrievd from movie previously published in Moreno-Gamez et al., 2017 \href{https://www.ncbi.nlm.nih.gov/pubmed/29021534}{pubMED}. Competence is induced with CSP and ssbB-GFP is expressed. The timeing between cells differs slightly. Cells are tracked using SuperSegger.
+#' Dataset retrieved from movie previously published in Moreno-Gamez et al., 2017 \href{https://www.ncbi.nlm.nih.gov/pubmed/29021534}{pubMED}. Competence is induced with CSP and ssbB-GFP is expressed. The timeing between cells differs slightly. Cells are tracked using SuperSegger.
 #'
 #' @source Moreno-Gámez, Stefany, et al. "Quorum sensing integrates environmental cues, cell density and cell history to control bacterial competence." Nature communications 8.1 (2017): 854.
 #' @format A phylo object containing the genealogy information of this timelapse movie.
@@ -167,3 +167,59 @@
 #' }
 #'
 "ssbB_network"
+
+
+#' VanFL dataset: objects WT
+#'
+#' @source van Raaphorst, Renske, Morten Kjos, and Jan-Willem Veening. "Chromosome segregation drives division site selection in Streptococcus pneumoniae." Proceedings of the National Academy of Sciences 114.29 (2017): E5959-E5968
+#' @format an "object_relative" data frame (\code{\link{object}}) describing the shape and localization of fluorescent vancomycin in Wild Type S. pneumoniae cells.
+#' \describe{
+#' Cells were stained with fluorescent vancomycin and imaged as described in \href{https://www.pnas.org/content/early/2017/06/30/1620608114}{van Raaphorst, Kjos & Veening, 2017}. The cells and fluorescent objects where segmented using Oufti and imported in R using BactMAP's extr_Oufti function.
+#' }
+#' @examples
+#' \dontrun{
+#' View(VanFL_objWT)
+#' }
+#'
+"VanFL_objWT"
+
+
+#' VanFL dataset: objects mapZ mutant
+#'
+#' \describe{Cells were stained with fluorescent vancomycin and imaged as described in \href{https://www.pnas.org/content/early/2017/06/30/1620608114}{van Raaphorst, Kjos & Veening, 2017}. The cells and fluorescent objects where segmented using Oufti and imported in R using BactMAP's extr_Oufti function.}
+#' @source van Raaphorst, Renske, Morten Kjos, and Jan-Willem Veening. "Chromosome segregation drives division site selection in Streptococcus pneumoniae." Proceedings of the National Academy of Sciences 114.29 (2017): E5959-E5968
+#' @format an "object_relative" data frame (\code{\link{object}}) describing the shape and localization of fluorescent vancomycin in S. pneumoniae cells where the gene \code{mapZ} was replaced by a chloramphenicol resistance marker (\code{DmapZ::cmR}).
+#' @examples
+#' \dontrun{
+#' View(VanFL_objDM)
+#' }
+#'
+"VanFL_objDM"
+
+
+#' VanFL dataset: cell outlines (mesh) WT
+#'
+#' \describe{Cells were stained with fluorescent vancomycin and imaged as described in \href{https://www.pnas.org/content/early/2017/06/30/1620608114}{van Raaphorst, Kjos & Veening, 2017}. The cells and fluorescent objects where segmented using Oufti and imported in R using BactMAP's extr_Oufti function.}
+#' @source van Raaphorst, Renske, Morten Kjos, and Jan-Willem Veening. "Chromosome segregation drives division site selection in Streptococcus pneumoniae." Proceedings of the National Academy of Sciences 114.29 (2017): E5959-E5968
+#' @format a "mesh" data frame (\code{\link{mesh}}) describing the shape and size of Wild Type S. pneumoniae cells.
+#' @examples
+#' \dontrun{
+#'  View(VanFL_meshWT)
+#'  }
+#'
+"VanFL_meshWT"
+
+
+
+#' VanFL dataset: cell outlines (mesh) DM
+#'
+#' \describe{Cells were stained with fluorescent vancomycin and imaged as described in \href{https://www.pnas.org/content/early/2017/06/30/1620608114}{van Raaphorst, Kjos & Veening, 2017}. The cells and fluorescent objects where segmented using Oufti and imported in R using BactMAP's extr_Oufti function.}
+#' @source van Raaphorst, Renske, Morten Kjos, and Jan-Willem Veening. "Chromosome segregation drives division site selection in Streptococcus pneumoniae." Proceedings of the National Academy of Sciences 114.29 (2017): E5959-E5968
+#' @format a "mesh" data frame (\code{\link{mesh}}) describing the shape and localization of fluorescent vancomycin in S. pneumoniae cells where the gene \code{mapZ} was replaced by a chloramphenicol resistance marker (\code{DmapZ::cmR}).
+#' @examples
+#' \dontrun{
+#'  View(VanFL_objWT)
+#'  }
+#'
+"VanFL_meshDM"
+

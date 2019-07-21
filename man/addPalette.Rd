@@ -5,7 +5,7 @@
 \title{Manually add a heatmap palette and view the currently loaded palettes.
 
 }
-\description{\code{addPalette()}: function to manually add a colorpalette for heatmaps to the six heatmap palettes existing inside shinyspots. Use \code{showCurrentPalettes()} to print mockup-heatmap plots with the six default palettes and - if appliccable - the added palettes.
+\description{\code{addPalette()}: function to manually add a colorpalette for heatmaps to the six heatmap palettes existing inside bactMAP. Use \code{showCurrentPalettes()} to print mockup-heatmap plots with the six default palettes and - if appliccable - the added palettes.
 }
 \usage{
 addPalette(palList = list("colorhex1", "colorhex2", "colorhex3")), palName = "YourPalette")
@@ -21,7 +21,7 @@ showCurrentPalettes()
 \details{
 %%  ~~ If necessary, more details than the description above ~~
 }
-\value{\code{addPalette()} and \code{showCurrentPalettes()} will print heatmap plots using the color palettes loaded into shinyspots. \code{addPalette()} also adds the manually entered color palette to the list of color palettes loaded into the shinyspots environment during the R session.
+\value{\code{addPalette()} and \code{showCurrentPalettes()} will print heatmap plots using the color palettes loaded into bactMAP. \code{addPalette()} also adds the manually entered color palette to the list of color palettes loaded into the bactMAP environment during the R session.
 
 }
 \references{
@@ -42,13 +42,13 @@ For more information and vast choice of good color palettes for plots, check \ur
 For a comprehensive list of R color names, check \url{http://www.stat.columbia.edu/~tzheng/files/Rcolor.pdf}
 }
 \examples{
-##Check the color palettes inside shinyspots
+##Check the color palettes inside bactMAP
 showCurrentPalettes()
 
 ##Pick three colors you like and put them in a list - in the order of lowest value - midpoint - highest value
 listofcolors <- list("orangered", "darkseagreen", "burlywood1")
 
-##Add to the color palettes inside shinyspots
+##Add to the color palettes inside bactMAP
 addPalette(listofcolors, "MyBeautifulPalette")
 
 }

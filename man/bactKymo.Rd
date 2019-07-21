@@ -27,7 +27,8 @@ bactKymo(originalCells,
           prep = TRUE,
           percDiv = FALSE,
           cutoff_demograph = 0.975,
-          mag)
+          mag,
+          legend=TRUE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -61,10 +62,13 @@ bactKymo(originalCells,
   \item{mag}{
   magnification converter (see \code{\link{Pixels2um}}. If used, the pixel values will be converted to micron.
 }
+  \item{legend}{
+  when \code{legend==TRUE}, a legend will be shown on the right. when FALSE, the legend will be omitted.
+  }
 }
 
 \details{
-Many options are possible within \code{bactKymo()}. Make sure you set the time dimension & cells correctly!
+Many options are possible within \code{bactKymo()}. Make sure you set the time dimension & cells correctly! For examples, see \href{https://github.com/vrrenske/BactMAP/wiki}{the BactMAP wiki}
 
 Note that when you have an output of many plots, it is useful to use \code{gridExtra::grid.arrange()} to save all plots in a PDF, this makes the plots easier to investigate and saves loading time in between.
 
@@ -81,23 +85,11 @@ Renske van Raaphorst
 
 #to plot a timelapse demograph of 1 cell:
 
-timelapsedata <- extr_OriginalCells(TIFF_output, mesh_output)
-kymo_cell1 <- bactKymo(originalCells =timelapsedata, timeD=TRUE, sizeAV=TRUE, cells=1)
+kymo_cell4 <- bactKymo(originalCells = bactMAP::TurnedCell4, timeD=TRUE, sizeAV=TRUE)
 
 #to change the color scheme:
 OrangeHot <- getPalette("OrangeHot")
-kymo_cell1 + scale_fill_gradient2(low=OrangeHot[1], mid=OrangeHot[2], high=OrangeHot[3])
+kymo_cell4 + scale_fill_gradient2(low=OrangeHot[1], mid=OrangeHot[2], high=OrangeHot[3])
 
-#to plot a demograph of a group of cells: first get the data:
-groupofcells <-  system.file("extdata", "DnaX-GFP.tif", package = "bactMAP")
-#extract the tiff file
-TIFout <- extr_OriginalStack(groupofcells)
-#and also the mesh file
-Mesh <- extr_Oufti(system.file("extdata", "DnaX-mesh.mat", package="bactMAP")
-#combine:
-extractedcells <- extr_OriginalCells(TIFout, Mesh)
-
-#and the kymograph
-kymo <- bactKymo(extractedcells)
 
 }

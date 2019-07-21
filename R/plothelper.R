@@ -156,7 +156,7 @@ superfun <- function(dat, bins,mag){
 
 #or two, by quartiles of the number of cells:
 #' @export
-createPlotlist <- function(spotdata,  meshdata, groups =4 , colorpalette="GreenYellow", mag="No_PixelCorrection", AllPlot=F, Xm="X", Ym="Y", viridis=FALSE, showPlot=TRUE){
+createPlotList <- function(spotdata,  meshdata, groups =4 , colorpalette="GreenYellow", mag="No_PixelCorrection", AllPlot=F, Xm="X", Ym="Y", viridis=FALSE, showPlot=TRUE){
   if (!requireNamespace("MASS", quietly = TRUE)) {
   inp_P <- readline("Package 'MASS' needed for this function to work. Press 'y' to install, or any other key to cancel.")
   if(inp_P=="y"|inp_P=="Y"){install.packages("MASS")}else{stop("Canceled")}
@@ -362,7 +362,8 @@ createPlotlist <- function(spotdata,  meshdata, groups =4 , colorpalette="GreenY
       phmlist <- append(phmlist, list(p))
     }
     if(AllPlot==F){
-      u$qplots <- phmlist
+      u$qplots <- gridExtra::arrangeGrob(grobs=phmlist, ncol=1)
+      u$qplots_separate <- phmlist
     }
   }
     #and create the plots:
@@ -377,6 +378,7 @@ createPlotlist <- function(spotdata,  meshdata, groups =4 , colorpalette="GreenY
         }
         phmalist <- append(phmalist,list(p1_all))
         u$qplots <- gridExtra::arrangeGrob(grobs=phmalist, ncol=1)
+        u$qplots_separate <- phmalist
       }
     }
 

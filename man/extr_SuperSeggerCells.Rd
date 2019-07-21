@@ -9,7 +9,7 @@ Convert SuperSegger cell outlines to standard BactMAP format
 Part of the *extr_*-functions, extr_SuperSeggerCells takes the mask created by SuperSegger of each cell (and if available, timepoint) and saves this as a *mesh* dataframe.
 }
 \usage{
-extr_SuperSeggerCells(loc, frames, mag)
+extr_SuperSeggerCells(loc, frames, mag, timelapse=FALSE, startframe=0)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -22,6 +22,12 @@ The number of xy frames (so not timepoints, just different locations!) imaged
   \item{mag}{
 magnification conversion factor name (which is part of Pixels2um)
 }
+ \item{timelapse}{
+ set timelapse to TRUE if you are analyzing a timelapse movie.
+ }
+ \item{startframe}{
+ default = 0. set to 1 if the first of your xy-locations is 1.
+ }
 }
 \details{
 Use *addPixels2um()* to add a new conversion factor.

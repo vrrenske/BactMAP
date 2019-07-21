@@ -92,26 +92,21 @@ A plot or a list of plots:
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
-
 ##get data from BactMAP package
 #condition one: wild type
-WT <- system.file("extdata", "WT_obj.txt", package = "bactMAP")
+WT_objects <- VanFL_objWT
+WT_mesh <- VanFL_meshWT
+
 #condition 2: dmapZ
-DM <- system.file("extdata", "DmapZ_obj.txt", package="bactMAP")
+DM_objects <- VanFL_objDM
+DM_mesh <- VanFL_meshDM
 
-##extract data using extr_Oufti
-WT_extr <- extr_Oufti(WT, mag="100x_DVMolgen")
-DM_extr <- extr_Oufti(DM, mag="100x_DVMolgen")
+comboMesh <- combineDataframes(list(WT_mesh, DM_mesh), listofconditions=list("WildType", "DeltaMapZ"))
+comboObjects <- combineDataframes(list(WT_objects, DM_objects), listofconditions=list("WildType", "DeltaMapZ"))
 
-#combine Mesh and Object dataframes
-comboMesh <- combineDataframes(list(WT_extr$mesh, DM_extr$mesh), listofconditions=list("WildType", "DeltaMapZ"))
-comboObjects <- combineDataframes(list(WT_extr$object_relative, DM_extr$object_relative), listofconditions=list("WildType", "DeltaMapZ"))
-
-##plot projection of 4 quartiles
-plotOverlay(meshdata=comboMesh,
-            objectdata=comboObjects,
+plotOverlay(meshdata=comboMesh$finalframe,
+            objectdata=comboObjects$finalframe,
+            by="condition",
             quantiles=4,
             type="projection")
-
-
 }

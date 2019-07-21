@@ -266,8 +266,8 @@ extr_ObjectJ <- function(dataloc,
   oj2 <- oj2[,c("cell", "frame","max.length", "chainID", "Xum", "Yum", "num")]
   p2um <- as.numeric(get(magnificationList, envir=magEnv)[mag])
 
-  oj2$X <- oj2$Xum
-  oj2$Y <- oj2$Yum
+  oj2$X <- oj2$Xum / p2um
+  oj2$Y <- oj2$Yum / p2um
 
   if(turn_meshes ==TRUE){
     oj2 <- meshTurn(oj2)

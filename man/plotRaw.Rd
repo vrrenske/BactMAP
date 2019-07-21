@@ -68,9 +68,9 @@ Renske van Raaphorst
 }
 \examples{
 
-#load TIF image from BactMAP examples
+#load TIF image from BactMAP examples. go to veeninglab.com/bactmap to download.
 
-TIF_image <- system.file("extdata", "DnaX-GFP.tif", package = "bactMAP")
+TIF_image <- file.choose()
 
 #use extr_-function to turn into list of dataframes
 
@@ -80,5 +80,5 @@ TIF_df <- bactMAP::extr_OriginalStack(TIF_image)
 plotRaw(TIF_image)
 
 #zoom in and add title
-plotRaw(TIF_image, xrange=(c(200,500)), yrange=c(400,600)) + ggplot2::ggtitle("This is DnaX-GFP")
+plotRaw(TIF_image, xrange=(c(200,500)), yrange=c(400,600)) + ggplot2::ggtitle("This is a TIF image")
 }

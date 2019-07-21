@@ -46,15 +46,13 @@ Renske van Raaphorst
 \examples{
 #example data:
 
-WT <- system.file("extdata", "WT_obj.txt", package = "bactMAP")
+WTmesh <- bactMAP::vanFL_meshWT
 
-#when this set is analyzed, objects are automatically connected to cells:
+WTobjects <- bactMAP::vanFL_objWT
 
-WToutlist <- bactMAP::extr_Oufti(WT, mag="100x_DVMolgen")
+#these objects are already connected to cells. but no harm in re-doing:
 
-#however, we can re-do it using objectInBox if we want:
-
-WTbox <- objectInBox(WToutlist$objectframe, WToutlist$mesh, mag="100x_DVMolgen")
+WTbox <- objectInBox(WTobjects, WTmesh, mag="100x_DVMolgen")
 
 }
 

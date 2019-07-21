@@ -141,10 +141,21 @@ plotTracks <- function(meshdata,
         }
       }
       if("length"%in%dimension&!"width"%in%dimension){
-        outplot <- outplot + ggplot2::geom_point(data=spotdata, ggplot2::aes(x=Lmid, y=frame, color=frame), size=2)
-        if(tracks==TRUE){
-          outplot <- outplot + ggplot2::geom_path(data=spotdata[spotdata$trajectory!=-1,], ggplot2::aes(x=Lmid, y=frame, group=trajectory, color=frame), size=1)
+        if("channel"%in%colnames(spotdata)){
+          outplot <- outplot + ggplot2::geom_point(data=spotdata, ggplot2::aes(x=Lmid, y=frame, color=channel), size=2)
         }
+        if(!"channel"%in%colnames(spotdata)){
+          outplot <- outplot + ggplot2::geom_point(data=spotdata, ggplot2::aes(x=Lmid, y=frame, color=frame), size=2)
+        }
+        if(tracks==TRUE){
+          if(!"channel"%in%colnames(spotdata)){
+            outplot <- outplot + ggplot2::geom_path(data=spotdata[spotdata$trajectory!=-1,], ggplot2::aes(x=Lmid, y=frame, group=trajectory, color=frame), size=1)
+          }
+          if("channel"%in%colnames(spotdata)){
+            outplot <- outplot + ggplot2::geom_path(data=spotdata[spotdata$trajectory!=-1,], ggplot2::aes(x=Lmid, y=frame, group=trajectory, color=channel), size=1)
+          }
+        }
+
         if(!"pole1"%in%colnames(spotdata)){
           if(!"maxum"%in%colnames(spotdata)){
             spotdata$maxum <- spotdata$max.length*unlist(get(magnificationList,envir=magEnv)[mag])
@@ -154,12 +165,23 @@ plotTracks <- function(meshdata,
           spotdata <- spotdata[order(spotdata$cell, spotdata$frame),]
           outplot <- outplot + ggplot2::geom_path(data=spotdata, ggplot2::aes(x=pole1, y=frame)) + ggplot2::geom_path(data=spotdata, ggplot2::aes(x=pole2, y=frame))
         }
-
       }
+
       if(!"length"%in%dimension&"width"%in%dimension){
-        outplot <- outplot + ggplot2::geom_point(data=spotdata, ggplot2::aes(x=Dum, y=frame, color=frame), size=2)
+        if("channel"%in%colnames(spotdata)){
+          outplot <- outplot + ggplot2::geom_point(data=spotdata, ggplot2::aes(x=Dum, y=frame, color=channel), size=2)
+        }
+        if(!"channel"%in%colnames(spotdata)){
+          outplot <- outplot + ggplot2::geom_point(data=spotdata, ggplot2::aes(x=Dum, y=frame, color=frame), size=2)
+        }
         if(tracks==TRUE){
-          outplot <- outplot + ggplot2::geom_path(data=spotdata[spotdata$trajectory!=-1,], ggplot2::aes(x=Dum, y=frame, group=trajectory, color=frame), size=1)
+          if(!"channel"%in%colname(spotdata)){
+            outplot <- outplot + ggplot2::geom_path(data=spotdata[spotdata$trajectory!=-1,], ggplot2::aes(x=Dum, y=frame, group=trajectory, color=frame), size=1)
+          }
+          if("channel"%in%colnames(spotdata)){
+            outplot <- outplot + ggplot2::geom_path(data=spotdata[spotdata$trajectory!=-1,], ggplot2::aes(x=Dum, y=frame, group=trajectory, color=channel), size=1)
+
+          }
         }
         if(!"pole1"%in%colnames(spotdata)){
           if(!"maxwum"%in%colnames(spotdata)){
@@ -173,25 +195,61 @@ plotTracks <- function(meshdata,
 
       }
     }
-    if(turn_cells==FALSE&"length"%in%dimension&"width"%in%dimension){
-      outplot <- outplot + ggplot2::geom_point(data=spotdata, ggplot2::aes(x=x,y=y, color=frame), size=2)
-      if(tracks==TRUE){
-        outplot <- outplot + ggplot2::geom_path(data=spotdata[spotdata$trajectory!=-1,], ggplot2::aes(x=x,y=y,group=trajectory, color=frame),size=1)
+      if(turn_cells==FALSE&"length"%in%dimension&"width"%in%dimension){
+        outplot <- outplot + ggplot2::geom_point(data=spotdata, ggplot2::aes(x=x,y=y, color=frame), size=2)
+        if(tracks==TRUE){
+          outplot <- outplot + ggplot2::geom_path(data=spotdata[spotdata$trajectory!=-1,], ggplot2::aes(x=x,y=y,group=trajectory, color=frame),size=1)
+        }
+
       }
-
     }
-  }
 
-  if(missing(meshdata)!=T|missing(spotdata)!=T){
-    outplot <- outplot + ggplot2::scale_color_viridis_c(option = timepalette_lines)
+    if(missing(meshdata)!=T|missing(spotdata)!=T){
+      if(("length"%in%dimension&!"width"%in%dimension)|(!"length"%in%dimension&"width"%in%dimension)){
+        if(!"channel"%in%colnames(spotdata)){
+          outplot <- outplot + ggplot2::scale_color_viridis_c(option=timepalette_lines)
+        }
+        if("channel"%in%colnames(spotdata)){
+          outplot <- outplot + ggplot2::scale_color_manual(values=colorsCUD())
+        }
+      }
+      if("length"%in%dimension&"width"%in%dimension){
+        outplot <- outplot + ggplot2::scale_color_viridis_c(option = timepalette_lines)
+      }
+    }
+    if(turn_cells==TRUE&"length"%in%dimension&"width"%in%dimension){
+      if("channel"%in%colnames(spotdata)&"condition"%in%colnames(spotdata)){
+        outplot <- outplot + ggplot2::coord_fixed() + ggplot2::facet_grid(channel~condition~cell)
+      }
+      if("channel"%in%colnames(spotdata)&!"condition"%in%colnames(spotdata)){
+        outplot <- outplot + ggplot2::coord_fixed() + ggplot2::facet_grid(channel~cell)
+      }
+      if(!"channel"%in%colnames(spotdata)&"condition"%in%colnames(spotdata)){
+        outplot <- outplot + ggplot2::coord_fixed() + ggplot2::facet_grid(condition~cell)
+      }
+      if(!"channel"%in%colnames(spotdata)&!"condition"%in%colnames(spotdata)){
+        outplot <- outplot + ggplot2::coord_fixed() + ggplot2::facet_grid(~cell)
+      }
+      outplot <- outplot + ggplot2::xlab(paste("x (", micron(), ")")) + ggplot2::ylab(paste("y (", micron(), ")"))
+    }
+    if(turn_cells==FALSE|("length"%in%dimension&!"width"%in%dimension)|(!"length"%in%dimension&"width"%in%dimension)){
+      if("condition"%in%colnames(spotdata)){
+        outplot <- outplot + ggplot2::facet_grid(condition~cell, scales="free")
+      }
+      if(!"condition"%in%colnames(spotdata)){
+        outplot <- outplot + ggplot2::facet_grid(~cell, scales="free")
+      }
+      if("length"%in%dimension&"width"%in%dimension){
+        outplot <- outplot + ggplot2::xlab("x (pixels)") + ggplot2::ylab("y (pixels)")
+      }
+      if("length"%in%dimension&!"width"%in%dimension){
+        outplot <- outplot + ggplot2::xlab(paste("distance from mid-cell on length axis (", micron(), ")"))
+      }
+      if(!"length"%in%dimension&"width"%in%dimension){
+        outplot <- outplot + ggplot2::xlab(paste("distance from mid-cell on width axis (", micron(), ")"))
+      }
+    }
+    return(outplot)
   }
-  if(turn_cells==TRUE&"length"%in%dimension&"width"%in%dimension){
-    outplot <- outplot + ggplot2::coord_fixed() + facet_wrap(~cell)
-  }
-  if(turn_cells==FALSE|("length"%in%dimension&!"width"%in%dimension)|(!"length"%in%dimension&"width"%in%dimension)){
-    outplot <- outplot + facet_wrap(~cell, scales="free")
-  }
-  return(outplot)
-}
 
 

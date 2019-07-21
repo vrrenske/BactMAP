@@ -2,7 +2,7 @@
 \alias{plotObjects}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{
-Create plots similar to \link{createPlotlist} using intracellular object outlines instead of points.
+Create plots similar to \link{createPlotList} using intracellular object outlines instead of points.
 }
 \description{
 Plot projection of fluorescent objects inside cells in one or more cell groups based on cell length.
@@ -60,7 +60,7 @@ Renske van Raaphorst
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-\code{\link{createPlotlist}}
+\code{\link{createPlotList}}
 }
 \examples{
 
@@ -68,19 +68,17 @@ Renske van Raaphorst
 
 library(bactMAP)
 
-VanFL <- system.file("extdata", "WT_obj.txt", package = "bactMAP")
-
-#extract data using extr_Oufti
-
-ex_VanFL <- extr_Oufti(VanFL, mag="100x_DVMolgen")
+VanFL_mesh <- bactMAP::VanFL_meshWT
+VanFL_obj <- bactMAP::VanFL_objWT
 
 #plot objects
 
-plotObjects(ex_VanFL$object_relative, ex_VanFL$mesh, groups=4, transparency=0.1)
+plotObjects(VanFL_obj, VanFL_mesh, groups=4, transparency=0.1)
 
 #change colors/layout
 
 library(ggdark)
-plotObjects(ex_VanFL$object_relative, ex_VanFL$mesh, groups=4, transparency=0.1, cellcolor="grey40", objectcolor="magenta") + ggdark::dark_theme_minimal()
+library(ggplot2)
+plotObjects(VanFL_obj, VanFL_mesh, groups=4, transparency=0.1, cellcolor="grey40", objectcolor="magenta") + ggdark::dark_theme_minimal()
 
 }

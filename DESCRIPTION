@@ -10,7 +10,8 @@ LazyData: true
 Imports:
   ggplot2,
   tidyr,
-  reshape2
+  reshape2,
+  plyr
 Suggests:
   gridExtra,
   ggthemes,

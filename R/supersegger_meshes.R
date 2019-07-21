@@ -15,8 +15,8 @@ upperdir <- function(frameN, loc){
 }
 
 #getting a list of cell files from frame 0:frames-1
-readallsegcells <- function(frames, loc){
-  allcells <- lapply(c(1:(frames)), function(x) upperdir(x, loc))
+readallsegcells <- function(frames, loc, startframe){
+  allcells <- lapply(c(startframe:(frames+startframe-1)), function(x) upperdir(x, loc))
   return(allcells)
 }
 
@@ -75,7 +75,7 @@ addcellnumcell <- function(cellflip, y){
 
 #final combination function
 
-bindallcellsandmeshes <- function(cellflip, cellmask){
+bindallcellsandmeshes <- function(cellflip, cellmask, timelapse=TRUE){
   cellflipout <- list()
   for(n in 1:length(cellflip)){
     for(u in 1:length(cellflip[[n]])){
@@ -91,18 +91,26 @@ bindallcellsandmeshes <- function(cellflip, cellmask){
       cellmask[[n]][[u]] <- do.call('rbind', cellmask[[n]][[u]])
     }
     cellflipframe <- do.call('rbind', cellflip[[n]])
-    if("frame"%in%colnames(cellflipframe)){
-      cellflipframe$location <- n
-    }
-    if("frame"%in%colnames(cellflipframe)!=T){
-      cellflipframe$frame <- n
-    }
     cellmaskframe <- do.call('rbind', cellmask[[n]])
-    if("frame"%in%colnames(cellmaskframe)){
-      cellmaskframe$location <- n
+    if(timelapse==TRUE){
+
+      if("frame"%in%colnames(cellflipframe)){
+        cellflipframe$location <- n
+      }
+      if(!"frame"%in%colnames(cellflipframe)){
+        cellflipframe$frame <- n
+      }
+
+      if("frame"%in%colnames(cellmaskframe)){
+        cellmaskframe$location <- n
+      }
+      if(!"frame"%in%colnames(cellmaskframe)){
+        cellmaskframe$frame <- n
+      }
     }
-    if("frame"%in%colnames(cellmaskframe)!=T){
+    if(timelapse==FALSE){
       cellmaskframe$frame <- n
+      cellflipframe$frame <- n
     }
 
     if(n==1){
@@ -122,7 +130,7 @@ bindallcellsandmeshes <- function(cellflip, cellmask){
 ##extract function for exporting.
 
 #' @export
-extr_SuperSeggerCells <- function(loc, frames, mag){
+extr_SuperSeggerCells <- function(loc, frames, mag, timelapse=FALSE, startframe=0){
   if (!requireNamespace("R.matlab", quietly = TRUE)) {
     inp <- readline("Package 'R.matlab' and 'raster' needed for this function to work. Press 'y' to install, or any other key to cancel.")
     if(inp=="y"|inp=="Y"){install.packages(c("R.matlab", "raster"))}else{stop("Canceled")}
@@ -131,9 +139,10 @@ extr_SuperSeggerCells <- function(loc, frames, mag){
     inp <- readline("Package 'raster' needed for this function to work. Press 'y' to install, or any other key to cancel.")
     if(inp=="y"|inp=="Y"){install.packages("raster")}else{stop("Canceled")}
   }
-  segcells <- readallsegcells(frames=frames, loc=loc)
+
+  segcells <- readallsegcells(frames=frames, loc=loc, startframe = startframe)
   segmasks <- getallmasks(segcells)
-  finalframe <- bindallcellsandmeshes(flipallcells(segcells), segmasks)
+  finalframe <- bindallcellsandmeshes(flipallcells(segcells), segmasks, timelapse)
   finalframe$mesh <- meshTurn(finalframe$mesh, "x", "y")
   finalframe$mesh$Y <- finalframe$mesh$Ymid + (finalframe$mesh$Ymid - finalframe$mesh$Y)
   finalframe$mesh$Y_rot <- -finalframe$mesh$Y_rot

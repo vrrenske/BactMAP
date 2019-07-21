@@ -33,9 +33,9 @@ extr_OuftiCellList <- function(matfile){
       }
 
     }
-    cellList[[n]] <- do.call('rbind', cellListN)
+    cellList[[n]] <- do.call(plyr::rbind.fill, cellListN)
   }
-  cellList <- do.call('rbind', cellList)
+  cellList <- do.call(plyr::rbind.fill, cellList)
   return(cellList)
 }
 
