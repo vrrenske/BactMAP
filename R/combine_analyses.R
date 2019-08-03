@@ -203,25 +203,30 @@ plotOverlay <- function(meshdata,
     plot <- ggplot2::ggplot() + ggplot2::theme_minimal()
     if(missing(meshdata)!=T){
       meshdata <- merge(meshdata, onlycells)
-      plot <- plot + ggplot2::geom_polygon(data=meshdata, ggplot2::aes(x=Xrotum, y=Yrotum, group=paste(cell,frame)), fill=meshcolor, alpha=transparency, color=NA)
+      meshdata$cellframe <- paste(meshdata$cell, meshdata$frame, sep="_")
+      plot <- plot + ggplot2::geom_polygon(data=meshdata, ggplot2::aes_string(x='Xrotum', y='Yrotum', group='cellframe'),
+                                           fill=meshcolor, alpha=transparency, color=NA)
     }
     if(missing(objectdata)!=T){
       objectdata <- merge(objectdata, onlycells)
       objectdata <- objectdata[order(objectdata$frame, objectdata$cell, objectdata$obpath),]
+      objectdata$frameOB <- paste(objectdata$frame, objectdata$obID, sep="_")
       if(by=="channel"|by=="both"){
-        plot <- plot + ggplot2::geom_polygon(data=objectdata, ggplot2::aes(x=ob_out_x, y=ob_out_y, fill=channel, group=paste(frame,obID)), alpha=transparency, color=NA) + ggplot2::scale_fill_manual(values=objectcolor)
+        plot <- plot + ggplot2::geom_polygon(data=objectdata, ggplot2::aes_string(x='ob_out_x', y='ob_out_y', fill='channel', group='frameOB'),
+                                             alpha=transparency, color=NA) + ggplot2::scale_fill_manual(values=objectcolor)
       }
       if(by=="condition"){
-        plot <- plot + ggplot2::geom_polygon(data=objectdata, ggplot2::aes(x=ob_out_x, y=ob_out_y, group=paste(frame,obID)), alpha=transparency, color=NA, fill=objectcolor[1])
+        plot <- plot + ggplot2::geom_polygon(data=objectdata, ggplot2::aes_string(x='ob_out_x', y='ob_out_y', group='frameOB'),
+                                             alpha=transparency, color=NA, fill=objectcolor[1])
       }
     }
     if(missing(spotdata)!=T){
       spotdata <- merge(spotdata, onlycells)
       if(by=="channel"|by=="both"){
-        plot <- plot + ggplot2::geom_point(data=spotdata, ggplot2::aes(x=Lmid, y=Dum, color=channel), size=dotsize, alpha=transparency*10, shape=16) + ggplot2::scale_color_manual(values=spotcolor)
+        plot <- plot + ggplot2::geom_point(data=spotdata, ggplot2::aes_string(x='Lmid', y='Dum', color='channel'), size=dotsize, alpha=transparency*10, shape=16) + ggplot2::scale_color_manual(values=spotcolor)
       }
       if(by=="condition"){
-        plot <- plot + ggplot2::geom_point(data=spotdata, ggplot2::aes(x=Lmid, y=Dum), color=spotcolor[1], size=dotsize, alpha=transparency*10, shape=16)
+        plot <- plot + ggplot2::geom_point(data=spotdata, ggplot2::aes_string(x='Lmid', y='Dum'), color=spotcolor[1], size=dotsize, alpha=transparency*10, shape=16)
       }
     }
 
@@ -253,11 +258,14 @@ plotOverlay <- function(meshdata,
       if(type!="all"){
         objectdata <- merge(objectdata, onlycells)
       }
+      objectdata$frameOB <- paste(objectdata$frame, objectdata$obID, sep="_")
       if(by=="both"|by=="channel"){
-        plot <- plot + ggplot2::geom_path(data=objectdata, ggplot2::aes(x=number, y=ob_out_x, color=channel, group=paste(obID,frame)), alpha=0.5) + ggplot2::scale_color_manual(values=objectcolor)
+        plot <- plot + ggplot2::geom_path(data=objectdata, ggplot2::aes_string(x='number', y='ob_out_x', color='channel', group='frameOB'), alpha=0.5) + ggplot2::scale_color_manual(values=objectcolor)
+
       }
+
       if(by=="condition"){
-        plot <- plot + ggplot2::geom_path(data=objectdata, ggplot2::aes(x=number, y=ob_out_x), color=objectcolor[1], alpha=0.5)
+        plot <- plot + ggplot2::geom_path(data=objectdata, ggplot2::aes_string(x='number', y='ob_out_x'), color=objectcolor[1], alpha=0.5)
       }
     }
     if(missing(spotdata)!=T){
@@ -265,10 +273,10 @@ plotOverlay <- function(meshdata,
         spotdata <- merge(spotdata,onlycells)
       }
       if(by=="both"|by=="channel"){
-        plot <- plot + ggplot2::geom_point(data=spotdata, ggplot2::aes(x=number, y=Lmid, color=channel), alpha=0.5) + ggplot2::scale_color_manual(values=spotcolor)
+        plot <- plot + ggplot2::geom_point(data=spotdata, ggplot2::aes_string(x='number', y='Lmid', color='channel'), alpha=0.5) + ggplot2::scale_color_manual(values=spotcolor)
       }
       if(by=="condition"){
-        plot <- plot + ggplot2::geom_point(data=spotdata, ggplot2::aes(x=number, y=Lmid), color=spotcolor[1], alpha=0.5)
+        plot <- plot + ggplot2::geom_point(data=spotdata, ggplot2::aes_string(x='number', y='Lmid'), color=spotcolor[1], alpha=0.5)
       }
     }
     if(missing(spotdata)==T&missing(objectdata)==T&type=="length"){
@@ -290,11 +298,13 @@ plotOverlay <- function(meshdata,
       if(type!="all"){
         objectdata <- merge(objectdata, onlycells)
       }
+      objectdata$frameOB <- paste(objectdata$frame, objectdata$obID, sep="_")
       if(by=="both"|by=="channel"){
-        plot <- plot + ggplot2::geom_path(data=objectdata, ggplot2::aes(x=number, y=ob_out_y, color=channel, group=paste(obID,frame)), alpha=0.5) + ggplot2::scale_color_manual(values=objectcolor)
+        plot <- plot + ggplot2::geom_path(data=objectdata, ggplot2::aes_string(x='number', y='ob_out_y', color='channel', group='frameOB'), alpha=0.5) +
+                                            ggplot2::scale_color_manual(values=objectcolor)
       }
       if(by=="condition"){
-        plot <- plot + ggplot2::geom_path(data=objectdata, ggplot2::aes(x=number, y=ob_out_y), color=objectcolor[1], alpha=0.5)
+        plot <- plot + ggplot2::geom_path(data=objectdata, ggplot2::aes_string(x='number', y='ob_out_y'), color=objectcolor[1], alpha=0.5)
       }
     }
     if(missing(spotdata)!=T){
@@ -302,13 +312,13 @@ plotOverlay <- function(meshdata,
         spotdata <- merge(spotdata, onlycells)
       }
       if(by=="both"|by=="channel"){
-        plot <- plot + ggplot2::geom_point(data=spotdata, ggplot2::aes(x=number, y=Dum, color=channel), alpha=0.5)
+        plot <- plot + ggplot2::geom_point(data=spotdata, ggplot2::aes_string(x='number', y='Dum', color='channel'), alpha=0.5)
         if(missing(objectdata)==T){
         plot <- plot + ggplot2::scale_color_manual(values=spotcolor)
         }
       }
       if(by=="condition"){
-        plot <- plot + ggplot2::geom_point(data=spotdata, ggplot2::aes(x=number, y=Dum), color=spotcolor[1], alpha=0.5)
+        plot <- plot + ggplot2::geom_point(data=spotdata, ggplot2::aes_string(x='number', y='Dum'), color=spotcolor[1], alpha=0.5)
       }
     }
     if(missing(spotdata)==T&missing(objectdata)==T&type=="width"){
@@ -336,7 +346,8 @@ plotOverlay <- function(meshdata,
       }
       meshdata <- merge(meshdata, onlycells)
       meshdata$quant_by <- meshdata[,quantiles_by]
-      his_mesh <- ggplot2::ggplot(meshdata) + ggplot2::geom_density(ggplot2::aes(x=quant_by), fill=meshcolor, color=histogram_outline) + ggplot2::theme_minimal()
+      his_mesh <- ggplot2::ggplot(meshdata) +
+        ggplot2::geom_density(ggplot2::aes_string(x='quant_by'), fill=meshcolor, color=histogram_outline) + ggplot2::theme_minimal()
       if(by!="channel"){
         his_mesh <- his_mesh + ggplot2::facet_grid(.~condition, scales = his_scales)
       }
@@ -361,10 +372,11 @@ plotOverlay <- function(meshdata,
 
 
       if(by=="channel"|by=="both"){
-        his_obj <- ggplot2::ggplot(objectdata) + ggplot2::geom_density(ggplot2::aes(x=Lmid, fill=channel), color=histogram_outline, alpha=0.5) + ggplot2::theme_minimal()
+        his_obj <- ggplot2::ggplot(objectdata) +
+          ggplot2::geom_density(ggplot2::aes_string(x='Lmid', fill='channel'), color=histogram_outline, alpha=0.5) + ggplot2::theme_minimal()
       }
       if(by=="condition"){
-        his_obj <- ggplot2::ggplot(objectdata) + ggplot2::geom_density(ggplot2::aes(x=Lmid), fill="black", color=histogram_outline)
+        his_obj <- ggplot2::ggplot(objectdata) + ggplot2::geom_density(ggplot2::aes_string(x='Lmid'), fill="black", color=histogram_outline)
       }
       if(by!="channel"&quantiles>1){
         his_obj <- his_obj + ggplot2::facet_grid(quantiles~condition, scales = his_scales)
@@ -390,10 +402,14 @@ plotOverlay <- function(meshdata,
 
 
       if(by=="channel"|by=="both"){
-        his_spot <- ggplot2::ggplot(spotdata) + ggplot2::geom_density(ggplot2::aes(x=Lmid, fill=channel), alpha=0.5, color=histogram_outline) + ggplot2::theme_minimal() + ggplot2::scale_fill_manual(values=spotcolor)
+        his_spot <- ggplot2::ggplot(spotdata) +
+          ggplot2::geom_density(ggplot2::aes_string(x='Lmid', fill='channel'), alpha=0.5, color=histogram_outline) +
+          ggplot2::theme_minimal() +
+          ggplot2::scale_fill_manual(values=spotcolor)
       }
       if(by=="condition"){
-        his_spot <- ggplot2::ggplot(spotdata) + ggplot2::geom_density(ggplot2::aes(x=Lmid), fill="black", color=histogram_outline)
+        his_spot <- ggplot2::ggplot(spotdata) +
+          ggplot2::geom_density(ggplot2::aes_string(x='Lmid'), fill="black", color=histogram_outline)
       }
       if(by!="channel"&quantiles>1){
         his_spot <- his_spot + ggplot2::facet_grid(quantiles~condition, scales = his_scales)

@@ -6,18 +6,18 @@ extr_OriginalStack <- function(picloc){
   if (!requireNamespace("tiff", quietly = TRUE)) {
     if(!requireNamespace("raster", quietly = TRUE)){
       inp <- readline("Package 'tiff' and 'raster' needed for this function to work. Press 'y' to install them, or any other key to cancel.")
-      if(inp=="y"|inp=="Y"){install.packages(c("tiff", "raster"))}else{stop("Canceled")}
+      if(inp=="y"|inp=="Y"){utils::install.packages(c("tiff", "raster"))}else{stop("Canceled")}
     }else{
       inp <- readline("Package 'tiff' needed for this function to work. Press 'y' to install it, or any other key to cancel.")
-      if(inp=="y"|inp=="Y"){install.packages("tiff")}else{stop("Canceled")}}
+      if(inp=="y"|inp=="Y"){utils::install.packages("tiff")}else{stop("Canceled")}}
   }
   if(!requireNamespace("raster", quietly = TRUE)){
     inp <- readline("Package 'raster' needed for this function to work. Press 'y' to install it, or any other key to cancel.")
-    if(inp=="y"|inp=="Y"){install.packages("raster")}else{stop("Canceled")}
+    if(inp=="y"|inp=="Y"){utils::install.packages("raster")}else{stop("Canceled")}
   }
   suppressWarnings(im <- tiff::readTIFF(picloc, all=T)) #if you want the best resolution, it needs to be a .tiff file
   im <- lapply(im, function(x) raster::raster(x))
-  imdatframe <- lapply(im, function(x) as.data.frame(as(x, "SpatialPixelsDataFrame"))) #get values
+  imdatframe <- lapply(im, function(x) as.data.frame(methods::as(x, "SpatialPixelsDataFrame"))) #get values
   imdatframe <- lapply(imdatframe, function(x) changecols(x))
   nx <- length(unique(imdatframe[[1]]$x))
   ny <- length(unique(imdatframe[[1]]$y))
@@ -59,7 +59,7 @@ plotCellsTime <- function(celdat,
   if(movie==TRUE){
     if(!requireNamespace("gganimate", quietly = TRUE)){
       inp <- readline("Package 'gganimate' needed to make an animation. Press 'y' to install it, or any other key to cancel.")
-      if(inp=="y"|inp=="Y"){install.packages("gganimate")}else{stop("Canceled")}
+      if(inp=="y"|inp=="Y"){utils::install.packages("gganimate")}else{stop("Canceled")}
     }
   }
   if(missing(minf)){
@@ -188,7 +188,7 @@ plotcellsframelist <- function(TRframe, maxframes, minframes, updown=F, movie=F,
     }
 
     p <- ggplot2::ggplot(TRframe) +
-      ggplot2::geom_polygon(ggplot2::aes(x=xt,y=yt,fill=values,group=pointN),color=NA) +
+      ggplot2::geom_polygon(ggplot2::aes_string(x='xt',y='yt',fill='values',group='pointN'),color=NA) +
       ggimage::theme_transparent() + ggplot2::coord_fixed() +
       ggplot2::scale_fill_viridis_c(option=viridisoption) +
       ggplot2::xlim(c(min(TRframe$xt, na.rm=TRUE), max(TRframe$xt, na.rm=TRUE))) +
@@ -221,6 +221,7 @@ plotcellsframelist <- function(TRframe, maxframes, minframes, updown=F, movie=F,
     }
 
     if(movie==T){
+      frame <-NULL
       p <- p + gganimate::transition_manual(frame)
     }
     return(p)
@@ -251,7 +252,7 @@ plotRaw <- function(tiffdata,
   }
   if(missing(tiffdata)!=T){
   plotcells <- ggplot2::ggplot(tiffdata[[frameN]]) + #plot raw image
-    ggplot2::geom_raster(ggplot2::aes(x=x,y=y,fill=values)) + #use geom_raster to remake image out of dataframe
+    ggplot2::geom_raster(ggplot2::aes_string(x='x',y='y',fill='values')) + #use geom_raster to remake image out of dataframe
     ggplot2::theme_classic() + #simple theme, no backgrounds
     ggplot2::scale_fill_viridis_c(option=viridisoption) + #well-working color scheme for gradient values
     ggplot2::theme(legend.position="none") # remove legend for easy viewing
@@ -278,11 +279,11 @@ plotRaw <- function(tiffdata,
   if(missing(meshdata)!=T){
     meshdata <- meshdata[order(meshdata$frame, meshdata$cell, meshdata$num),]
     plotcells <- plotcells + #plot made above
-      ggplot2::geom_path(data=meshdata[meshdata$frame==frameN,], ggplot2::aes(x=X,y=Y, group=cell), color=meshcolor) #add outline of cells, only frame one, white color
+      ggplot2::geom_path(data=meshdata[meshdata$frame==frameN,], ggplot2::aes_string(x='X',y='Y', group='cell'), color=meshcolor) #add outline of cells, only frame one, white color
   }
   if(missing(spotdata)!=T){
     plotcells <- plotcells +
-      ggplot2::geom_point(data=spotdata[spotdata$frame==frameN,], ggplot2::aes(x=x,y=y), shape=1, color=spotcolor)# add yellow empty dots of our spot localizations on top
+      ggplot2::geom_point(data=spotdata[spotdata$frame==frameN,], ggplot2::aes_string(x='x',y='y'), shape=1, color=spotcolor)# add yellow empty dots of our spot localizations on top
   }
   return(plotcells)
 }
@@ -305,7 +306,7 @@ prepForKymo <- function(turnedCells, dimension="length", bins = 25, sizeAV=FALSE
       U$group <- unlist(lapply(unique(U$cell), function(x) cut(U$Y_rot[U$cell==x], breaks=bins, labels= c(1:bins))))
     }
 
-    Umeans <- suppressWarnings(lapply(unique(U$cell), function(x) aggregate(U[U$cell==x,], by=list(U$group[U$cell==x]), FUN=mean, na.rm=T)))
+    Umeans <- suppressWarnings(lapply(unique(U$cell), function(x) stats::aggregate(U[U$cell==x,], by=list(U$group[U$cell==x]), FUN=mean, na.rm=T)))
 
     Umeansall <- do.call('rbind', Umeans)
 
@@ -392,11 +393,11 @@ bactKymo <- function(originalCells, timeD = FALSE, dimension = "length", bins=25
    originalCells$cell <- 1
 
    if(sizeAV==FALSE){
-     originalCells <- aggregate(originalCells[,colnames(originalCells)[colnames(originalCells)!="group"&colnames(originalCells)!="frame"&colnames(originalCells)!="percentage_binned"]],
+     originalCells <- stats::aggregate(originalCells[,colnames(originalCells)[colnames(originalCells)!="group"&colnames(originalCells)!="frame"&colnames(originalCells)!="percentage_binned"]],
                          by=list(group=originalCells$group, frame=originalCells$frame),FUN=mean)
    }
    if(sizeAV==TRUE){
-     originalCells <- aggregate(originalCells[,colnames(originalCells)[colnames(originalCells)!="group"&colnames(originalCells)!="frameh"&colnames(originalCells)!="frame"&colnames(originalCells)!="percentage_binned"]],
+     originalCells <- stats::aggregate(originalCells[,colnames(originalCells)[colnames(originalCells)!="group"&colnames(originalCells)!="frameh"&colnames(originalCells)!="frame"&colnames(originalCells)!="percentage_binned"]],
                       by=list(group=originalCells$group, frameh=originalCells$frameh, frame=originalCells$frame), FUN=mean)
 
      originalCells$x_coords[originalCells$frameh=="a"|originalCells$frameh=="d"] <- originalCells$frame[originalCells$frameh=="a"|originalCells$frameh=="d"] + 0.5
@@ -423,10 +424,10 @@ bactKymo <- function(originalCells, timeD = FALSE, dimension = "length", bins=25
               \n if you want to plot a specific group of cells as a demograph, put 'cells' to a vector identifying the cell numbers")
       }
     }
-    originalCells <- originalCells[originalCells$values<quantile(originalCells$values, cutoff_demograph),]
+    originalCells <- originalCells[originalCells$values<stats::quantile(originalCells$values, cutoff_demograph),]
 
     if(dimension=="length"&sizeAV==FALSE){
-      plot1 <- ggplot2::ggplot(originalCells, ggplot2::aes(x=cellnum.length,y=group, fill=values)) +
+      plot1 <- ggplot2::ggplot(originalCells, ggplot2::aes_string(x='cellnum.length',y='group', fill='values')) +
         ggplot2::geom_raster() +
         ggplot2::coord_fixed(ratio=20) +
         ggplot2::theme_minimal() +
@@ -444,7 +445,8 @@ bactKymo <- function(originalCells, timeD = FALSE, dimension = "length", bins=25
         originalCells$y_coords <- originalCells$y_coords * unlist(get(magnificationList, envir=magEnv)[mag])
         measure <- "micron"
       }
-      plot1 <- ggplot2::ggplot(originalCells, ggplot2::aes(x=cellnum.length,y=y_coords, group=paste(X_rot, cell, frame, pointN, sep="_"), fill=values)) +
+      originalCells$grouping <- paste(originalCells$X_rot, originalCells$cell, originalCells$frame, originalCells$pointN, sep="_")
+      plot1 <- ggplot2::ggplot(originalCells, ggplot2::aes_string(x='cellnum.length',y='y_coords', group= 'grouping', fill='values')) +
         ggplot2::geom_polygon() +
         ggplot2::theme_minimal() +
         ggplot2::xlab("n(th) cell ordered by cell length") +
@@ -453,7 +455,7 @@ bactKymo <- function(originalCells, timeD = FALSE, dimension = "length", bins=25
         ggplot2::theme(legend.position=pos)
     }
     if(dimension=="width"&sizeAV==FALSE){
-      plot1 <- ggplot2::ggplot(originalCells, ggplot2::aes(x=cellnum.width,y=group, fill=values)) +
+      plot1 <- ggplot2::ggplot(originalCells, ggplot2::aes_string(x='cellnum.width',y='group', fill='values')) +
         ggplot2::geom_raster() +
         ggplot2::coord_fixed(ratio=20) +
         ggplot2::theme_minimal() +
@@ -470,7 +472,8 @@ bactKymo <- function(originalCells, timeD = FALSE, dimension = "length", bins=25
         originalCells$y_coords <- originalCells$y_coords * unlist(get(magnificationList, envir=magEnv)[mag])
         measure <- "micron"
       }
-      plot1 <- ggplot2::ggplot(originalCells, ggplot2::aes(x=cellnum.width,y=y_coords, group=paste(X_rot, cell, frame, pointN, sep="_"), fill=values)) +
+      originalCells$grouping <- paste(originalCells$X_rot, originalCells$cell, originalCells$frame, originalCells$pointN, sep="_")
+      plot1 <- ggplot2::ggplot(originalCells, ggplot2::aes_string(x='cellnum.width',y='y_coords', group='grouping', fill='values')) +
         ggplot2::geom_polygon() +
         ggplot2::theme_minimal() +
         ggplot2::xlab("n(th) cell ordered by cell width") +
@@ -483,7 +486,7 @@ bactKymo <- function(originalCells, timeD = FALSE, dimension = "length", bins=25
   if(timeD==TRUE&sizeAV==FALSE&percDiv==FALSE){
     if(cells=="all"){
       plot1 <- lapply(unique(originalCells$cell), function(x) ggplot2::ggplot(originalCells[originalCells$cell==x,]) +
-                        ggplot2::geom_raster(ggplot2::aes(x=frame, y=group, fill=values)) +
+                        ggplot2::geom_raster(ggplot2::aes_string(x='frame', y='group', fill='values')) +
                         ggplot2::theme_minimal() +
                         ggplot2::xlab("Time (frames)") +
                         ggplot2::ylab(paste("bin (by cell ", dimension, ")", sep="")) +
@@ -495,7 +498,7 @@ bactKymo <- function(originalCells, timeD = FALSE, dimension = "length", bins=25
     }
     if(is.numeric(cells)==TRUE&length(cells)>1){
       plot1 <- lapply(cells, function(x) ggplot2::ggplot(originalCells[originalCells$cell==x,]) +
-                        ggplot2::geom_raster(ggplot2::aes(x=frame, y=group, fill=values)) +
+                        ggplot2::geom_raster(ggplot2::aes_string(x='frame', y='group', fill='values')) +
                         ggplot2::theme_minimal() +
                         ggplot2::xlab("Time (frames)") +
                         ggplot2::ylab(paste("bin (by cell ", dimension, ")", sep="")) +
@@ -507,7 +510,7 @@ bactKymo <- function(originalCells, timeD = FALSE, dimension = "length", bins=25
     }
     if(is.numeric(cells)==TRUE&length(cells)==1){
       plot1 <- ggplot2::ggplot(originalCells[originalCells$cell==cells,]) +
-        ggplot2::geom_raster(ggplot2::aes(x=frame, y=group, fill=values)) +
+        ggplot2::geom_raster(ggplot2::aes_string(x='frame', y='group', fill='values')) +
         ggplot2::theme_minimal() +
         ggplot2::xlab("Time (frames)") +
         ggplot2::ylab(paste("bin (by cell ", dimension, ")", sep="")) +
@@ -528,9 +531,9 @@ bactKymo <- function(originalCells, timeD = FALSE, dimension = "length", bins=25
         #originalCells$x_coords <- originalCells$x_coords * unlist(get(magnificationList, envir=magEnv)[mag])
         measure <- "micron"
       }
-
+        originalCells$grouping <- paste(originalCells$X_rot, originalCells$pointN, originalCells$values, sep="_")
         plot1 <- lapply(unique(originalCells$cell[order(originalCells$cell)]), function(x) ggplot2::ggplot(originalCells[originalCells$cell==x,]) +
-                          ggplot2::geom_polygon(ggplot2::aes(x=x_coords, y=y_coords, fill=values, group=paste(X_rot,pointN,values))) +
+                          ggplot2::geom_polygon(ggplot2::aes_string(x='x_coords', y='y_coords', fill='values', group='grouping')) +
                           ggplot2::theme_minimal() +
                           ggplot2::xlab("Time (frames)") +
                           ggplot2::ylab(paste(dimension, " (in ", measure, ")", sep="")) +
@@ -548,8 +551,9 @@ bactKymo <- function(originalCells, timeD = FALSE, dimension = "length", bins=25
         originalCells$x_coords <- originalCells$x_coords * unlist(get(magnificationList, envir=magEnv)[mag])
         measure <- "micron"
       }
+      originalCells$grouping <- paste(originalCells$X_rot, originalCells$pointN, originalCells$values, sep="_")
       plot1 <- lapply(cells, function(x) ggplot2::ggplot(originalCells[originalCells$cell==x,]) +
-                        ggplot2::geom_polygon(ggplot2::aes(x=x_coords, y=y_coords, fill=values, group=paste(X_rot, pointN,values))) +
+                        ggplot2::geom_polygon(ggplot2::aes_string(x='x_coords', y='y_coords', fill='values', group='grouping')) +
                         ggplot2::theme_minimal() +
                         ggplot2::xlab("Time (frames)") +
                         ggplot2::ylab(paste(dimension, " (in ", measure, ")", sep="")) +
@@ -565,13 +569,14 @@ bactKymo <- function(originalCells, timeD = FALSE, dimension = "length", bins=25
         originalCells$x_coords <- originalCells$x_coords * unlist(get(magnificationList, envir=magEnv)[mag])
         measure <- "micron"
       }
+      originalCells$grouping <- paste(originalCells$X_rot, originalCells$pointN, originalCells$values, sep="_")
       plot1 <- ggplot2::ggplot(originalCells[originalCells$cell==cells,]) +
-        ggplot2::geom_polygon(ggplot2::aes(x=x_coords, y=y_coords, fill=values, group=paste(X_rot,pointN,values))) +
+        ggplot2::geom_polygon(ggplot2::aes_string(x='x_coords', y='y_coords', fill='values', group='grouping')) +
         ggplot2::theme_minimal() +
         ggplot2::xlab("Time (frames)") +
         ggplot2::ylab(paste(dimension, " (in ", measure, ")", sep="")) +
         ggplot2::scale_fill_viridis_c() +
-        ggplot2::ggtitle(paste("Cell", x, sep=" ")) +
+        ggplot2::ggtitle(paste("Cell", cells, sep=" ")) +
         ggplot2::theme(legend.position=pos)
     }
     if(cells!="all" & is.numeric(cells)==FALSE){
@@ -581,7 +586,7 @@ bactKymo <- function(originalCells, timeD = FALSE, dimension = "length", bins=25
 
   if(percDiv==TRUE&sizeAV==FALSE){
     plot1 <- ggplot2::ggplot(originalCells) +
-      ggplot2::geom_raster(ggplot2::aes(x=frame, y=group, fill=values)) +
+      ggplot2::geom_raster(ggplot2::aes_string(x='frame', y='group', fill='values')) +
       ggplot2::theme_minimal() +
       ggplot2::xlab("Percentage of division") +
       ggplot2::ylab(paste("length (by cell ", dimension, ")", sep="")) +
@@ -596,8 +601,11 @@ bactKymo <- function(originalCells, timeD = FALSE, dimension = "length", bins=25
       #originalCells$x_coords <- originalCells$x_coords * unlist(get(magnificationList, envir=magEnv)[mag])
       measure <- "micron"
     }
+    originalCells$grouping <- paste(originalCells$X_rot, originalCells$values, sep="_")
+    originalCells$x_coords <- originalCells$x_coords*10
+
     plot1 <- ggplot2::ggplot(originalCells) +
-      ggplot2::geom_polygon(ggplot2::aes(x=x_coords*10, y=y_coords, fill=values, group=paste(X_rot,values))) +
+      ggplot2::geom_polygon(ggplot2::aes_string(x='x_coords', y='y_coords', fill='values', group='grouping')) +
       ggplot2::theme_minimal() +
       ggplot2::xlab("Percentage of division") +
       ggplot2::ylab(paste("length by cell ", dimension, "( in", measure, ")", sep="")) +

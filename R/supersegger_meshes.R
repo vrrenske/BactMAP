@@ -133,11 +133,11 @@ bindallcellsandmeshes <- function(cellflip, cellmask, timelapse=TRUE){
 extr_SuperSeggerCells <- function(loc, frames, mag, timelapse=FALSE, startframe=0){
   if (!requireNamespace("R.matlab", quietly = TRUE)) {
     inp <- readline("Package 'R.matlab' and 'raster' needed for this function to work. Press 'y' to install, or any other key to cancel.")
-    if(inp=="y"|inp=="Y"){install.packages(c("R.matlab", "raster"))}else{stop("Canceled")}
+    if(inp=="y"|inp=="Y"){utils::install.packages(c("R.matlab", "raster"))}else{stop("Canceled")}
   }
   if (!requireNamespace("raster", quietly = TRUE)) {
     inp <- readline("Package 'raster' needed for this function to work. Press 'y' to install, or any other key to cancel.")
-    if(inp=="y"|inp=="Y"){install.packages("raster")}else{stop("Canceled")}
+    if(inp=="y"|inp=="Y"){utils::install.packages("raster")}else{stop("Canceled")}
   }
 
   segcells <- readallsegcells(frames=frames, loc=loc, startframe = startframe)

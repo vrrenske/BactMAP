@@ -10,15 +10,15 @@
 extr_SuperSeggerClist <- function(matfile, trim.orphans=TRUE){
   if (!requireNamespace("R.matlab", quietly = TRUE)) {
     inp <- readline("Packages 'R.matlab' needed for this function to work. Press 'y' to install, or any other key to cancel.")
-    if(inp=="y"|inp=="Y"){install.packages("R.matlab")}else{stop("Canceled")}
+    if(inp=="y"|inp=="Y"){utils::install.packages("R.matlab")}else{stop("Canceled")}
   }
   if (!requireNamespace("igraph", quietly = TRUE)) {
     inp <- readline("Packages 'igraph' needed for this function to work. Press 'y' to install, or any other key to cancel.")
-    if(inp=="y"|inp=="Y"){install.packages("igraph")}else{stop("Canceled")}
+    if(inp=="y"|inp=="Y"){utils::install.packages("igraph")}else{stop("Canceled")}
   }
   if (!requireNamespace("ape", quietly = TRUE)) {
     inp <- readline("Packages 'ape' needed for this function to work. Press 'y' to install, or any other key to cancel.")
-    if(inp=="y"|inp=="Y"){install.packages("ape")}else{stop("Canceled")}
+    if(inp=="y"|inp=="Y"){utils::install.packages("ape")}else{stop("Canceled")}
   }
   clist <- R.matlab::readMat(matfile)
   datasegger <- as.data.frame(clist$data)
@@ -51,12 +51,15 @@ extr_SuperSeggerClist <- function(matfile, trim.orphans=TRUE){
   return(out)
 }
 
+
+#' @importFrom utils install.packages
+#' @importFrom ggtree %<+%
 #' @export
 plotTreeBasic <- function(phylo, extradata, yscalechange = FALSE, showClade = FALSE, layout = "rectangular", ydata, cellNumber, open.angle, linesize = 1, linecolor = "black", lines=TRUE, colors=FALSE){
   if (!requireNamespace("ggtree", quietly = TRUE)) {
     inp <- readline("Packages 'ggtree' needed for this function to work. Press 'y' to install, or any other key to cancel.")
     if(inp=="y"|inp=="Y"){
-        if (!requireNamespace("BiocManager", quietly = TRUE))install.packages("BiocManager")
+        if (!requireNamespace("BiocManager", quietly = TRUE))utils::install.packages("BiocManager")
       BiocManager::install("ggtree", version = "3.8")
     }
   }
@@ -65,19 +68,17 @@ plotTreeBasic <- function(phylo, extradata, yscalechange = FALSE, showClade = FA
     NodeNumber <- extradata$node[extradata$cell==cellNumber]
     phylo <- ggtree::groupClade(phylo, .node=NodeNumber)
     if(lines==T&colors==F){
-      gP <- ggtree::ggtree(phylo, layout=layout, open.angle=open.angle, aes(linetype=group), size=linesize, color=linecolor)
+      gP <- ggtree::ggtree(phylo, layout=layout, open.angle=open.angle, ggplot2::aes_string(linetype='group'), size=linesize, color=linecolor)
     }
     if(lines==F&colors==T){
-      gP <- ggtree::ggtree(phylo, layout=layout, open.angle=open.angle, aes(color=group), size=linesize)
+      gP <- ggtree::ggtree(phylo, layout=layout, open.angle=open.angle, ggplot2::aes_string(color='group'), size=linesize)
     }
     if(lines==T&colors==T){
-      gP <- ggtree::ggtree(phylo, layout=layout, open.angle=open.angle, aes(linetype=group, color=group), size=linesize)
+      gP <- ggtree::ggtree(phylo, layout=layout, open.angle=open.angle, ggplot2::aes_string(linetype='group', color='group'), size=linesize)
     }
   }
   if(showClade!=TRUE){gP <- ggtree::ggtree(phylo, layout=layout, open.angle=open.angle, size=linesize, color=linecolor)}
-  if(!missing(extradata)){
-    gP <- gP %<+% extradata
-  }
+  gP <- gP %<+% extradata
   if(yscalechange==TRUE){
     if(missing(ydata)){stop("Variable 'ydata' missing. Don't know what values to put on the y axis. Please give the column name of your data as 'ydata' in the function")}
     gP$data$y <- gP$data[,ydata]
@@ -87,9 +88,9 @@ plotTreeBasic <- function(phylo, extradata, yscalechange = FALSE, showClade = FA
 }
 
 getphylolist_SupSeg <- function(CLT, prep=FALSE){
-  if(prep==TRUE){
-    CLT <- prepcellListtree(CLT)
-  }
+  #if(prep==TRUE){
+   # CLT <- prepcellListtree(CLT)
+  #}
   phylolist <- list()
   fulldatlist <- list()
   z <- 0

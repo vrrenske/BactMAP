@@ -8,7 +8,7 @@
 #library(ggplot2)
 #library(ggthemes)
 #library(gridExtra)
-#library(scales)
+
 
 ##Set the pixel to um conversion
 #' @export
@@ -52,19 +52,19 @@ getPixels2um <- function(){
 
 ##merge spotfiles with only raw coordinates with mesh file with only raw data. add mesh length/width while on it.
 #' @export
-spotsInBox <- function(spotdata, mesh, Xs = "x", Ys = "y", Xm = "X", Ym = "Y"){
+spotsInBox <- function(spotdata, meshdata, Xs = "x", Ys = "y", Xm = "X", Ym = "Y"){
   if (!requireNamespace("shotGroups", quietly = TRUE)) {
     inp <- readline("Package 'shotGroups' needed for this function to work. Press 'y' to install, or any other key to cancel.")
-    if(inp=="y"|inp=="Y"){install.packages("shotGroups")}else{stop("Canceled")}
+    if(inp=="y"|inp=="Y"){utils::install.packages("shotGroups")}else{stop("Canceled")}
   }
   if (!requireNamespace("SDMTools", quietly = TRUE)) {
     inp <- readline("Package 'SDMTools' needed for this function to work. Press 'y' to install, or any other key to cancel.")
-    if(inp=="y"|inp=="Y"){install.packages("SDMTools")}else{stop("Canceled")}
+    if(inp=="y"|inp=="Y"){utils::install.packages("SDMTools")}else{stop("Canceled")}
   }
   #q <- 0
   #b <- 0
    #rewrite colnames if not the same as suggested
-  pb <- txtProgressBar(min=0, max=100, title="Total Progress SpotsInBox:")
+  pb <- utils::txtProgressBar(min=0, max=100, title="Total Progress SpotsInBox:")
   if(Xs!="x"){
     colnames(spotdata)[colnames(spotdata)==Xs] <- "x"
   }
@@ -72,49 +72,49 @@ spotsInBox <- function(spotdata, mesh, Xs = "x", Ys = "y", Xm = "X", Ym = "Y"){
     colnames(spotdata)[colnames(spotdata)==Ys] <- "y"
   }
   if(Xm!="X"){
-    colnames(mesh)[colnames(mesh)==Xm] <- "X"
+    colnames(meshdata)[colnames(meshdata)==Xm] <- "X"
   }
   if(Ym!="Y"){
-    colnames(mesh)[colnames(mesh)==Ym] <- "Y"
+    colnames(meshdata)[colnames(meshdata)==Ym] <- "Y"
   }
 
-  if("max.width"%in%colnames(mesh)==T){u <- 1}
-  if("max.width"%in%colnames(mesh)==F){u<-2}
+  if("max.width"%in%colnames(meshdata)==T){u <- 1}
+  if("max.width"%in%colnames(meshdata)==F){u<-2}
 
-  if("length"%in%colnames(mesh)==T){a <- 1}
-  if("length"%in%colnames(mesh)==F){a<-2} #if length and max width are already defined, don't touch them.
-  setTxtProgressBar(pb, 5)
+  if("length"%in%colnames(meshdata)==T){a <- 1}
+  if("length"%in%colnames(meshdata)==F){a<-2} #if length and max width are already defined, don't touch them.
+  utils::setTxtProgressBar(pb, 5)
 
 #for-loop to re-write
-  #cellframe_mesh <- paste(mesh$cell, mesh$frame, sep="_")
+  #cellframe_meshdata <- paste(meshdata$cell, meshdata$frame, sep="_")
   if (!requireNamespace("pbapply", quietly = TRUE)) {
-    o <- lapply(unique(mesh$frame), function(x) lapply(unique(mesh[mesh$frame==x,]$cell), function(y) getSpotsInBox(meshp=mesh[mesh$frame==x&mesh$cell==y,],
+    o <- lapply(unique(meshdata$frame), function(x) lapply(unique(meshdata[meshdata$frame==x,]$cell), function(y) getSpotsInBox(meshp=meshdata[meshdata$frame==x&meshdata$cell==y,],
                                                                                                                                spotdatap=spotdata[spotdata$frame==x,],
                                                                                                                                u,
                                                                                                                                a)))
   }
   if (requireNamespace("pbapply", quietly = TRUE)) {
-    o <- pbapply::pblapply(unique(mesh$frame), function(x) lapply(unique(mesh[mesh$frame==x,]$cell), function(y) getSpotsInBox(meshp=mesh[mesh$frame==x&mesh$cell==y,],
+    o <- pbapply::pblapply(unique(meshdata$frame), function(x) lapply(unique(meshdata[meshdata$frame==x,]$cell), function(y) getSpotsInBox(meshp=meshdata[meshdata$frame==x&meshdata$cell==y,],
                                                                                                                      spotdatap=spotdata[spotdata$frame==x,],
                                                                                                                      u,
                                                                                                                    a)))
   }
 
-  setTxtProgressBar(pb, 45)
-  #min.i <- min(mesh$frame)
-  #for(i in unique(mesh$frame)){ #per frame
-    #min.n <- min(mesh$cell[mesh$frame==i])
+  utils::setTxtProgressBar(pb, 45)
+  #min.i <- min(meshdata$frame)
+  #for(i in unique(meshdata$frame)){ #per frame
+    #min.n <- min(meshdata$cell[meshdata$frame==i])
     #spotdatap <- spotdata[spotdata$frame==i,]
-    #for(n in unique(mesh$cell[mesh$frame==i])){ #per cell
+    #for(n in unique(meshdata$cell[meshdata$frame==i])){ #per cell
     #}
   #}
   outs <- list()
   outs$spots_relative <- do.call('rbind', lapply(o, function(x) do.call('rbind', lapply(x, function(y) y$REP))))
-  setTxtProgressBar(pb,65)
+  utils::setTxtProgressBar(pb,65)
   outs$mesh <-  do.call('rbind', lapply(o, function(x) do.call('rbind', lapply(x, function(y) y$MESH))))
-  setTxtProgressBar(pb, 85)
+  utils::setTxtProgressBar(pb, 85)
   names(outs) <- c("spots_relative", "mesh")
-  setTxtProgressBar(pb, 100)
+  utils::setTxtProgressBar(pb, 100)
   return(outs) #return datasets as list of dataframes
 
 }
@@ -229,11 +229,11 @@ turncell <- function(MESHp, u, rawdatafile, a, n, i, ars){
   if (!requireNamespace("shotGroups", quietly = TRUE)) {
 
     inp <- readline("Package 'shotGroups' needed for this function to work. Press 'y' to install, or any other key to cancel.")
-    if(inp=="y"|inp=="Y"){install.packages("shotGroups")}else{stop("Canceled")}
+    if(inp=="y"|inp=="Y"){utils::install.packages("shotGroups")}else{stop("Canceled")}
   }
   if (!requireNamespace("sp", quietly = TRUE)) {
     inp <- readline("Package 'sp' needed for this function to work. Press 'y' to install, or any other key to cancel.")
-    if(inp=="y"|inp=="Y"){install.packages("sp")}else{stop("Canceled")}
+    if(inp=="y"|inp=="Y"){utils::install.packages("sp")}else{stop("Canceled")}
   }
   box <- suppressWarnings(shotGroups::getMinBBox(data.frame(x= MESHp$X, y=MESHp$Y))) #bounding box of cell
   lengthwidth <- c(box$width, box$height)
@@ -425,7 +425,7 @@ spotMR <- function(dat){
 centrefun <- function(dat, xie="ob_x", yie="ob_y"){
   if (!requireNamespace("shotGroups", quietly = TRUE)) {
     inp <- readline("Package 'shotGroups' needed for this function to work. Press 'y' to install, or any other key to cancel.")
-    if(inp=="y"|inp=="Y"){install.packages("shotGroups")}else{stop("Canceled")}
+    if(inp=="y"|inp=="Y"){utils::install.packages("shotGroups")}else{stop("Canceled")}
   }
   dat <- dat[!is.na(dat$ob_x),]
   dat$centre_x <- NA

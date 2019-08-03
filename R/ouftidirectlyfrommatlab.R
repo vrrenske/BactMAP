@@ -14,7 +14,7 @@
 extr_OuftiCellList <- function(matfile){
   if (!requireNamespace("R.matlab", quietly = TRUE)) {
     inp <- readline("Package 'R.matlab' needed for this function to work. Press 'y' to install, or any other key to cancel.")
-    if(inp=="y"|inp=="Y"){install.packages("R.matlab")}else{stop("Canceled")}
+    if(inp=="y"|inp=="Y"){utils::install.packages("R.matlab")}else{stop("Canceled")}
   }
   matlist <- R.matlab::readMat(matfile)
   matcellList <- matlist$cellList[[1]]
@@ -141,7 +141,7 @@ extr_Oufti <- function(matfile, mag="No_PixelCorrection", phylo=FALSE){
   if("signal1"%in%colnames(outlist$cellList)){
     if(length(unique(outlist$signal1))>1){
       outlist$cellList$mean.signal <- unlist(lapply(outlist$cellList$signal1, function(x) mean(x)))
-      outlist$cellList$sd.signal <- unlist(lapply(outlist$cellList$signal1, function(x) sd(x)))
+      outlist$cellList$sd.signal <- unlist(lapply(outlist$cellList$signal1, function(x) stats::sd(x)))
     }
   }
   Mesh <- spotrXYMESH(Mesh)
@@ -187,7 +187,7 @@ extr_Oufti <- function(matfile, mag="No_PixelCorrection", phylo=FALSE){
   if(phylo == TRUE){
     if(length(cellList$descendants)>1){
       message("Getting phylogenies from ancestor/descendants information...")
-      cellList$parent <- as.numeric(lapply(cellList$ancestors, function(x) tail(as.numeric(x), n=1)))
+      cellList$parent <- as.numeric(lapply(cellList$ancestors, function(x) utils::tail(as.numeric(x), n=1)))
       cellList$parent[is.na(cellList$parent)] <- 0
       cellList$child1 <- as.numeric(lapply(cellList$descendants, function(x) as.numeric(x)[1]))
       cellList$child2 <- as.numeric(lapply(cellList$descendants, function(x) as.numeric(x)[2]))

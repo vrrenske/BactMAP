@@ -7,8 +7,8 @@ sprOuftipickfile <- function(cellListfile){
   if(missing(cellListfile)){
   cellListfile = file.choose()
   }
-  cellList <-read.delim(cellListfile, header=FALSE)
-  listname=basename(cellListfile)
+  cellList <- utils::read.delim(cellListfile, header=FALSE)
+  #listname=basename(cellListfile)
 #find line where the relevant meshdata starts
   startnum <- which((substring(as.character(cellList$V1), 1, 5) == "frame"))
 #get column names

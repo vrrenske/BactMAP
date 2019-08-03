@@ -35,10 +35,16 @@ plotTracks <- function(meshdata,
             meshdata$Yrotum <- meshdata$Y_rot*unlist(get(magnificationList,envir=magEnv)[mag])
           }
         }
-        outplot <- outplot +  ggplot2::geom_polygon(data=meshdata, ggplot2::aes(x=Xrotum, y=Yrotum, color=frame, group=frame), fill="black", alpha=transparency/5)
+        outplot <- outplot +
+          ggplot2::geom_polygon(data=meshdata,
+                                ggplot2::aes_string(x='Xrotum', y='Yrotum', color='frame', group='frame'),
+                                fill="black", alpha=transparency/5)
       }
       if(turn_cells==FALSE){
-        outplot <- outplot + ggplot2::geom_polygon(data=meshdata, ggplot2::aes(x=X, y=Y, color=frame, group=frame), fill="black", alpha=transparency/5)
+        outplot <- outplot +
+          ggplot2::geom_polygon(data=meshdata,
+                                ggplot2::aes_string(x='X', y='Y', color='frame', group='frame'),
+                                fill="black", alpha=transparency/5)
       }
     }
   }
@@ -51,24 +57,31 @@ plotTracks <- function(meshdata,
       if("ob_out_x"%in%colnames(objectdata)!=TRUE){
         if("ob_x"%in%colnames(objectdata)!=TRUE){
           stop("Cannot find object cobjectdatardinate data (ob_out_x/ob_out_y for turned cells, ob_x/ob_y for raw cobjectdatardinates.")
-          if(missing(meshdata)){
+
+          }
+        if(missing(meshdata)){
             stop("Cannot find turned object data or mesh information to connect the objects to the cell localizations.
                      Replace object dataframe for a dataframe (object_relative) containing this information or add mesh data to convert dataframe.")
           }
-          if(missing(mag)){
+        if(missing(mag)){
             stop("Need pixel to micron conversion factor 'mag' to correctly connect mesh to object data.")
           }
 
-          objectdata <- suppressWarnings(centrefun(objectframe))
-          objectdata <- suppressWarnings(midobject(meshdata, objectframe, get(magnificationList,envir=magEnv)[mag]))
-        }
+          objectdata <- suppressWarnings(centrefun(objectdata))
+          objectdata <- suppressWarnings(midobject(meshdata, objectdata, get(magnificationList,envir=magEnv)[mag]))
       }
+      objectdata$frameOB <- paste(objectdata$frame, objectdata$obID, sep="_")
+
       if("length"%in%dimension&"width"%in%dimension){
-        outplot <- outplot + ggplot2::geom_polygon(data=objectdata, ggplot2::aes(x=ob_out_x,y=ob_out_y, group=(paste(obID,frame)), fill=frame), color="black", alpha=transparency)
+
+        outplot <- outplot +
+          ggplot2::geom_polygon(data=objectdata,
+                                ggplot2::aes_string(x='ob_out_x',y='ob_out_y', group='frameOB', fill='frame'),
+                                color="black", alpha=transparency)
       }
       if("length"%in%dimension&!"width"%in%dimension){
-        Om <- aggregate(objectdata[,c("ob_out_x", "pole1", "pole2")], by=list("cell"=objectdata$cell, "frame"=objectdata$frame, "obID"=objectdata$obID), FUN=max)
-        Omin <- aggregate(objectdata[,c("ob_out_x", "pole1", "pole2")], by=list("cell"=objectdata$cell, "frame"=objectdata$frame, "obID"=objectdata$obID), FUN=min)
+        Om <- stats::aggregate(objectdata[,c("ob_out_x", "pole1", "pole2")], by=list("cell"=objectdata$cell, "frame"=objectdata$frame, "obID"=objectdata$obID), FUN=max)
+        Omin <- stats::aggregate(objectdata[,c("ob_out_x", "pole1", "pole2")], by=list("cell"=objectdata$cell, "frame"=objectdata$frame, "obID"=objectdata$obID), FUN=min)
         Om$obxmax <- Om$ob_out_x
         Om$ob_out_x <- NULL
         Omin$obxmin <- Omin$ob_out_x
@@ -77,16 +90,20 @@ plotTracks <- function(meshdata,
 
         objectdata$framemin <- objectdata$frame - 0.1
         objectdata$framemax <- objectdata$frame + 0.1
-        outplot <- outplot + ggplot2::geom_rect(data=objectdata, ggplot2::aes(xmin = obxmin, xmax=obxmax, ymin=framemin, ymax = framemax, group=paste(obID, frame), fill=frame))
+        outplot <- outplot +
+          ggplot2::geom_rect(data=objectdata,
+                             ggplot2::aes_string(xmin = 'obxmin', xmax='obxmax', ymin='framemin', ymax = 'framemax', group='frameOB', fill='frame'))
         if(missing(spotdata)){
           objectdata <- objectdata[order(objectdata$cell, objectdata$frame),]
-          outplot <- outplot + ggplot2::geom_path(data=objectdata, ggplot2::aes(x=pole1, y=frame)) + ggplot2::geom_path(data=objectdata, ggplot2::aes(x=pole2, y=frame))
+          outplot <- outplot +
+            ggplot2::geom_path(data=objectdata, ggplot2::aes_string(x='pole1', y='frame')) +
+            ggplot2::geom_path(data=objectdata, ggplot2::aes_string(x='pole2', y='frame'))
           outplot <- outplot + ggplot2::xlab("location on cell length axis (\u00b5m)") + ggplot2::ylab("Time (Frames)")
         }
       }
       if(!"length"%in%dimension&"width"%in%dimension){
-        Om <- aggregate(objectdata[,c("ob_out_y", "maxwum")], by=list("cell"=objectdata$cell, "frame"=objectdata$frame, "obID"=objectdata$obID), FUN=max)
-        Omin <- aggregate(objectdata[,c("ob_out_y", "maxwum")], by=list("cell"=objectdata$cell, "frame"=objectdata$frame, "obID"=objectdata$obID), FUN=min)
+        Om <- stats::aggregate(objectdata[,c("ob_out_y", "maxwum")], by=list("cell"=objectdata$cell, "frame"=objectdata$frame, "obID"=objectdata$obID), FUN=max)
+        Omin <- stats::aggregate(objectdata[,c("ob_out_y", "maxwum")], by=list("cell"=objectdata$cell, "frame"=objectdata$frame, "obID"=objectdata$obID), FUN=min)
         Om$obymax <- Om$ob_out_y
         Om$ob_out_y <- NULL
         Omin$obymin <- Omin$ob_out_y
@@ -95,23 +112,35 @@ plotTracks <- function(meshdata,
 
         objectdata$framemin <- objectdata$frame - 0.1
         objectdata$framemax <- objectdata$frame + 0.1
-        outplot <- outplot + ggplot2::geom_rect(data=objectdata, ggplot2::aes(xmin = obymin, xmax=obymax, ymin=framemin, ymax = framemax, group=paste(obID, frame), fill=frame))
+
+        outplot <- outplot +
+          ggplot2::geom_rect(data=objectdata,
+                             ggplot2::aes_string(xmin = 'obymin', xmax='obymax', ymin='framemin', ymax = 'framemax', group='frameOB', fill='frame'))
+
         if(missing(spotdata)){
           objectdata$pole1 <- objectdata$maxwum/2
           objectdata$pole2 <- objectdata$pole1*-1
           objectdata <- objectdata[order(objectdata$cell, objectdata$frame),]
-          outplot <- outplot + geom_path(data=objectdata, aes(x=pole1, y=frame)) + geom_path(data=objectdata, aes(x=pole2, y=frame))
-          outplot <- outplot + ggplot2::xlab("location on cell length axis (\u00b5m)") + ggplot2::ylab("Time (Frames)")}
+
+          outplot <- outplot +
+            ggplot2::geom_path(data=objectdata, ggplot2::aes_string(x='pole1', y='frame')) +
+            ggplot2::geom_path(data=objectdata, ggplot2::aes_string(x='pole2', y='frame'))
+
+          outplot <- outplot +
+            ggplot2::xlab("location on cell length axis (\u00b5m)") +
+            ggplot2::ylab("Time (Frames)")}
       }
     }
     if(turn_cells!=TRUE&"length"%in%dimension&"width"%in%dimension){
       if("ob_x"%in%colnames(objectdata)!=TRUE){
-        stop("Cannot find object cobjectdatardinates 'ob_x'/'ob_y'.")
+        stop("Cannot find object coordinates 'ob_x'/'ob_y'.")
       }
-      outplot <- outplot + ggplot2::geom_polygon(data=objectdata, ggplot2::aes(x=ob_x, y=ob_y, group=paste(obID,frame), fill=frame), color="black", alpha=transparency)
+      objectdata$frameOB <- paste(objectdata$frame, objectdata$obID, sep="_")
+      outplot <- outplot +
+        ggplot2::geom_polygon(data=objectdata, ggplot2::aes_string(x='ob_x', y='ob_y', group='frameOB', fill='frame'), color="black", alpha=transparency)
     }
 
-    outplot <- outplot + scale_fill_viridis_c(option=timepalette_fill)
+    outplot <- outplot + ggplot2::scale_fill_viridis_c(option=timepalette_fill)
   }
 
   if(missing(spotdata)!=TRUE){
@@ -135,24 +164,24 @@ plotTracks <- function(meshdata,
         spotdata$Dum <- spotdata$d * unlist(get(magnificationList,envir=magEnv)[mag])
       }
       if("length"%in%dimension&"width"%in%dimension){
-        outplot <- outplot + ggplot2::geom_point(data=spotdata, ggplot2::aes(x=Lmid, y=Dum, color=frame), size=2)
+        outplot <- outplot + ggplot2::geom_point(data=spotdata, ggplot2::aes_string(x='Lmid', y='Dum', color='frame'), size=2)
         if(tracks==TRUE){
-          outplot <- outplot + ggplot2::geom_path(data=spotdata[spotdata$trajectory!=-1,], ggplot2::aes(x=Lmid, y=Dum, group=trajectory, color=frame), size=1)
+          outplot <- outplot + ggplot2::geom_path(data=spotdata[spotdata$trajectory!=-1,], ggplot2::aes_string(x='Lmid', y='Dum', group='trajectory', color='frame'), size=1)
         }
       }
       if("length"%in%dimension&!"width"%in%dimension){
         if("channel"%in%colnames(spotdata)){
-          outplot <- outplot + ggplot2::geom_point(data=spotdata, ggplot2::aes(x=Lmid, y=frame, color=channel), size=2)
+          outplot <- outplot + ggplot2::geom_point(data=spotdata, ggplot2::aes_string(x='Lmid', y='frame', color='channel'), size=2)
         }
         if(!"channel"%in%colnames(spotdata)){
-          outplot <- outplot + ggplot2::geom_point(data=spotdata, ggplot2::aes(x=Lmid, y=frame, color=frame), size=2)
+          outplot <- outplot + ggplot2::geom_point(data=spotdata, ggplot2::aes_string(x='Lmid', y='frame', color='frame'), size=2)
         }
         if(tracks==TRUE){
           if(!"channel"%in%colnames(spotdata)){
-            outplot <- outplot + ggplot2::geom_path(data=spotdata[spotdata$trajectory!=-1,], ggplot2::aes(x=Lmid, y=frame, group=trajectory, color=frame), size=1)
+            outplot <- outplot + ggplot2::geom_path(data=spotdata[spotdata$trajectory!=-1,], ggplot2::aes_string(x='Lmid', y='frame', group='trajectory', color='frame'), size=1)
           }
           if("channel"%in%colnames(spotdata)){
-            outplot <- outplot + ggplot2::geom_path(data=spotdata[spotdata$trajectory!=-1,], ggplot2::aes(x=Lmid, y=frame, group=trajectory, color=channel), size=1)
+            outplot <- outplot + ggplot2::geom_path(data=spotdata[spotdata$trajectory!=-1,], ggplot2::aes_string(x='Lmid', y='frame', group='trajectory', color='channel'), size=1)
           }
         }
 
@@ -163,23 +192,23 @@ plotTracks <- function(meshdata,
           spotdata$pole1 <- 0.5*spotdata$maxum
           spotdata$pole2 <- -spotdata$pole1
           spotdata <- spotdata[order(spotdata$cell, spotdata$frame),]
-          outplot <- outplot + ggplot2::geom_path(data=spotdata, ggplot2::aes(x=pole1, y=frame)) + ggplot2::geom_path(data=spotdata, ggplot2::aes(x=pole2, y=frame))
+          outplot <- outplot + ggplot2::geom_path(data=spotdata, ggplot2::aes_string(x='pole1', y='frame')) + ggplot2::geom_path(data=spotdata, ggplot2::aes_string(x='pole2', y='frame'))
         }
       }
 
       if(!"length"%in%dimension&"width"%in%dimension){
         if("channel"%in%colnames(spotdata)){
-          outplot <- outplot + ggplot2::geom_point(data=spotdata, ggplot2::aes(x=Dum, y=frame, color=channel), size=2)
+          outplot <- outplot + ggplot2::geom_point(data=spotdata, ggplot2::aes_string(x='Dum', y='frame', color='channel'), size=2)
         }
         if(!"channel"%in%colnames(spotdata)){
-          outplot <- outplot + ggplot2::geom_point(data=spotdata, ggplot2::aes(x=Dum, y=frame, color=frame), size=2)
+          outplot <- outplot + ggplot2::geom_point(data=spotdata, ggplot2::aes_string(x='Dum', y='frame', color='frame'), size=2)
         }
         if(tracks==TRUE){
-          if(!"channel"%in%colname(spotdata)){
-            outplot <- outplot + ggplot2::geom_path(data=spotdata[spotdata$trajectory!=-1,], ggplot2::aes(x=Dum, y=frame, group=trajectory, color=frame), size=1)
+          if(!"channel"%in%colnames(spotdata)){
+            outplot <- outplot + ggplot2::geom_path(data=spotdata[spotdata$trajectory!=-1,], ggplot2::aes_string(x='Dum', y='frame', group='trajectory', color='frame'), size=1)
           }
           if("channel"%in%colnames(spotdata)){
-            outplot <- outplot + ggplot2::geom_path(data=spotdata[spotdata$trajectory!=-1,], ggplot2::aes(x=Dum, y=frame, group=trajectory, color=channel), size=1)
+            outplot <- outplot + ggplot2::geom_path(data=spotdata[spotdata$trajectory!=-1,], ggplot2::aes_string(x='Dum', y='frame', group='trajectory', color='channel'), size=1)
 
           }
         }
@@ -190,15 +219,15 @@ plotTracks <- function(meshdata,
           spotdata$pole1 <- 0.5*spotdata$maxwum
           spotdata$pole2 <- -spotdata$pole1
           spotdata <- spotdata[order(spotdata$cell, spotdata$frame),]
-          outplot <- outplot + ggplot2::geom_path(data=spotdata, ggplot2::aes(x=pole1, y=frame)) + ggplot2::geom_path(data=spotdata, ggplot2::aes(x=pole2, y=frame))
+          outplot <- outplot + ggplot2::geom_path(data=spotdata, ggplot2::aes_string(x='pole1', y='frame')) + ggplot2::geom_path(data=spotdata, ggplot2::aes_string(x='pole2', y='frame'))
         }
 
       }
     }
       if(turn_cells==FALSE&"length"%in%dimension&"width"%in%dimension){
-        outplot <- outplot + ggplot2::geom_point(data=spotdata, ggplot2::aes(x=x,y=y, color=frame), size=2)
+        outplot <- outplot + ggplot2::geom_point(data=spotdata, ggplot2::aes_string(x='x',y='y', color='frame'), size=2)
         if(tracks==TRUE){
-          outplot <- outplot + ggplot2::geom_path(data=spotdata[spotdata$trajectory!=-1,], ggplot2::aes(x=x,y=y,group=trajectory, color=frame),size=1)
+          outplot <- outplot + ggplot2::geom_path(data=spotdata[spotdata$trajectory!=-1,], ggplot2::aes_string(x='x',y='y',group='trajectory', color='frame'),size=1)
         }
 
       }

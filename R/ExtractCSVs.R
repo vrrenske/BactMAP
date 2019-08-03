@@ -11,9 +11,9 @@
 extr_MicrobeJMESH <- function(dataloc, sep=","){
   if (!requireNamespace("shotGroups", quietly = TRUE)) {
     inp <- readline("Package 'shotGroups' needed for this function to work. Press 'y' to install, or any other key to cancel.")
-    if(inp=="y"|inp=="Y"){install.packages("shotGroups")}else{stop("Canceled")}
+    if(inp=="y"|inp=="Y"){utils::install.packages("shotGroups")}else{stop("Canceled")}
   }
-  MESH <- read.csv(dataloc, header=T, sep=sep)
+  MESH <- utils::read.csv(dataloc, header=T, sep=sep)
   meshL <- list()
   meshL$cellList <- MESH
   IDlist <- data.frame(NAME.id = unique(MESH$NAME.id), cell = c(1:length(unique(MESH$NAME.id))))
@@ -33,7 +33,7 @@ extr_MicrobeJMESH <- function(dataloc, sep=","){
 
 
 extr_MicrobeJSpots <- function(spotloc ,mag, sep=","){
-  SPOTS <- read.csv(spotloc, header=F, sep=sep)
+  SPOTS <- utils::read.csv(spotloc, header=F, sep=sep)
   colnamesspot <- SPOTS[1,]
   colnamesspot <- colnamesspot[!is.na(colnamesspot)]
   SPOTS <- SPOTS[-1,]
@@ -146,10 +146,10 @@ extr_MicrobeJ <- function(dataloc, spotloc, objectloc, mag, sepspot=",", sepmesh
 #' @export
 extr_ISBatch <- function(dataloc, seperator=","){
   if(substr(dataloc, nchar(dataloc)-3, nchar(dataloc))==".txt"){
-    SPOTS <- read.table(dataloc, header=T, sep="\t")
+    SPOTS <- utils::read.table(dataloc, header=T, sep="\t")
   }
   if(substr(dataloc, nchar(dataloc)-3, nchar(dataloc))==".csv"){
-    SPOTS <- read.csv(dataloc, header=T, sep=seperator)
+    SPOTS <- utils::read.csv(dataloc, header=T, sep=seperator)
   }
   SPOTS$frame  <- SPOTS$slice
   SPOTS$slice <- NULL
@@ -169,10 +169,10 @@ extr_ISBatch <- function(dataloc, seperator=","){
 #' @export
 extr_Spots <- function(dataloc, seperator=","){
   if(substr(dataloc, nchar(dataloc)-3, nchar(dataloc))==".txt"){
-    SPOTS <- read.table(dataloc, header=T, sep=seperator)
+    SPOTS <- utils::read.table(dataloc, header=T, sep=seperator)
   }
   if(substr(dataloc, nchar(dataloc)-3, nchar(dataloc))==".csv"){
-    SPOTS <- read.csv(dataloc, header=T, sep=seperator)
+    SPOTS <- utils::read.csv(dataloc, header=T, sep=seperator)
   }
   colSPOTS <- c("x", "y", "frame")
   if("trajectory"%in%colnames(SPOTS)){
@@ -202,7 +202,7 @@ extr_ObjectJ <- function(dataloc,
   #prepare list for output
   outlist <- list()
   #read out .txt file
-  oj <- read.table(dataloc, header=T, sep="\t")
+  oj <- utils::read.table(dataloc, header=T, sep="\t")
 
   #get a frame count from 1:x
   celldats <- data.frame(Frame=unique(oj$Frame))
@@ -314,13 +314,13 @@ spotrExtractSpotsObjectJ <- function(SF){
 extr_Meshes <- function(dataloc, sep=",", turn=TRUE, mag){
   if (!requireNamespace("shotGroups", quietly = TRUE)) {
     inp <- readline("Package 'shotGroups' needed for this function to work. Press 'y' to install, or any other key to cancel.")
-    if(inp=="y"|inp=="Y"){install.packages("shotGroups")}else{stop("Canceled")}
+    if(inp=="y"|inp=="Y"){utils::install.packages("shotGroups")}else{stop("Canceled")}
   }
   if(substr(dataloc, nchar(dataloc)-3, nchar(dataloc))==".txt"){
-    MESH <- read.table(dataloc, header=T, sep=sep)
+    MESH <- utils::read.table(dataloc, header=T, sep=sep)
   }
   if(substr(dataloc, nchar(dataloc)-3, nchar(dataloc))==".csv"){
-    MESH <- read.csv(dataloc, header=T, sep=sep)
+    MESH <- utils::read.csv(dataloc, header=T, sep=sep)
   }
   meshL <- list()
   meshL$cellList <- MESH

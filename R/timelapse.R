@@ -33,34 +33,34 @@ mark_Division <- function(timelapse){
 
 mark_Percentage <- function(timelapse, av=TRUE){
 
-  division_time <- aggregate(timelapse$frame,
+  division_time <- stats::aggregate(timelapse$frame,
                              by=list(timelapse$cell,
                                      timelapse$division),
                              FUN=min)
   colnames(division_time) <- c("cell", "division", "min_frame")
-  division_time$max_frame <- aggregate(timelapse$frame,
+  division_time$max_frame <- stats::aggregate(timelapse$frame,
                                        by=list(timelapse$cell, timelapse$division),
                                        FUN=max)$x
-  division_time$av_length <- aggregate(timelapse$max.length,
+  division_time$av_length <- stats::aggregate(timelapse$max.length,
                                        by=list(timelapse$cell, timelapse$division),
                                        FUN=mean)$x
-  division_time$length_var <- aggregate(timelapse$max.length,
+  division_time$length_var <- stats::aggregate(timelapse$max.length,
                                         by=list(timelapse$cell,
                                                 timelapse$division),
-                                        FUN=sd)$x
+                                        FUN=stats::sd)$x
   division_time$division_time <- division_time$max_frame-division_time$min_frame
   division_time <- division_time[!is.na(division_time$length_var),]
 
   ##cutoff based on standard deviation of the mean cell length
   division_time$fulldivision <- NA
 
-  cutoff <- median(division_time$length_var, na.rm=T) - sd(division_time$length_var,na.rm=T)
+  cutoff <- stats::median(division_time$length_var, na.rm=T) - stats::sd(division_time$length_var,na.rm=T)
   division_time$fulldivision[division_time$length_var<=cutoff] <- FALSE
 
 
-  ##cutoff based on the total division time.take out based on SD?
-  medtime <- median(division_time$division_time)
-  sdtime <- sd(division_time$division_time)
+  ##cutoff based on the total division time.take out based on stats::sd?
+  medtime <- stats::median(division_time$division_time)
+  sdtime <- stats::sd(division_time$division_time)
 
 
 
@@ -71,13 +71,13 @@ mark_Percentage <- function(timelapse, av=TRUE){
   timelapse <- merge(timelapse, division_time, all=T)
   timelapse$fulldivision[is.na(timelapse$fulldivision)] <- TRUE
 
-  #calculate growth coefficient per cell using lm()
+  #calculate growth coefficient per cell using stats::lm()
   divL <- unique(timelapse[,c("cell", "division")])
   coeff <- data.frame("cell"=divL$cell,
                       "division"=divL$division,
                       "coeff" = unlist(lapply(c(1:nrow(divL)),
-                                              function(x) lm(timelapse[timelapse$cell==divL$cell[[x]]&timelapse$division==divL$division[[x]],c("max.length", "frame")])[[1]][[2]])))
-  medco <- median(coeff$coeff,na.rm=T)
+                                              function(x) stats::lm(timelapse[timelapse$cell==divL$cell[[x]]&timelapse$division==divL$division[[x]],c("max.length", "frame")])[[1]][[2]])))
+  medco <- stats::median(coeff$coeff,na.rm=T)
 
   coeff$growth <- "u"
   coeff$growth[coeff$coeff<0.5*medco|is.na(coeff$coeff)] <- "none"
@@ -106,7 +106,7 @@ mark_Percentage <- function(timelapse, av=TRUE){
   timelapse <- timelapse[!is.na(timelapse$cell),]
 
   if(av==TRUE){
-    mean_test <- suppressWarnings(aggregate(timelapse[timelapse$fulldivision==TRUE&timelapse$growth!="none",][colnames(timelapse)!="percentage_binned"],
+    mean_test <- suppressWarnings(stats::aggregate(timelapse[timelapse$fulldivision==TRUE&timelapse$growth!="none",][colnames(timelapse)!="percentage_binned"],
                            by=list("percentage_binned" = timelapse$percentage_binned[timelapse$fulldivision==TRUE&timelapse$growth!="none"]),
                            FUN=mean,na.rm=T))
     return(list("timelapse"=timelapse, "mean_by_percentage"=mean_test))
@@ -144,7 +144,7 @@ perc_Division <- function(timelapse, av=TRUE, plotgrowth =TRUE){
 
 }
 
-#' @export
+
 plot_GrowthTime <- function(timelapse, divisionmarked=TRUE, facet_division=TRUE, variable="max.length"){
   #get division percentage. of course without plotting or we would get caught in a loop!!
   if(divisionmarked==FALSE){
@@ -154,8 +154,8 @@ plot_GrowthTime <- function(timelapse, divisionmarked=TRUE, facet_division=TRUE,
   timelapse$u <- timelapse[,variable]
   timelapse <- timelapse[timelapse$fulldivision==TRUE,]
   p <- ggplot2::ggplot(timelapse[!is.na(timelapse$division),],
-                       ggplot2::aes(x=percentage, y=u, color=growth)) +
-                        ggplot2::geom_line(ggplot2::aes(group=cell), alpha=0.5) +
+                       ggplot2::aes_string(x='percentage', y='u', color='growth')) +
+                        ggplot2::geom_line(ggplot2::aes_string(group='cell'), alpha=0.5) +
                         ggplot2::theme_classic() +
                         ggplot2::ylab(variable)
   if(facet_division==TRUE){
@@ -165,14 +165,15 @@ plot_GrowthTime <- function(timelapse, divisionmarked=TRUE, facet_division=TRUE,
   return(p)
 }
 
-#' @export
+
 plot_avGrowth <- function(timelapse, mean_by_percentage, variable="max.length"){
   timelapse$u <- timelapse[,variable]
   mean_by_percentage$u <- mean_by_percentage[,variable]
-  p <- ggplot2::ggplot(timelapse[timelapse$fulldivision==TRUE&timelapse$growth!="none",], ggplot2::aes(x=percentage_binned, y=u)) + ggplot2::geom_jitter(alpha=0.8) +
+  mean_by_percentage$percentage_binned_num <- as.numeric(mean_by_percentage$percentage_binned)
+  p <- ggplot2::ggplot(timelapse[timelapse$fulldivision==TRUE&timelapse$growth!="none",], ggplot2::aes_string(x='percentage_binned', y='u')) + ggplot2::geom_jitter(alpha=0.8) +
                                                                       ggplot2::ylab(variable) +
                                                                       ggplot2::geom_line(data=mean_by_percentage,
-                                                                                         ggplot2::aes(x=as.numeric(percentage_binned), y=u), color="orange", size=2) +
+                                                                                         ggplot2::aes_string(x='percentage_binned_num', y='u'), color="orange", size=2) +
                                                                       ggplot2::theme_classic()
   return(p)
 }

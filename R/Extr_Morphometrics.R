@@ -11,11 +11,11 @@
 ##Dependencies:
     #library(R.matlab)
 
-#' @export
+
 extr_Morphometrics_cellList <- function(morphpath){
   if (!requireNamespace("R.matlab", quietly = TRUE)) {
     inp <- readline("Package 'R.matlab' needed for this function to work. Press 'y' to install, or any other key to cancel.")
-    if(inp=="y"|inp=="Y"){install.packages("R.matlab")}else{stop("Canceled")}
+    if(inp=="y"|inp=="Y"){utils::install.packages("R.matlab")}else{stop("Canceled")}
   }
   morphdata <- R.matlab::readMat(morphpath)
   framenum <- 2*(1:(length(morphdata$frame)/2))

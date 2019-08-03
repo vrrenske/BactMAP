@@ -3,19 +3,23 @@ Title: Visualization and Analysis of Bacterial Cell Segmentation and Fluorescenc
 Version: 0.0.1.1
 Authors@R: person("Renske", "van Raaphorst", email = "renske.vanraaphorst@unil.ch", role = c("aut", "cre"))
 Description: Automated import of bacterial cell segmentation and fluorescence data from a range of softwares to uniformally analyze and visualize.
-Depends: R (>= 3.3.2)
-License: MIT
+Depends: R (>= 3.3)
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Imports:
   ggplot2,
-  tidyr,
-  reshape2,
-  plyr
+  plyr,
+  utils,
+  methods,
+  stats,
+  ggtree
 Suggests:
   gridExtra,
   ggthemes,
   MASS,
+  tidyr,
+  reshape2,
   R.matlab,
   SDMTools,
   shotGroups,
@@ -31,7 +35,10 @@ Suggests:
   knitr,
   rmarkdown,
   pbapply,
-  gganimate
-Collate: 'ouftidirectlyfrommatlab.R' 'Extr_Morphometrics.R' 'ExtractCSVs.R' 'datamerging.R' 'helperfunctions.R' 'ouftimeshtransform_fullfunction.R' 'plothelper.R' 'Polygon_angle.R' 'supersegger_genealogy.R' 'Plot_Image.R' 'objectplotting.R' 'supersegger_meshes.R' 'combine_analyses.R' 'timelapse.R' 'plotTracks.R' 'data.R' 'objectInBox.R'
+  gganimate,
+  ggimage,
+  mvtnorm,
+  tidyverse
+Collate: 'ouftidirectlyfrommatlab.R' 'Extr_Morphometrics.R' 'ExtractCSVs.R' 'helperfunctions.R' 'ouftimeshtransform_fullfunction.R' 'plothelper.R' 'supersegger_genealogy.R' 'Plot_Image.R' 'objectplotting.R' 'supersegger_meshes.R' 'combine_analyses.R' 'timelapse.R' 'plotTracks.R' 'objectInBox.R'
 RoxygenNote: 6.1.1
 VignetteBuilder: knitr
