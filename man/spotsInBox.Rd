@@ -13,17 +13,15 @@ spotsInBox(spotdata, meshdata, Xs = "x", Ys = "y", Xm = "X", Ym = "Y")
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{spotfile}{dataframe containing spot coordinates. Needs at least the columns \code{$frame, $x} and \code{$y}.Possible to define x/y column names in the function input arguments \code{Xs} and \code{Ys}.}
-  \item{MESH}{dataframe containing mesh coordinates. Needs at least the columns \code{$frame, $cell, $x} and \code{$y}. Possible to define x/y column names in the function input arguments \code{Xm} and \code{Ym}.}
+  \item{spotdata}{dataframe containing spot coordinates. Needs at least the columns \code{$frame, $x} and \code{$y}.Possible to define x/y column names in the function input arguments \code{Xs} and \code{Ys}.}
+  \item{meshdata}{dataframe containing mesh coordinates. Needs at least the columns \code{$frame, $cell, $x} and \code{$y}. Possible to define x/y column names in the function input arguments \code{Xm} and \code{Ym}.}
   \item{Xs}{column in dataframe \code{spotfile} containing the x-coordinates of the spots or object points. Default = "x".}
   \item{Ys}{column in dataframe \code{spotfile} containing the y-coordinates of the spots or object points. Default = "y".}
   \item{Xm}{column in dataframe \code{MESH} containing the x-coordinates of the mesh outline points. Default = "X".}
   \item{Ym}{column in dataframe \code{MESH} containing the y-coordinates of the mesh outline points. Default = "Y".}
 }
 
-\details{
-%%  ~~ If necessary, more details than the description above ~~
-}
+
 
 \value{
 A list of two data frames:
@@ -49,25 +47,14 @@ A list of two data frames:
 \item{$Y_rot}{y-coordinate of the mesh point when the cell is turned with the length axis horizontally, midpoint at coordinate (0,0)}
 
 }
-\references{
 
-}
 \author{
 Renske van Raaphorst
 }
-\note{
-%%  ~~further notes~~
-}
 
-%% ~Make other sections like Warning with \section{Warning }{....} ~
 
-\seealso{
-\code{\link{shotGroups}}
-
-\code{\link{pnt.in.poly}}
-
-}
 \examples{
+\dontrun{
 ##get spot data from ISBatch
 spots <- bactMAP::extr.ISBatch(file.choose())$spotframe
 
@@ -76,6 +63,6 @@ mesh <- bactMAP::extr.Oufti(file.choose())$mesh
 
 ##get relative spot and mesh locations
 outlist <- spotsInBox(spots, mesh, Xm="x", Ym="y")
-
+}
 }
 
