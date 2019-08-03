@@ -14,6 +14,8 @@
 
 \references{van Raaphorst R*, Kjos M*, Veening JW (2017) Chromosome segregation drives division site selection in \emph{Streptococcus pneumoniae. Proc Natl Acad Sci U S A.} 114(29):E5959-E5968.
 
+\url{https://github.com/vrrenske/BactMAP}
+
 }
 \author{
 Renske van Raaphorst<renske.vanraaphorst@unil.ch>
@@ -30,12 +32,5 @@ Compatible software outputs:
 *Morphometrics<\url{https://simtk.org/projects/morphometrics}>
 *SuperSegger<\url{https://github.com/wiggins-lab/SuperSegger/wiki}
 
-}
-
-%% ~Make other sections like Warning with \section{Warning }{....} ~
-
-
-\seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 

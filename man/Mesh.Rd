@@ -45,13 +45,5 @@ When extracting segmentation data, the main output is a dataframe called 'mesh'.
 
   Finally, depending on the input programs, some other variables can be added to the output. See the original programs output documentation for clarification.
 }
-\details{
-%%  ~~ If necessary, more details than the __description__ above ~~
-}
-\source{
-%%  ~~ reference to a publication or URL from which the data were obtained ~~
-}
-\references{
-%%  ~~ possibly secondary sources and usages ~~
-}
+
 
