@@ -36,7 +36,7 @@ please let me know\!**
     devtools::install_github("vrrenske/bactMAP")
     
     #or install it with all dependencies
-    devtools::instal_github("vrrenske/bactMAP", dependencies=TRUE)
+    devtools::install_github("vrrenske/bactMAP", dependencies=TRUE)
     
     #load package
     library(bactMAP)
