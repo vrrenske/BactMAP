@@ -6,7 +6,7 @@
 Upload cell outlines segmented using Morphometrics
 }
 \description{
-The 'CONTOURS'-output from Morphometrics is uploaded and converted to a *mesh*-dataframe compatible with bactMAPs plotting functions. Find more examples of usage of \code{extr_Morphometrics} on the BactMAP \code{\href{https://github.com/vrrenske/bactMAP/wiki}{wiki}}.
+The 'CONTOURS'-output from Morphometrics is uploaded and converted to a *mesh*-dataframe compatible with bactMAPs plotting functions. Find more examples of usage of \code{extr_Morphometrics} on the BactMAP \href{https://github.com/vrrenske/bactMAP/wiki}{wiki}.
 }
 \usage{
 extr_Morphometrics(morphpath, mag, turncells = TRUE)
@@ -40,6 +40,7 @@ Renske van Raaphorst
 
 \examples{
 
+\dontrun{
 #Upload Morphometrics output from bactMAP example files
 
 Example_MM <-  file.choose()
@@ -50,5 +51,6 @@ summary(Example_output)
 
 #plot cells
 plotRaw(Example_output, frameN=1)
+}
 }
 

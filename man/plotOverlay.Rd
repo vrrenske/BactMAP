@@ -5,21 +5,25 @@
 Display spot- and/or object-localization of different color channels and/or experimental conditions in one plot.
 }
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+This function returns a list of plots or one plot, displaying the localization of spots, objects in groups of cells - either as projections, demographs or as histograms.
 }
 \usage{
 plotOverlay(meshdata,
             spotdata,
             objectdata,
-            by = "both",
-            type = "all",
+            by="both",
+            type="all",
             quantiles = 1,
             quantiles_by = "max.length",
+            equal_groups=TRUE,
             mag,
-            objectcolor = c("#E69F00", "#56B4E9", "#009E73", "#F0E442"),
+            objectcolor=c("#E69F00", "#56B4E9", "#009E73", "#F0E442"),
             spotcolor = c("#0072B2", "#D55E00", "#CC79A7", "000000"),
             histogram_outline = NA,
-            his_scales = "free")
+            his_scales = "free",
+            transparency  = 0.05,
+            meshcolor = "black",
+            dotsize=1)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -38,9 +42,15 @@ plotOverlay(meshdata,
   \item{type}{
   The type of output plot. Options are: "histogram", "length", "width", "projection" or "all". Examples of each plot are given below.
 }
-  \item{quantiles and quantiles_by}{
+  \item{quantiles}{
   When "projection" or "all" is chosen, the cells can be split into groups by \code{quantiles_by}: one of the other columns existing in each dataset (default = \code{max.length}). Default for \code{quantiles} = \code{1}, so no grouping.
 }
+  \item{quantiles_by}{
+  see \code{quantiles}
+}
+  \item{equal_groups}{
+  when set to TRUE, the number of cells in each group is equal (for instance, 3 equally-sized groups grouped by size). when set to FALSE, the cells are grouped by bin (for instance, from 0-1 micron, from 1-2 micron and from 2-3 micron).
+  }
   \item{mag}{
   magnification convertion factor, needed when cell values are not yet converted to microns. See \code{\link{getPixels2um}}.
 }
@@ -56,10 +66,17 @@ plotOverlay(meshdata,
   \item{his_scales}{
   Inherited from ggplot2::geom_facet_grid(): when cells are grouped into different groups, by default, the histograms y-axis is scaled free per group. Setting \code{his_scales} to "fixed" will make the scale the same for each group.
 }
+  \item{transparency}{
+  Change this value to set the transparency of the plotted objects.
+  }
+  \item{meshcolor}{
+  By defaults, the cells are black. change this here.
+  }
+  \item{dotsize}{
+  Change this value to change the size of the plotted spots.
+  }
 }
-\details{
-%%  ~~ If necessary, more details than the description above ~~
-}
+
 \value{
 A plot or a list of plots:
 
@@ -76,37 +93,31 @@ A plot or a list of plots:
   Cell projections showing the relative object localization, spot localization and cell shape; if \code{quantiles} are set, grouped by \code{by_quantiles}.
   }
 }
-\references{
-%% ~put references to the literature/web site here ~
-}
+
 \author{
-%%  ~~who you are~~
-}
-\note{
-%%  ~~further notes~~
+Renske van Raaphorst
 }
 
-%% ~Make other sections like Warning with \section{Warning }{....} ~
-
-\seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
-}
 \examples{
-##get data from BactMAP package
+\dontrun{
+##get data from BactMAP examples: https://veeninglab.com/f/examples_datasets.zip
+
 #condition one: wild type
-WT_objects <- VanFL_objWT
-WT_mesh <- VanFL_meshWT
+load("VanFL_objWT")
+load("VanFL_meshWT")
 
-#condition 2: dmapZ
-DM_objects <- VanFL_objDM
-DM_mesh <- VanFL_meshDM
+load("VanFL_objDM")
+load("VanFL_meshDM")
 
-comboMesh <- combineDataframes(list(WT_mesh, DM_mesh), listofconditions=list("WildType", "DeltaMapZ"))
-comboObjects <- combineDataframes(list(WT_objects, DM_objects), listofconditions=list("WildType", "DeltaMapZ"))
+comboMesh <- combineDataframes( list(VanFL_meshWT, VanFL_meshDM),
+                                listofconditions=list("WildType", "DeltaMapZ"))
+comboObjects <- combineDataframes(list(VanFL_objWT, VanFL_objDM),
+                                  listofconditions=list("WildType", "DeltaMapZ"))
 
 plotOverlay(meshdata=comboMesh$finalframe,
             objectdata=comboObjects$finalframe,
             by="condition",
             quantiles=4,
             type="projection")
+}
 }

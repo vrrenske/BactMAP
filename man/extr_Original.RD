@@ -12,7 +12,7 @@
 \usage{
 extr_OriginalStack(picloc)
 
-extr_OriginalCells(imdatframe, mesh)
+extr_OriginalCells(imdatframe, mesh, surroundings=FALSE, turnCell=TRUE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -22,6 +22,8 @@ extr_OriginalStack:
 extr_OriginalCells:
   \item{imdatframe}{output dataframe of extr_OriginalStack()}
   \item{mesh}{dataframe containing (at least) mesh coordinates, cell numbers and frame numbers.}
+  \item{surroundings}{when TRUE, the function takes a box around the cells, when FALSE, only the pixels inside the cells are taken.}
+  \item{turnCell}{when TRUE, the cells all turned in the same orientation. when FALSE, this is not the case.}
 }
 \details{
 extr_OriginalStack needs the package "raster" to function.
@@ -30,12 +32,16 @@ extr_OriginalCells needs "SMDTools" and "raster" to function
 }
 \value{
 
+The output of extr_OriginalStack is a list of dataframes including the x coordinates, y coordinates and intensity values of each pixel.
+
+The output of extr_OriginalCells is a list of dataframes including:
+
+\item{rawdata_turned}{a dataframe including the cell information and pixel coordinates per cell, all turned in the same direction.}
+\item{mesh}{mesh data turned in the same direction}
 }
-\references{
-%% ~put references to the literature/web site here ~
-}
+
 \author{
-%%  ~~who you are~~
+Renske van Raaphorst
 }
 \note{
 
@@ -47,11 +53,8 @@ extr_OriginalCells needs "SMDTools" and "raster" to function
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
-\seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
-}
 \examples{
-
+\dontrun{
 #get tif
 TIFFfilepath <- file.choose()
 
@@ -67,5 +70,5 @@ meshes <- extr_Oufti(Meshpath)
 #combine cells & tiff
 extr_OriginalCells(TIFFstack, meshes$mesh)
 
-
+}
 }

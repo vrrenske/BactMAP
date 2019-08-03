@@ -8,16 +8,16 @@ Function to create descriptive plots of spot localization per group of cells
 \code{createPlotList()} is a plotting function which combines detected fluorescent spot localization with mesh outline information to plot demographs, projections, histograms and a data summary in one go. These functions are all combined because they need similar data preparation. The idea is that after using this function, you have a good overview of the localization of your protein inside the cells. Sometimes this analysis can be enough to show where a protein localizes, but in other cases (when proteins are very mobile or localize heterogeneously, for instance), this may rather serve as a starting point for more detailed analysis. Therefore, the data generated to make these plots is also returned by the function.
 }
 \usage{
-createPlotList <- function(spotdata,
-                            meshdata
-                            groups=4,
-                            colorpalette="GreenYellow",
-                            mag="No_PixelCorrection",
-                            AllPlot=T,
-                            Xm="X",
-                            Ym="Y",
-                            viridis=FALSE,
-                            showPlot=TRUE)
+createPlotList(spotdata,
+               meshdata,
+               groups=4,
+               colorpalette="GreenYellow",
+               mag="No_PixelCorrection",
+               AllPlot=F,
+               Xm="X",
+               Ym="Y",
+               viridis=FALSE,
+               showPlot=TRUE)
 }
 \arguments{
   \item{spotdata}{Data frame containing -at least- column with spot x-localizations, y-localizations and frame number. When the variable meshdata is not given, additional required columns are cell ID, relative x-localization ("l" or "Lmid") and relative y-localization ("d" or "Dum").}
@@ -26,13 +26,12 @@ createPlotList <- function(spotdata,
   \item{colorpalette}{Color palette the heatmap plots will be plotted in. Default is "GreenYellow". Check which palettes are loaded by \code{showColorPaletes()} and add your own palette using \code{addPallete()}}
   \item{mag}{The name of the conversion factor for pixel to micrometer. Default is "No_PixelCorrection" which is 1. Check \code{\link{getPixels2um}} for the loaded conversionfactors and use \code{addPixels2um("ConversionName", conversionfactor)} to add a conversion factor to the list.}
   \item{AllPlot}{When \code{TRUE}, the output x/y plots will have sideplots with histograms of the spot localization. When \code{FALSE}, only the x/y plots will be plotted.}
-  \item{Xm and Ym}{By default, the column names of the x/y coordinates in the MESH data frames are "X" and "Y". When this is not the case, one can tell the function by using \code{Xm} and \code{Ym}. Enter a character string with the name of the x-coordinate column for Xm, and the name of the y-coordinate column for Ym.}
+  \item{Xm}{By default, the column names of the x/y coordinates in the MESH data frames are "X" and "Y". When this is not the case, one can tell the function by using \code{Xm} and \code{Ym}. Enter a character string with the name of the x-coordinate column for Xm, and the name of the y-coordinate column for Ym.}
+  \item{Ym}{See Xm}
   \item{viridis}{when \code{viridis==TRUE}, the \code{colorpalette} needs to be one of the \code{viridis} color palettes ("A", "B", "C", "D", "E", "magma", "cividis", "viridis", "plasma" or "inferno")}
   \item{showPlot}{when \code{showPlot==TRUE}, a menu will be shown after the function is finished, which enables the user to view the plot output of the function.}
 }
-\details{
-%%  ~~ If necessary, more details than the description above ~~
-}
+
 \value{
 A list consisting of the following items:
 \item{$lengthplot}{Heatmap histogram plot of the length-axis localizations of the spots ordered by the length of the cell.}
@@ -49,7 +48,7 @@ A list consisting of the following items:
 \references{
 These plotting functions were developed for:
 
-href{}{van Raaphorst, Renske, Morten Kjos, and Jan-Willem Veening. "Chromosome segregation drives division site selection in Streptococcus pneumoniae." Proceedings of the National Academy of Sciences 114.29 (2017): E5959-E5968.}
+\href{https://www.pnas.org/content/114/29/E5959}{van Raaphorst, Renske, Morten Kjos, and Jan-Willem Veening. "Chromosome segregation drives division site selection in Streptococcus pneumoniae." Proceedings of the National Academy of Sciences 114.29 (2017): E5959-E5968.}
 }
 \author{
 Renske van Raaphorst
@@ -58,31 +57,28 @@ Renske van Raaphorst
 This function is meant to give an overview of the data. Check the tutorials on the \href{https://github.com/vrrenske/BactMAP/wiki}{wiki page} for examples of modifying individual plots.
 }
 
-%% ~Make other sections like Warning with \section{Warning }{....} ~
 
-\seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
-}
 \examples{
+
+\dontrun{
 ##use data from example dataset
 
-##1. detected peaks:
-peaks <- bactMAP::DnaX_tracks
+##download example datasets DnaX_tracks.rda & DnaX_mesh.rda
+##from https://veeninglab.com/f/example_datasets.zip
 
-
-##2. mesh outlines:
-mesh <- bactMAP::DnaX_mesh
-
+load("DnaX_tracks.rda")
+load("DnaX_mesh.rda")
 
 ##create list of plots, ordered by length, grouped in 6 groups.
-GFPlist <- createPlotList(peaks, mesh, groups=6, colorpalette="GreenYellow", AllPlot=T)
+GFPlist <- createPlotList(DnaX_tracks, DnaX_mesh, groups=6, colorpalette="GreenYellow", AllPlot=T)
 
 #have a look at the "plottotal" plot
 plot(GFPlist$plottotal)
 
 #save PDF of the 6 grouped plots (qplots)
-ggplot2::ggsave(GFPlist$qplots, filename="GroupPlots.PDF"))
+ggplot2::ggsave(GFPlist$qplots, filename="GroupPlots.PDF")
 
 #see summary:
 GFPlist$data_summary
+}
 }

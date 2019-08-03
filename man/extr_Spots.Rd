@@ -41,26 +41,17 @@ extr_Spots(dataloc, seperator = ",")
 \item{cellList}{the original input data as dataframe}
 \item{spotframe}{dataframe containing the minimal required columns (x, y & frame) and if given, the extra columns (trajectory, trajectory_length & displacement_sq)}
 }
-\references{
-%% ~put references to the literature/web site here ~
-}
+
 \author{
 Renske van Raaphorst
 }
-\note{
-%%  ~~further notes~~
-}
 
-%% ~Make other sections like Warning with \section{Warning }{....} ~
-
-\seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
-}
 \examples{
+\dontrun{
 spotpath <- file.choose()
 
 spot_output <- extr_Spots(spotpath, seperator="/t")$spotframe
-
+}
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

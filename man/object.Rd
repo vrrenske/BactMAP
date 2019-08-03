@@ -6,8 +6,7 @@ Object DataFrames
 }
 \description{
 A dataframe containing object information, either \code{objectframe} or \code{object_relative}.
-}
-\usage{
+
 These dataframes can be used in various of the bactMAP functions: \code{\link{plotTracks}, \link{plotObjects}, \link{plotOverlay} & \link{plotRaw}}.
 }
 \format{
@@ -41,26 +40,15 @@ These dataframes can be used in various of the bactMAP functions: \code{\link{pl
 \details{
 An example of an object dataframe can be taken from the bactMAP package. How is shown in "examples" below.
 }
-\source{
-%%  ~~ reference to a publication or URL from which the data were obtained ~~
-}
-\references{
-%%  ~~ possibly secondary sources and usages ~~
-}
+
 \examples{
-##Take Oufti output from bactMAP package:
+\dontrun{
+#take VanFL object data from https://veeninglab.com/f/example_datasets.zip
+load("VanFL_objWT.rda")
 
-VanFL <- system.file("extdata", "WT_obj.txt", package = "bactMAP")
+summary(VanFL_objWT.rda)
 
-##extract data using extr_Oufti
-
-ex_VanFL <- extr_Oufti(VanFL, mag="100x_DVMolgen")
-
-##View objectframe:
-View(ex_VanFL$objectframe)
-
-##And object_relative
-View(ex_VanFL$object_relative)
+}
 }
 
 \keyword{datasets}

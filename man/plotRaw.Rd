@@ -8,7 +8,16 @@ Plot TIFF, cell contours and/or spot localization on the original x/y space.
 To check segmentation, view TIFF images and/or show the localization of spots inside cells. ggplot2-based, so other geoms and theme layers can be added.
 }
 \usage{
-plotRaw(tiffdata, meshdata, spotdata, frameN = 1, xrange, yrange, viridisoption = "inferno", meshcolor = "white", spotcolor = "yellow", valuerange)
+plotRaw(tiffdata,
+        meshdata,
+        spotdata,
+        frameN = 1,
+        xrange,
+        yrange,
+        viridisoption = "inferno",
+        meshcolor = "white",
+        spotcolor = "yellow",
+        valuerange)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -43,30 +52,23 @@ color for displayed spots. default = "yellow"
 vector with minumum and maximum pixel values to show TIFF, use this option to increase contrast
 }
 }
-\details{
 
-}
 \value{
 
 A plot showing either a TIFF, mesh outlines, spot coordinates or a combination of the three.
 
 }
-\references{
 
-}
 \author{
-%%  ~~who you are~~
-}
-\note{
 Renske van Raaphorst
 }
 
-%% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
-\code{\link{extr_Original}}, \code{\link{viridis}}
-}
+\code{\link{extr_Original}}, \href{https://cran.r-project.org/web/packages/viridis/vignettes/intro-to-viridis.html}{viridis}}
+
 \examples{
+\dontrun{
 
 #load TIF image from BactMAP examples. go to veeninglab.com/bactmap to download.
 
@@ -79,6 +81,8 @@ TIF_df <- bactMAP::extr_OriginalStack(TIF_image)
 #plot image
 plotRaw(TIF_image)
 
+require(ggplot2)
 #zoom in and add title
 plotRaw(TIF_image, xrange=(c(200,500)), yrange=c(400,600)) + ggplot2::ggtitle("This is a TIF image")
+}
 }

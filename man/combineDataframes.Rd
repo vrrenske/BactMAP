@@ -1,6 +1,6 @@
 \name{combineDataframes}
 \alias{combineDataframes}
-%- Also NEED an '\alias' for EACH other topic documented here.
+
 \title{
 Function to combine data by condition (e.g. mutant vs wild type) and/or channel (e.g. GFP/RFP), meant for BactMAP imported data.
 }
@@ -22,38 +22,30 @@ list of conditions corresponding to each dataframe. Needs to have the same order
 list of channels corresponding to each dataframe. Needs to have the same order and length as listofdataframes.
 }
 }
-\details{
-%%  ~~ If necessary, more details than the description above ~~
-}
+
 \value{
 \item{finalframe}{concatenated dataframe with columns "condition" and/or "channel" added}
 \item{originaldata}{the input list of dataframes with columns "condition" and/or "channel" added}
 }
-\references{
-%% ~put references to the literature/web site here ~
-}
+
 \author{
 Renske van Raaphorst
 }
-\note{
-%%  ~~further notes~~
-}
 
-%% ~Make other sections like Warning with \section{Warning }{....} ~
-
-\seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
-}
 \examples{
+\dontrun{
 
-GFPdata_WT <- extr.Oufti(file.choose())
-RFPdata_WT <- extr.Oufti(file.choose())
+##download example data from https://veeninglab.com/f/example_data.zip:
 
-RFPdata_mut  <- extr.Oufti(file.choose())
-GFPdata_mut  <- extr.Oufti(file.choose())
+##VanFL_objDM.rda
+##VanFL_objWT.rda
 
-combined <- combineDataframes(list(GFPdata_WT, RFPdata_WT, RFPdata_mut, GFPdata_mut),
-                              listofconditions = list("WT", "WT", "mut", "mut"),
-                              listofchannels=list("GFP", "RFP", "RFP", "GFP"))
+load("VanFL_objDM.rda")
+load("VanFL_objWT.rda")
 
+##find the data documentation on https://veeninglab.com/bactmap
+
+combined <- combineDataframes(list(VanFL_objDM, VanFL_objWT),
+                              listofconditions = list("mutant", "WT""))
+}
 }

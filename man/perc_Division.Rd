@@ -47,29 +47,23 @@ perc_Division(timelapse, av = TRUE, plotgrowth = TRUE)
 
 4. A ggplot \code{plot_avgrowth} showing the average cell size over the percentage of division.
 }
-\references{
-%% ~put references to the literature/web site here ~
-}
+
 \author{
 Renske van Raaphorst
 }
-\note{
-%%  ~~further notes~~
-}
 
-%% ~Make other sections like Warning with \section{Warning }{....} ~
-
-\seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
-}
 \examples{
-
+\dontrun{
 #this example won't have much meaning because the timelapse was quite short.
 #but analysis is quick because the dataset is not very big:
 #for a better example, download our DnaX dataset from veeninglab.com/bactmap
 
-percD <- perc_Division(bactMAP::FtsZ_tracks)
+#Download FtsZ_tracks.rda from https://veeninglab.com/f/example_datasets.zip
+
+load("FtsZ_tracks.rda")
+
+percD <- perc_Division(FtsZ_tracks)
 
 percD$plot_avgrowth
-
+}
 }

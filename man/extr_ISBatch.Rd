@@ -4,13 +4,13 @@
 \alias{ISBatch}
 
 \title{
-Upload ISBatch/Peakfitter data into R
+Import ISBatch/Peakfitter data into R
 }
 \description{
-
+Import ISBatch/Peakfitter spot coordinates and/or trajectories from a .txt or .csv into R.
 }
 \usage{
-extr_ISBatch(dataloc)
+extr_ISBatch(dataloc, seperator=",")
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -21,9 +21,7 @@ extr_ISBatch(dataloc)
   When .CSV is not comma-separated but by something else, indicate this here.
   }
 }
-\details{
-%%  ~~ If necessary, more details than the description above ~~
-}
+
 \value{
   \item{cellList}{
   copy of original data as dataframe
@@ -45,9 +43,11 @@ Renske van Raaphorst
 Use \href{https://github.com/vrrenske/BactMAP/wiki/spotsInBox}{spotsInBox} to combine the spot data with segmentation data from another program.
 }
 \examples{
+\dontrun{
 ##Choose ISBatch peakfitter output file
 dataloc <- file.choose()
 ##Convert to dataframe
 spotframe <- extr_ISBatch(dataloc)
+}
 }
 

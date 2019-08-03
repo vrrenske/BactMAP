@@ -41,44 +41,28 @@ plotObjects(obdat,
 }
 
 }
-\details{
-%%  ~~ If necessary, more details than the description above ~~
-}
+
 \value{
 A ggplot of cell and object projections showing the relative localization of the intracellular objects, grouped by cell length.
 }
-\references{
-%% ~put references to the literature/web site here ~
-}
+
 \author{
 Renske van Raaphorst
 }
-\note{
-%%  ~~further notes~~
-}
-
-%% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
 \code{\link{createPlotList}}
 }
 \examples{
-
+\dontrun{
 #get objects & meshes from WT D39 cells stained with Van-FL, analyzed with oufti.
+#download from https://veeninglab.com/f/example_datasets.zip
 
-library(bactMAP)
-
-VanFL_mesh <- bactMAP::VanFL_meshWT
-VanFL_obj <- bactMAP::VanFL_objWT
+load("VanFL_meshWT")
+load("VanFL_objWT")
 
 #plot objects
 
-plotObjects(VanFL_obj, VanFL_mesh, groups=4, transparency=0.1)
-
-#change colors/layout
-
-library(ggdark)
-library(ggplot2)
-plotObjects(VanFL_obj, VanFL_mesh, groups=4, transparency=0.1, cellcolor="grey40", objectcolor="magenta") + ggdark::dark_theme_minimal()
-
+plotObjects(VanFL_objWT, VanFL_meshWT, groups=4, transparency=0.1)
+}
 }

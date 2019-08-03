@@ -32,11 +32,11 @@ A dataframe suitable for \code{bactKymo()}.
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
-\seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
-}
 \examples{
+\dontrun{
+#download & unzip https://veeninglab.com/f/examples.zip and set the path to the downloaded folder.
 
-
-
+load("TurnedCell4")
+prepForKymo(TurnedCell4)
+}
 }

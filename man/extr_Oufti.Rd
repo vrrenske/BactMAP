@@ -4,10 +4,10 @@
 \alias{extr_OuftiCSV}
 \alias{OuftiCSV}
 
-\title{Function to upload Oufti meshes and spot localizations directly from .Mat, .TXT or .CSV files to R.
+\title{Function to import Oufti data.
 }
 \description{
-
+Import oufti meshes, objects and spot localizations directly from .Mat, .txt or .CSV files to R. Note that oufti objects can only be imported from .csv or .txt files.
 }
 \usage{
 extr_Oufti(matfile, mag="No_PixelCorrection", phylo=FALSE)
@@ -19,9 +19,7 @@ extr_Oufti(matfile, mag="No_PixelCorrection", phylo=FALSE)
   \item{phylo}{When TRUE, a list of child-parent nodes & phylo objects containing cell genealogy will be made. Takes very long, so default is set to FALSE}
 %%     ~~Describe \code{x} here~~
 }
-\details{
-%%  ~~ If necessary, more details than the description above ~~
-}
+
 \value{
 A list containing:
 \item{$cellList}{The complete cellList as it is displayed in oufti's output.}
@@ -48,16 +46,10 @@ Paintdakhi A, et al. (2016) Oufti: an integrated software package for high-accur
 \author{
 Renske van Raaphorst
 }
-\note{
-
-}
 
 
-
-\seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
-}
 \examples{
+\dontrun{
 ##upload matlab oufti file
 matfile <- file.choose()
 ##extract data using extr.Oufti()
@@ -65,6 +57,10 @@ output <- extr_Oufti(matfile)
 ##get spot dataframe
 spots <- output$spotframe
 ##plot spots of frame no.1
-ggplot2::ggplot(spots[spots$frame==1,], ggplot2::aes(x=x, y=y, color=as.factor(cell))) + ggplot2::geom_point() + ggplot2::theme_minimal()
+ggplot2::ggplot(spots[spots$frame==1,],
+    ggplot2::aes(x=x, y=y, color=as.factor(cell))) +
+  ggplot2::geom_point() +
+  ggplot2::theme_minimal()
+}
 }
 

@@ -5,15 +5,15 @@
 Plot tracked spots and/or objects over time in 1 or 2 dimensions.
 }
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+With this function, you can plot spot and/or objects over time, either as a plot over time (x axis) versus localiton on the length or width axis of the cell, or as a cell projection, where color indicates time. When only one spatial dimension is displayed, it is possible to plot trajectories of different fluorescence channels. When the function detects that different conditions are used, the plots will be faceted by condition.
 }
 \usage{
 plotTracks( meshdata,
             spotdata,
             objectdata,
-            tracks = TRUE,
+            tracks = FALSE,
             ignore_singles = FALSE,
-            movie = "none",
+            movie = FALSE,
             timepalette_lines = "viridis",
             timepalette_fill = "magma",
             dimension = c("length", "width"),
@@ -41,13 +41,13 @@ plotTracks( meshdata,
   When \code{ignore_singles} == \code{FALSE}, all detected spots will be shown. When \code{ignore_singles} ==\code{TRUE}, only those spots will be shown which are tracked over time.
 }
   \item{movie}{
-  When \code{movie}==\code{"none"} (default), the output will be a static plot. When \code{movie} == \code{"gganimate"},  \code{\href{https://github.com/thomasp85/gganimate}{gganimate}} (version => 1.0.3) will be used to make a GIF animation. Finally, when \code{movie} = \code{"plotly"}, \code{\href{https://plot.ly/}{plotly}} will be used to make an interactive HTML-based animation.
+  When \code{movie}==\code{FALSE} (default), the output will be a static plot. When \code{movie} == \code{TRUE},  \href{https://github.com/thomasp85/gganimate}{gganimate} (version => 1.0.3) will be used to make a GIF animation.
 }
   \item{timepalette_lines}{
-  A \code{\href{https://cran.r-project.org/web/packages/viridis/vignettes/intro-to-viridis.html}{viridis}} palette for both the spots & tracks as the outlines of the meshes, where color indicates the time in frames. Default = \code{"viridis"}.
+  A \href{https://cran.r-project.org/web/packages/viridis/vignettes/intro-to-viridis.html}{viridis} palette for both the spots & tracks as the outlines of the meshes, where color indicates the time in frames. Default = \code{"viridis"}.
 }
   \item{timepalette_fill}{
-A \code{\href{https://cran.r-project.org/web/packages/viridis/vignettes/intro-to-viridis.html}{viridis}} palette for the fill of the objects, where color indicates the time in frames. Default = \code{"magma"}.
+A \href{https://cran.r-project.org/web/packages/viridis/vignettes/intro-to-viridis.html}{viridis} palette for the fill of the objects, where color indicates the time in frames. Default = \code{"magma"}.
 }
   \item{dimension}{
 Either  \code{"length"},  \code{"width"}, or  \code{c("length", "width")}(default). Indicates the dimensions which will be plotted next to time (frames).
@@ -65,39 +65,32 @@ The cell number or numbers as a numeric vector (e.g. \code{c(1,2,10)}), or (defa
   Transparency of both the objects as the cell polygons. The cell polygons are set to be 5 times more transparent than the object polygons.
 }
 }
-\details{
-%%  ~~ If necessary, more details than the description above ~~
-}
+
 \value{
 A plot or a faceted plot of the trajectory of the cell shape, fluorescent spots and/or the localization of detected fluorescent objects in the cell over time. The plots can either by location on the length-axis over time, location on the width-axis over time, or x/y location and shape over time.
 }
-\references{
-%% ~put references to the literature/web site here ~
-}
+
 \author{
 Renske van Raaphorst
 }
-\note{
-%%  ~~further notes~~
-}
 
-%% ~Make other sections like Warning with \section{Warning }{....} ~
-
-\seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
-}
 \examples{
-
-  ##Get example data from bactMAP package
+\dontrun{
+  ##Get example data from bactMAP on https://veeninglab.com/f/example_datasets.zip
 
   ##tracked FtsZ
-  FtsZ <- bactMAP::FtsZ_tracks
+  load("FtsZ_tracks.rda")
 
   ##and corresponding meshes
-  meshes <- bactMAP::DnaX_mesh
+  load("DnaX_mesh.rda")
 
   #plot ftsZ on length axis/time
-  plotTracks(meshdata=meshes, spotdata=FtsZ_tracks, dimension="length", mag="100x_DVMolgen", tracks=TRUE, cell=4)
-
+  plotTracks(meshdata=meshes,
+              spotdata=FtsZ_tracks,
+              dimension="length",
+              mag="100x_DVMolgen",
+              tracks=TRUE,
+              cell=4)
+}
 
 }

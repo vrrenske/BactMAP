@@ -24,13 +24,9 @@ addPixels2um(pixelName, pixels2um)
 
   }
 
-\details{
-%%  ~~ If necessary, more details than the description above ~~
-}
 \value{getPixels2um() and addPixels2um("ConversionName", conversionfactor) both return the currently loaded conversion factors as a list of vectors, where the first item of each vector is the conversionfactor-name and the second item is the numeric conversion factor.
 }
-\references{
-}
+
 \author{
 Renske van Raaphorst
 }

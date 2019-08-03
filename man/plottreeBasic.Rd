@@ -5,7 +5,7 @@
 Plot cell genealogy information as networks using ggtree.
 }
 \description{
-This function is using the ggtree package to show cell genealogy combined with cell information, e.g. fluorescence intensity. This part of bactMAP is under development - plotting cell trees is possible, but is not (yet) as straight-forward. Check the tutorials on \code{\href{veeninglab.com/bactmap}{veeninglab.com/bactmap}} to get more information on how to use this function.
+This function is using the ggtree package to show cell genealogy combined with cell information, e.g. fluorescence intensity. This part of bactMAP is under development - plotting cell trees is possible, but is not (yet) as straight-forward. Check the tutorials on \href{veeninglab.com/bactmap}{veeninglab.com/bactmap} to get more information on how to use this function.
 }
 
 \usage{
@@ -28,7 +28,7 @@ plotTreeBasic(phylo,
   The \code{$generation_lists} output of \code{\link{extr_SuperSegger}} or \code{\link{extr_Oufti}}.
 }
   \item{extradata}{
-  Data connected to the \code{$generation_lists}: \code{$generation_dataframes}. When this is added, the output of the plot looks the same, but it is possible to add layers to the plots with cell information using the \code{ggtree}-commands. See the \href{veeninglab.com/bactmap}{tutorials} for more information.
+  Data connected to the \code{$generation_lists}: \code{$generation_dataframes}. When this is added, you can plot for instance the clades of your dataset. See the \href{veeninglab.com/bactmap}{tutorials} for more information.
 }
   \item{yscalechange}{
   Default = \code{FALSE}. When \code{TRUE}, an y-axis is added to the tree. Only works when also indicating what needs to be plotted on the y-axis (indicate by putting the column name of choice from \code{extradata} as input in \code{ydata}).
@@ -61,47 +61,44 @@ plotTreeBasic(phylo,
   When highlighting a clade, set \code{colors} to \code{TRUE} when you want to do that by color.
 }
 }
-\details{
-%%  ~~ If necessary, more details than the description above ~~
-}
+
 \value{
 A \code{ggtree} object which can be edited using the \code{ggtree} commands.
 }
 \references{
-  \code{\href{https://yulab-smu.github.io/treedata-book/index.html}{The ggtree cookbook by Guangchuang Yu.}}
+  \href{https://yulab-smu.github.io/treedata-book/index.html}{The ggtree cookbook by Guangchuang Yu.}
 }
 \author{
 Renske van Raaphorst
 }
-\note{
-%%  ~~further notes~~
-}
 
-%% ~Make other sections like Warning with \section{Warning }{....} ~
-
-\seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
-}
 \examples{
-
+\dontrun{
 #this code requires other packages:
-requires(ggtree)
-requires(ggplot2)
+require(ggtree)
+require(ggplot2)
+
+# download example datasets from https://veeninglab.com/f/example_datasets.zip
+load("ssbB_phylo.rda")
+load("ssbB_meanfluo.rda")
 
 #load example data from bactMAP package
-myTreeData <- bactMAP::ssbB_phylo
-myFluoData <- bactMAP::ssbB_meanfluo
+myTreeData <- ssbB_phylo
+myFluoData <- ssbB_meanfluo
 
 #plot Tree with attributes
-plotTreeBasic(myTreeData$phylos, myTreeData$data_attributes) +
-  geom_point(aes(x=x-branch.length, color=fluormean), size=6) + #same as before, but different dot size
+library(ggtree)
+
+plotTreeBasic(myTreeData$phylos)\%<+\% myTreeData$data_attributes +
+  geom_point(aes(x=x-branch.length, color=fluormean), size=6) +
   geom_tippoint(aes(color=fluormean_D), size=6) + #added tip points, different dot size
   geom_label(aes(x=x-branch.length, label=label), color=NA, fill="white", alpha=0.5, size=1) +
     #I also make a seethrough background label so you can see the text over the colored dots
   geom_text(aes(x=x-branch.length, label=label), size=3) +
-  scale_color_viridis_c(option="magma") + #add different color scale, for fun
+  scale_color_viridis_c(option="magma") + #add different color scale
   theme(legend.position="right") + #add legend
   coord_flip()
 
+}
 }
 

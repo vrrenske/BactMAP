@@ -83,13 +83,20 @@ Renske van Raaphorst
 
 \examples{
 
+\dontrun{
+
+#download example dataset TurnedCell4 from https://veeninglab.com/f/example_datasets.zip
+
+load("TurnedCell4.Rda")
+
 #to plot a timelapse demograph of 1 cell:
 
-kymo_cell4 <- bactKymo(originalCells = bactMAP::TurnedCell4, timeD=TRUE, sizeAV=TRUE)
+kymo_cell4 <- bactKymo(originalCells = TurnedCell4, timeD=TRUE, sizeAV=TRUE)
 
 #to change the color scheme:
 OrangeHot <- getPalette("OrangeHot")
-kymo_cell4 + scale_fill_gradient2(low=OrangeHot[1], mid=OrangeHot[2], high=OrangeHot[3])
+require(ggplot2)
+kymo_cell4 + ggplot2::scale_fill_gradient2(low=OrangeHot[1], mid=OrangeHot[2], high=OrangeHot[3])
 
-
+}
 }

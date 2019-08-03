@@ -22,37 +22,29 @@ Mesh dataframe.
 Magnification converter (see \code{\link{pixels2um}}).
 }
 }
-\details{
-%%  ~~ If necessary, more details than the description above ~~
-}
+
 \value{
 An object_relative dataframe (see \code{\link{object}}).
 }
-\references{
-%% ~put references to the literature/web site here ~
-}
+
 \author{
 Renske van Raaphorst
 }
-\note{
-%%  ~~further notes~~
-}
 
-%% ~Make other sections like Warning with \section{Warning }{....} ~
 
-\seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
-}
 \examples{
+\dontrun{
 #example data:
 
-WTmesh <- bactMAP::vanFL_meshWT
+#download example datasets from https://veeninglab.com/f/example_datasets.zip
 
-WTobjects <- bactMAP::vanFL_objWT
+load("vanFL_meshWT.rda")
+
+load("vanFL_objWT")
 
 #these objects are already connected to cells. but no harm in re-doing:
 
-WTbox <- objectInBox(WTobjects, WTmesh, mag="100x_DVMolgen")
-
+WTbox <- objectInBox(vanFL_objWT, vanFL_meshWT, mag="100x_DVMolgen")
+}
 }
 

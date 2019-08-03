@@ -5,10 +5,18 @@
   Function to plot cell fluorescence from a TIFF over time.
 }
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+  This function creates a cell tower or movie based on the pixel values and cell outlines of the cell. As input, it takes the 'rawdata_turned' dataframe output from \code{\link{extr_OriginalCells}}.
 }
 \usage{
-plotCellsTime(celdat, updown = T, movie = F, viridisoption = "magma", cellN, minf, maxf)
+plotCellsTime(celdat,
+              updown = T,
+              movie = F,
+              viridisoption = "magma",
+              cellN,
+              minf,
+              maxf,
+              outlines=FALSE,
+              meshdata)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -19,10 +27,10 @@ plotCellsTime(celdat, updown = T, movie = F, viridisoption = "magma", cellN, min
   When \code{updown}==\code{TRUE}, a horizontal cell tower is made, otherwise, the cells are displayed left-right. \code{movie}=={TRUE} will overwrite this and return an animation instead.
 }
   \item{movie}{
-When \code{movie} == \code{TRUE}, an animation made with \code{\href{https://github.com/thomasp85/gganimate}{gganimate}} is returned.
+When \code{movie} == \code{TRUE}, an animation made with \href{https://github.com/thomasp85/gganimate}{gganimate} is returned.
 }
   \item{viridisoption}{
-  The color palette used. The default palettes are part of the \code{\href{https://cran.r-project.org/web/packages/viridis/vignettes/intro-to-viridis.html}{viridis}} color palettes (default = "magma").
+  The color palette used. The default palettes are part of the \href{https://cran.r-project.org/web/packages/viridis/vignettes/intro-to-viridis.html}{viridis} color palettes (default = "magma").
 }
   \item{cellN}{
   The cell number or numbers to be displayed. When not indicated, a list of plots of all cells will be made.
@@ -33,36 +41,28 @@ When \code{movie} == \code{TRUE}, an animation made with \code{\href{https://git
   \item{maxf}{
   The maximum frame to be displayed
 }
+  \item{outlines}{when TRUE and \code{meshdata} is specified, the cell outlines are drawn over the pixels}
+  \item{meshdata}{to be able to draw outlines, specify your mesh dataframe.}
 }
-\details{
-%%  ~~ If necessary, more details than the description above ~~
-}
+
 \value{
 A plot, list of plots or animation of a single cell's fluorescence over time.
 }
-\references{
-%% ~put references to the literature/web site here ~
-}
+
 \author{
 Renske van Raaphorst
 }
-\note{
-%%  ~~further notes~~
-}
 
-%% ~Make other sections like Warning with \section{Warning }{....} ~
-
-\seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
-}
 \examples{
+\dontrun{
+##In the BactMAP example data, the raw data of one cell is saved as "TurnedCell4":
+##Download this via https://veeninglab.com/f/example_datasets.zip
 
-##In BactMAP, the raw data of one cell is saved as "TurnedCell4":
-
+load("TurnedCell4.rda")
 #to plot a left-right tower:
-plotCellsTime(bactMAP::TurnedCell4, updown=F, viridisoption="inferno")
+plotCellsTime(TurnedCell4, updown=F, viridisoption="inferno")
 
 #or to create an animation:
-plotCellsTime(bactMAP::TurnedCell4, movie=T)
-
+plotCellsTime(TurnedCell4, movie=T)
+}
 }

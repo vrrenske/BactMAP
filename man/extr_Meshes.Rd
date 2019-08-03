@@ -1,6 +1,6 @@
 \name{extr_Meshes}
 \alias{extr_Meshes}
-%- Also NEED an '\alias' for EACH other topic documented here.
+
 \title{
 Generic function to upload cell outlines from a .csv or .txt file.
 }
@@ -41,31 +41,23 @@ When \code{turn==TRUE}, the cells will be turned so that the mid-point is on coo
 The magnification convertion factor (see addPixels2um). When given, the output will be also given in microns.
 }
 }
-\details{
-%%  ~~ If necessary, more details than the description above ~~
-}
+
 \value{
 \item{cellList}{the original input as dataframe}
 \item{mesh}{the mesh data compatible with BactMAP}
 }
-\references{
-%% ~put references to the literature/web site here ~
-}
+
 \author{
 Renske van Raaphorst
 }
-\note{
-%%  ~~further notes~~
-}
-
-%% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
 \code{\link{pixel2um}}
 }
 \examples{
-
+\dontrun{
 meshdata <- file.choose()
 
 mesh_BM <- extr_Meshes(meshdata, sep=",", mag="100x_FRAP", turn=FALSE)
+}
 }

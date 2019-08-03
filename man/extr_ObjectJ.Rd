@@ -12,8 +12,10 @@ ObjectJ detects a bounding box around each cell, which it uses to calculate spot
 \usage{
 extr_ObjectJ( dataloc,
               mag = "No_PixelCorrection",
-              boundingBoxX = c("X1", "X2", "X3", "X4", "X5", "X6", "X7", "X8", "X9", "X10", "X11"),
-              boundingBoxY = c("Y1", "Y2", "Y3", "Y4", "Y5", "Y6", "Y7", "Y8", "Y9", "Y10", "Y11"),
+              boundingBoxX = c("X1", "X2", "X3", "X4", "X5",
+                               "X6", "X7", "X8", "X9", "X10", "X11"),
+              boundingBoxY = c("Y1", "Y2", "Y3", "Y4", "Y5", "Y6",
+                               "Y7", "Y8", "Y9", "Y10", "Y11"),
               turn_meshes = TRUE)
 }
 %- maybe also 'usage' for other objects documented here.
@@ -65,19 +67,19 @@ It is possible to define your own column names in ObjectJ - but (apart from the 
 
 
 \examples{
-
-  #Take ObjectJ file from R package environment
+\dontrun{
+  #Take ObjectJ file interactively
 
   #Using pipes:
   library(tidyverse)
 
-  ObjectJ_output <- system.file("extdata", "bsubtilis_box.txt", package="bactMAP") \%>\% extr_ObjectJ()
+  ObjectJ_output <- file.choose() \%>\% extr_ObjectJ()
 
   #check summary
   ObjectJ_output \%>\% summary()
 
   #plot chain length distribution
   ggplot(ObjectJ_output$chainframe, aes(x=ChainAxis)) + geom_histogram()
-
+}
 }
 
