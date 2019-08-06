@@ -71,13 +71,14 @@ getPalette <- function(palName){
   }
 }
 
-
+#' @importFrom ggplot2 stat
+#' @importFrom stats density
 colorchoiceplot <- function(colchoice, nums, pname){
 
   z <- mvtnorm::rmvnorm(100, mean=c(3,5), sigma=matrix(c(1,0.5,0.5,2), nrow=2))
   z <- data.frame(z)
   return(suppressWarnings(ggplot2::ggplot(z, ggplot2::aes_string(x='X1', y='X2')) +
-                            suppressWarnings(ggplot2::stat_density2d(ggplot2::aes(fill=ggplot2::stat(stats::density)), geom="raster", contour=FALSE)) +
+                            suppressWarnings(ggplot2::stat_density2d(ggplot2::aes(fill=stat(density)), geom="raster", contour=FALSE)) +
                             ggplot2::scale_fill_gradient2(low = colchoice[1], mid= colchoice[2], high = colchoice[3], midpoint=0.06) +
                             ggplot2::theme_minimal() + ggplot2::theme(legend.position="none") +
                             ggplot2::ggtitle(pname) + ggplot2::xlab("") +
@@ -96,8 +97,10 @@ pal2Default <- function(){
 
 #wat basisplotfuncties
 densityplot <- function(plot){
-  return(plot + ggplot2::stat_density2d(ggplot2::aes(fill=ggplot2::stat(stats::density)), geom="raster", contour = FALSE))
-}
+  return(
+    plot + ggplot2::stat_density2d(ggplot2::aes(fill=stat(density)), geom="raster", contour = FALSE))
+
+    }
 
 LWplot <- function(plot, u="black", maxn){
   return(plot + #ggplot2::geom_rect(xmin=0, xmax=maxn, ymin=-1.5, ymax=1.5, fill=u)
