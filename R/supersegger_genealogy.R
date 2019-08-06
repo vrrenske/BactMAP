@@ -78,7 +78,9 @@ plotTreeBasic <- function(phylo, extradata, yscalechange = FALSE, showClade = FA
     }
   }
   if(showClade!=TRUE){gP <- ggtree::ggtree(phylo, layout=layout, open.angle=open.angle, size=linesize, color=linecolor)}
+  if(!missing(extradata)){
   gP <- gP %<+% extradata
+  }
   if(yscalechange==TRUE){
     if(missing(ydata)){stop("Variable 'ydata' missing. Don't know what values to put on the y axis. Please give the column name of your data as 'ydata' in the function")}
     gP$data$y <- gP$data[,ydata]
