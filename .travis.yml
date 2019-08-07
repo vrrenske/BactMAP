@@ -2,7 +2,7 @@
 
 language: r
 r: release
-sudo: false
+sudo: required
 cache: packages
 bioc_packages: ggtree
 r_binary_packages:
@@ -10,7 +10,6 @@ r_binary_packages:
  - tidyr
  - stringr
 os:
-  - linux
   - osx
 
 addons:
@@ -31,4 +30,6 @@ addons:
       - libfftw3-dev
       - cargo
 
+before_install:
+  - if [[ "$OSTYPE" != "linux-gnu" ]]; then sudo tlmgr install framed titling; fi
 
