@@ -5,12 +5,16 @@ r: release
 sudo: required
 cache: packages
 bioc_packages: ggtree
+script:
+- R CMD build . --compact-vignettes=both
+
 r_binary_packages:
  - plyr
  - tidyr
  - stringr
 os:
   - osx
+  - linux
 
 addons:
   apt:
