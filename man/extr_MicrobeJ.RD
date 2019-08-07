@@ -1,7 +1,6 @@
 \name{extr_MicrobeJ}
 \alias{extr_MicrobeJ}
-\alias{extr_MicrobeJMESH}
-\alias{extr_MicrobeJSpots}
+
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{upload MicrobeJ output into R for further analysis
 %%  ~~function to do ... ~~
