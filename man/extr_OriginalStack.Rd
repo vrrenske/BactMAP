@@ -1,7 +1,7 @@
 \name{extr_Original}
-\alias{extr_Original}
 \alias{extr_OriginalStack}
 \alias{extr_OriginalCells}
+\alias{extr_Original}
 
 \title{Convert original TIFF image stack used to gather spot and cell outline data.
 }
