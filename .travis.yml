@@ -29,7 +29,11 @@ addons:
       - r-cran-rgdal
       - libfftw3-dev
       - cargo
+      - libgs-dev
+      - qpdf
+      - ghostscript
 
 before_install:
   - if [[ "$OSTYPE" != "linux-gnu" ]]; then sudo tlmgr install framed titling; fi
+  - if [ "$TRAVIS_OS_NAME" == "osx" ]; then brew install ghostscript; fi;
 
