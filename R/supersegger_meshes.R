@@ -131,8 +131,15 @@ bindallcellsandmeshes <- function(cellflip, cellmask, timelapse=TRUE){
 
 #' @export
 extr_SuperSeggerCells <- function(loc, frames, mag, timelapse=FALSE, startframe=0){
+  if(paste(loc, "/xy", startframe, sep="")%in%list.dirs(loc)==FALSE){
+    stop(paste("Cannot find SuperSegger output folder(s) starting with 'xy' in the directory '", loc, "'. Please make sure to set the correct path in variable 'loc'", sep=""))
+  }
   if (!requireNamespace("R.matlab", quietly = TRUE)) {
     inp <- readline("Package 'R.matlab' and 'raster' needed for this function to work. Press 'y' to install, or any other key to cancel.")
+    if(!requireNamespace("rgeos", quietly=TRUE)){
+      message("Installing 'raster' dependency 'rgeos'..")
+      utils::install.packages("rgeos")
+    }
     if(inp=="y"|inp=="Y"){utils::install.packages(c("R.matlab", "raster"))}else{stop("Canceled")}
   }
   if (!requireNamespace("raster", quietly = TRUE)) {
