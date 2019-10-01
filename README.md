@@ -19,13 +19,9 @@ trajectories in the cell and many other things. This can give you a
 quick overview of your data to make a decision on further analysis and
 custom visualization.
 
-In the [wiki](https://github.com/vrrenske/BactMAP/wiki) you will find a
-manual and some examples on how to use BactMAP as a gateway between your
-segmentation & fluorescence data.
-
-**BactMAP is still in development. Not all functions listed below are
-fully tested & documented yet. If you have any comments, requests,
-please let me know\!**
+**This is the development page of BactMAP. Please go to https://github.com/veeninglab/bactmap for 
+the stable build. There you can also find the wiki with instructions, documentation and tutorials.
+If you have any comments, requests or find bugs, please report it on the [Issues page](https://github.com/veeninglab/bactmap/issues).**
 
 ## Download and install package
 
@@ -34,6 +30,9 @@ please let me know\!**
     
     #install bactmap from my github repository
     devtools::install_github("vrrenske/bactMAP")
+    
+    #or from the stable build:
+    devtools::install_github("veeninglab/bactMAP")
     
     #or install it with all dependencies
     devtools::install_github("vrrenske/bactMAP", dependencies=TRUE)
