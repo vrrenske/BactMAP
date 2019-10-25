@@ -136,8 +136,18 @@ plotOverlay <- function(meshdata,
 
   #check mesh for requirements (if they're there)
   if(missing(meshdata)!=T){
+    if("Xrotum"%in%colnames(meshdata)){
+      meshdata$Xrot_micron <- meshdata$Xrotum
+      meshdata$Yrot_micron <- meshdata$Yrotum
+      meshdata$Xrotum <- NULL
+      meshdata$Yrotum <- NULL
+    }
     if("Xrot_micron"%in%colnames(meshdata)!=T){
-      if(missing(mag)){stop("No pixel-micron-corrected X/Y ggplot2::coordinates in mesh file 'Xrot_micron' and 'Yrot_micron' found and no magnification correction value ('mag') found. Add value 'mag' in function or add columns 'Xrot_micron' & 'Yrot_micron' to meshdata")}
+      if(missing(mag)){
+        if("Xrotum"%in%colnames(meshdata)!=T){
+          stop("No pixel-micron-corrected X/Y ggplot2::coordinates in mesh file 'Xrot_micron' and 'Yrot_micron' found and no magnification correction value ('mag') found. Add value 'mag' in function or add columns 'Xrot_micron' & 'Yrot_micron' to meshdata")}
+
+      }
       meshdata$Xrot_micron <- meshdata$X_rot * unlist(get(magnificationList,envir=magEnv)[mag])
       meshdata$Yrot_micron <- meshdata$Y_rot * unlist(get(magnificationList,envir=magEnv)[mag])
     }

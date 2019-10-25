@@ -29,8 +29,16 @@ plotTracks <- function(meshdata,
 
       if(turn_cells==TRUE){
         if("X_rot"%in%colnames(meshdata)){
+          if("Xrotum"%in%colnames(meshdata)){
+            meshdata$Xrot_micron <- meshdata$Xrotum
+            meshdata$Yrot_micron <- meshdata$Yrotum
+            meshdata$Xrotum <- NULL
+            meshdata$Yrotum <- NULL
+          }
           if("Xrot_micron"%in%colnames(meshdata)!=T){
-            if(missing(mag)){stop("Please specify the pixel-micron conversion value 'mag'.")}
+            if(missing(mag)){
+              stop("Please specify the pixel-micron conversion value 'mag'.")
+            }
             meshdata$Xrot_micron <- meshdata$X_rot*unlist(get(magnificationList,envir=magEnv)[mag])
             meshdata$Yrot_micron <- meshdata$Y_rot*unlist(get(magnificationList,envir=magEnv)[mag])
           }
