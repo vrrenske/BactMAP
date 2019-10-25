@@ -157,8 +157,8 @@ extr_SuperSeggerCells <- function(loc, frames, mag, timelapse=FALSE, startframe=
     if(is.numeric(unlist(get(magnificationList,envir=magEnv)[mag]))==FALSE){
       stop("Magnification conversion factor not recognized. Please use addPixels2um('pixelName', pixelsize) to add your conversion factor")
     }
-    finalframe$mesh$Yrotum <- finalframe$mesh$Y_rot * unlist(get(magnificationList,envir=magEnv)[mag])
-    finalframe$mesh$Xrotum <- finalframe$mesh$X_rot * unlist(get(magnificationList,envir=magEnv)[mag])
+    finalframe$mesh$Yrot_micron <- finalframe$mesh$Y_rot * unlist(get(magnificationList,envir=magEnv)[mag])
+    finalframe$mesh$Xrot_micron <- finalframe$mesh$X_rot * unlist(get(magnificationList,envir=magEnv)[mag])
     finalframe$mesh$max_um <- finalframe$mesh$max.length* unlist(get(magnificationList, envir=magEnv)[mag])
     finalframe$mesh$maxwum <- finalframe$mesh$max.width *  unlist(get(magnificationList, envir=magEnv)[mag])
     finalframe$mesh$area_um <- finalframe$mesh$area *  unlist(get(magnificationList, envir=magEnv)[mag])^2

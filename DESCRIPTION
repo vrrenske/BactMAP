@@ -10,11 +10,12 @@ LazyData: true
 URL: https://veeninglab.com/bactmap
 biocViews:
 Imports:
-  ggplot2,
+  ggplot2 (>= 3.0.0),
   plyr,
   utils,
   methods,
   stats,
+  rlang (>= 0.4.0),
   ggtree
 Suggests:
   gridExtra,
@@ -37,7 +38,7 @@ Suggests:
   knitr,
   rmarkdown,
   pbapply,
-  gganimate,
+  gganimate (>= 1.0.3),
   ggimage,
   mvtnorm,
   tidyverse
