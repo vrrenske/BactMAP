@@ -9,8 +9,9 @@
 
 #function to get all cell files into R as a list per frame number
 upperdir <- function(frameN, loc){
-  cellnameList <- list.files(path=paste(loc, "\\xy", frameN, "\\cell", sep=""))
-  matlist <- lapply(cellnameList, function(x) R.matlab::readMat(paste(loc, "\\xy", frameN, "\\cell\\", x, sep="")))
+  cellnameList <- list.files(path=paste(loc, "/xy", frameN, "/cell", sep=""))
+  cellnameList = cellnameList[cellnameList != "outsideTheGate"]
+  matlist <- lapply(cellnameList, function(x) R.matlab::readMat(paste(loc, "/xy", frameN, "/cell/", x, sep="")))
   return(matlist)
 }
 
