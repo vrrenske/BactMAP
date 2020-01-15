@@ -151,6 +151,10 @@ extr_SuperSeggerCells <- function(loc, frames, mag, timelapse=FALSE, startframe=
     inp <- readline("Package 'raster' needed for this function to work. Press 'y' to install, or any other key to cancel.")
     if(inp=="y"|inp=="Y"){utils::install.packages("raster")}else{stop("Canceled")}
   }
+  if(!requireNamespace("rgeos", quietly=TRUE)){
+    message("Installing 'rgeos'..")
+    utils::install.packages("rgeos")
+  }
 
   segcells <- readallsegcells(frames=frames, loc=loc, startframe = startframe)
   segmasks <- getallmasks(segcells)
