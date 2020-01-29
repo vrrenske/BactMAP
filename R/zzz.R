@@ -2,5 +2,5 @@
 
 
 .onAttach <- function(libname,pkgname){
-  packageStartupMessage("Welcome to BactMAP version 0.1.0.1 (30 October 2019). \n see what's new, type '?bactmapnews' in your console.")
+  packageStartupMessage("This is the development version of BactMAP. To download the stable version of bactmap, use 'remotes::install_github('veeninglab/bactmap')'")
 }
