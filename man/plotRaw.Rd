@@ -17,7 +17,8 @@ plotRaw(tiffdata,
         viridisoption = "inferno",
         meshcolor = "white",
         spotcolor = "yellow",
-        valuerange)
+        valuerange,
+        legend=FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -51,6 +52,9 @@ color for displayed spots. default = "yellow"
   \item{valuerange}{
 vector with minumum and maximum pixel values to show TIFF, use this option to increase contrast
 }
+  \item{legend}{
+displays a figure legend when legend==TRUE
+  }
 }
 
 \value{

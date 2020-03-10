@@ -16,7 +16,8 @@ extr_ObjectJ( dataloc,
                                "X6", "X7", "X8", "X9", "X10", "X11"),
               boundingBoxY = c("Y1", "Y2", "Y3", "Y4", "Y5", "Y6",
                                "Y7", "Y8", "Y9", "Y10", "Y11"),
-              turn_meshes = TRUE)
+              turn_meshes = TRUE,
+              cellList=FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

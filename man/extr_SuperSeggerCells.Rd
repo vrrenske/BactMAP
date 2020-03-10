@@ -48,9 +48,7 @@ For extr_SuperSeggerClist:
  \item{trim.orphans}{
  Default=TRUE. When TRUE, cells without offspring or parents will be removed from the dataset.
  }
- \item{cellList}{
- Default=FALSE. When TRUE, the cellList (see below) will be part of the output of the function.
- }
+
 
 }
 \details{

@@ -9,7 +9,7 @@
 Upload the output of MicrobeJ into R. Upto now the code supports fluorescent localization data & cell outlines, both saved as seperate .CSV or .TXT files in the MicrobeJ GUI by first pressing \emph{<right click> -> expand all} on one of the Results columns and then pressing \emph{<right click> -> export} for both the cell contour dataset and the fluorescent localization dataset.
 }
 \usage{
-extr_MicrobeJ(dataloc, spotloc, objectloc, mag, sepspot=",", sepmesh=",", sepobj=",", cellList=FALSE)
+extr_MicrobeJ(dataloc, spotloc, objectloc, mag, sepspot=",", sepmesh=",", sepobj=",", cellList=FALSE, keeprealvalues=FALSE)
 }
 
 
@@ -22,6 +22,7 @@ extr_MicrobeJ(dataloc, spotloc, objectloc, mag, sepspot=",", sepmesh=",", sepobj
   \item{sepmesh}{default is ",". when the to-be-imported .csv/txt is seperated by another value, change here.}
   \item{sepobj}{default is ",". when the to-be-imported .csv/txt is seperated by another value, change here.}
   \item{cellList}{when cellList==TRUE, the dataframe 'cellList' (see Values below) will be in the output list.}
+  \item{keeprealvalues}{default FALSE. BactMAP checks whether the mesh and spot files are both in pixels or in micron and corrects this. When keeprealvalues==TRUE, BactMAP skips this step.}
 
 }
 
