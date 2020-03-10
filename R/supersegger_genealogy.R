@@ -25,8 +25,14 @@ extr_SuperSeggerClist <- function(matfile, trim.orphans=TRUE, cellList=FALSE){
   colnames(datasegger) <- unlist(clist$def)
   out <- list()
   out$cellList <- datasegger
-  datasegger <- datasegger[,c("Cell ID", "Cell birth time", "Cell death time", "Cell age", "Fluor1 sum", "Fluor1 mean", "Fluor1 sum death", "Fluor1 mean death", "Mother ID", "Daughter1 ID", "Daughter2 ID")]
-  colnames(datasegger) <- c("cell", "birth", "death", "edgelength", "fluorsum", "fluormean", "fluorsum_D", "fluormean_D", "parent", "child1", "child2")
+  if("Fluor2 sum"%in%colnames(datasegger)){
+    datasegger <- datasegger[,c("Cell ID", "Cell birth time", "Cell death time", "Cell age", "Fluor1 sum", "Fluor1 mean", "Fluor1 sum death", "Fluor1 mean death", "Fluor2 sum", "Fluor2 mean", "Fluor2 sum death", "Fluor2 mean death", "Mother ID", "Daughter1 ID", "Daughter2 ID")]
+    colnames(datasegger) <- c("cell", "birth", "death", "edgelength", "fluorsum", "fluormean", "fluorsum_D", "fluormean_D", "fluorsum2", "fluormean2", "fluorsum_D2", "fluormean_D2", "parent", "child1", "child2")
+
+  }else{
+    datasegger <- datasegger[,c("Cell ID", "Cell birth time", "Cell death time", "Cell age", "Fluor1 sum", "Fluor1 mean", "Fluor1 sum death", "Fluor1 mean death", "Mother ID", "Daughter1 ID", "Daughter2 ID")]
+    colnames(datasegger) <- c("cell", "birth", "death", "edgelength", "fluorsum", "fluormean", "fluorsum_D", "fluormean_D", "parent", "child1", "child2")
+  }
   #datasegger$cell <- datasegger$cell + 1
   #datasegger$parent <- datasegger$parent + 1
   #datasegger$child1 <- datasegger$child1 + 1

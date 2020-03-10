@@ -530,7 +530,7 @@ LimDum <- function(MR, pix2um, remOut=T, ouf=F){
   return(MR)
 }
 
-mL <- list("100x_TIRF" = 0.0499538, "100x_DVMolgen" = 0.0645500, "No_PixelCorrection" = 1, "100x_FRAP" = 0.0499548)
+mL <- list("100x_TIRF" = 0.05204891, "100x_DVMolgen" = 0.0645500, "No_PixelCorrection" = 1, "100x_FRAP" = 0.0499548)
 magnificationList <- "magnificationList"
 magEnv <- new.env()
 assign(magnificationList, mL, envir=magEnv)

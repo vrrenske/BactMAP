@@ -16,7 +16,16 @@ extr_MicrobeJMESH <- function(dataloc, sep=","){
   MESH <- utils::read.csv(dataloc, header=T, sep=sep)
   meshL <- list()
   meshL$cellList <- MESH
-  IDlist <- data.frame(NAME.id = unique(MESH$NAME.id), cell = c(1:length(unique(MESH$NAME.id))))
+  if("NAME.id"%in%colnames(MESH)){
+    IDlist <- data.frame(NAME.id = unique(MESH$NAME.id), cell = c(1:length(unique(MESH$NAME.id))))
+  }else{
+    if("NAME"%in%colnames(MESH)){
+      IDlist <- data.frame(NAME.id = unique(MESH$NAME), cell = c(1:length(unique(MESH$NAME))))
+      MESH$NAME.id <- MESH$NAME
+    }else{
+      stop("Can not find the cell indicator. Please check your MicrobeJ CSV and make sure to save it including the column 'NAME' or 'NAME.id'")
+    }
+  }
   MESH <- merge(MESH, IDlist)
   MESH$frame <- MESH$POSITION
   MESH$cellID <- MESH$NAME.id
@@ -53,19 +62,45 @@ extr_MicrobeJSpots <- function(spotloc ,mag, sep=","){
 
   spotL <- list()
   spotL$cellList <- SPOTS
- #SPOTS$x <- t(data.frame(strsplit(stringr::str_sub(SPOTS$LOCATION,2,-2),";"))[1,])
-  #SPOTS$y <- t(data.frame(strsplit(stringr::str_sub(SPOTS$LOCATION,2,-2),";"))[2,])
-  SPOTS$x <- as.numeric(as.character(SPOTS$LOCATION.x))/unlist(get(magnificationList, envir=magEnv)[mag])
-  SPOTS$y <- as.numeric(as.character(SPOTS$LOCATION.y))/unlist(get(magnificationList, envir=magEnv)[mag])
-  SPOTS$cellID <- SPOTS$PARENT.id
-  SPOTS$frame <- SPOTS$POSITION.slice
+  if("LOCATION.x"%in%colnames(SPOTS)){
+    SPOTS$x <- as.numeric(as.character(SPOTS$LOCATION.x))/unlist(get(magnificationList, envir=magEnv)[mag])
+    SPOTS$y <- as.numeric(as.character(SPOTS$LOCATION.y))/unlist(get(magnificationList, envir=magEnv)[mag])
+  }else{
+    if("LOCATION"%in%colnames(SPOTS)){
+      SPOTS$x <- as.numeric(t(data.frame(strsplit(stringr::str_sub(SPOTS$LOCATION,2,-2),";"))[1,]))
+      SPOTS$y <- as.numeric(t(data.frame(strsplit(stringr::str_sub(SPOTS$LOCATION,2,-2),";"))[2,]))
+    }else{
+      stop("X/Y positions of Maxima not found. Make sure to include the column 'LOCATION' or the colums 'LOCATION.x' and 'LOCATION.y' in your MicrobeJ CSV file")
+    }
+  }
+
+  if("PARENT.id"%in%colnames(SPOTS)){
+    SPOTS$cellID <- SPOTS$PARENT.id
+  }else{
+    if("PARENT"%in%colnames(SPOTS)){
+      SPOTS$cellID <- SPOTS$PARENT
+    }
+    else(
+      stop("Column 'PARENT' or 'PARENT.id' not found. Cannot identify the cell. Please include the column 'PARENT' or 'PARENT.id' in the MicrobeJ CSV output")
+    )
+  }
+
+  if("POSITION.slice"%in%colnames(SPOTS)){
+    SPOTS$frame <- SPOTS$POSITION.slice
+  }else{
+    if("POSITION"%in%colnames(SPOTS)){
+      SPOTS$frame <- SPOTS$POSITION
+    }else{
+      stop("Column 'POSITION' or 'POSITION.slice' not found. Cannot indicate frame number. Please include the column 'POSITION' or 'POSITION.slice' in your MicrobeJ CSV output.")
+    }
+  }
   SPOTS <- SPOTS[,c("x", "y", "cellID", "frame")]
   spotL$spotList <- SPOTS
   return(spotL)
 }
 
 #' @export
-extr_MicrobeJ <- function(dataloc, spotloc, objectloc, mag, sepspot=",", sepmesh=",", sepobj=",", cellList=FALSE){
+extr_MicrobeJ <- function(dataloc, spotloc, objectloc, mag, sepspot=",", sepmesh=",", sepobj=",", cellList=FALSE, keeprealvalues=FALSE){
   if(missing(spotloc)!=T&missing(dataloc)!=T&missing(mag)){
     stop("Magnification conversion needed for proper intercellular measurements! MicrobeJ already converted the spot localizations for you, but not the contours.")
   }
@@ -111,12 +146,26 @@ extr_MicrobeJ <- function(dataloc, spotloc, objectloc, mag, sepspot=",", sepmesh
   if(missing(spotloc)!=T&missing(dataloc)!=T){
     IDframe <- unique(MESH[,c("cellID", "cell")])
     SPOTS <- merge(SPOTS, IDframe)
-    listbox <- spotsInBox(SPOTS, MESH)
+    if(keeprealvalues==FALSE){
+      if(abs((max(SPOTS$x)/unlist(get(magnificationList, envir=magEnv)[mag]))-max(MESH$X))<abs(max(SPOTS$x)-max(MESH$X))){
+        message("BactMAP detected that the maxima (spots) coordinates are in micron while the contour (mesh) coordinates are in pixels and corrects this. To override, include the command 'keeprealvalues=TRUE' in the extr_MicrobeJ function call.")
+        SPOTS$x <- SPOTS$x/unlist(get(magnificationList, envir=magEnv)[mag])
+        SPOTS$y <- SPOTS$y/unlist(get(magnificationList, envir=magEnv)[mag])
+      }else{
+        if(abs(max(SPOTS$x)-(max(MESH$X)/unlist(get(magnificationList, envir=magEnv)[mag])))<abs(max(SPOTS$x)-max(MESH$X))){
+          message("BactMAP detected that the contour (mesh) coordinates are in micron while the maxima (spots) coordinates are in pixels and corrects this. To override, include the command 'keeprealvalues=TRUE' in the extr_MicrobeJ function call.")
+          MESH$X<-MESH$X/unlist(get(magnificationList, envir=magEnv)[mag])
+          MESH$Y<-MESH$Y/unlist(get(magnificationList, envir=magEnv)[mag])
+          }
+      }
+    }
+    listbox <- spotsInBox(SPOTS, MESH, meshInOutput=TRUE)
     outlist$spotframe <- SPOTS
     if(missing(mag)){
       mag <- "No_PixelCorrection"
     }
     spot_mesh <- mergeframes(listbox$spots_relative, listbox$mesh, mag)
+
     outlist$spots_relative <- spot_mesh
 
     outlist$mesh <- listbox$mesh
