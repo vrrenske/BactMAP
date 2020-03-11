@@ -78,9 +78,9 @@ spotsInBox <- function(spotdata, meshdata, Xs = "x", Ys = "y", Xm = "X", Ym = "Y
     inp <- readline("Package 'shotGroups' needed for this function to work. Press 'y' to install, or any other key to cancel.")
     if(inp=="y"|inp=="Y"){utils::install.packages("shotGroups")}else{stop("Canceled")}
   }
-  if (!requireNamespace("SDMTools", quietly = TRUE)) {
-    inp <- readline("Package 'SDMTools' needed for this function to work. Press 'y' to install, or any other key to cancel.")
-    if(inp=="y"|inp=="Y"){utils::install.packages("SDMTools")}else{stop("Canceled")}
+  if (!requireNamespace("sp", quietly = TRUE)) {
+    inp <- readline("Package 'sp' needed for this function to work. Press 'y' to install, or any other key to cancel.")
+    if(inp=="y"|inp=="Y"){utils::install.packages("sp")}else{stop("Canceled")}
   }
   #q <- 0
   #b <- 0
@@ -158,7 +158,8 @@ getSpotsInBox <- function(meshp, spotdatap, u, a, returnMESH){
     meshp$max.length <- max(lengthwidth) #take length/width if not already defined
   }
 
-  pinps <- suppressWarnings(SDMTools::pnt.in.poly(spotdatap[,c("x", "y")], data.frame(meshp$X,meshp$Y))) #find spot/object coordinates inside cell
+  pinps <- suppressWarnings(sp::point.in.polygon(spotdatap[,"x"], spotdatap[,"y"], meshp$X,meshp$Y)) #find spot/object coordinates inside cell
+  pinps <- data.frame("x"=spotdatap$x, "y"=spotdatap$y, "pip"=pinps)
   if(nrow(pinps)>0){
     pinps <- pinps[pinps$pip==1,]
   }
