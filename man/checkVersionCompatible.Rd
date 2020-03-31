@@ -21,21 +21,11 @@ The function standardly fixes found compatibility problems (between version 0.1.
 \value{
 If returnDataFrame is set to \code{TRUE}, a dataframe with the correct variable names is returned.
 }
-\references{
-%% ~put references to the literature/web site here ~
-}
+
 \author{
 Renske van Raaphorst
 }
-\note{
-%%  ~~further notes~~
-}
 
-%% ~Make other sections like Warning with \section{Warning }{....} ~
-
-\seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
-}
 \examples{
 \dontrun{
 #using TurnedCell4 dataframe from the example dataset (\url{https://veeninglab.com/f/example_datasets.zip})

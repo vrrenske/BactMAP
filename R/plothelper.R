@@ -154,6 +154,10 @@ superfun <- function(dat, bins,mag){
   Lb <- split(dat$max.length, dat$binned1)
   maxLmeans <- lapply(Lb, function(x)mean(x))
   meanframe <- data.frame(x=unlist(xmeans), yp=unlist(ypmeans), ym=unlist(ymmeans),max.length=unlist(maxLmeans))
+  if (!requireNamespace("reshape2", quietly = TRUE)) {
+    inp_P <- readline("Package 'reshape2' needed for this function to work. Press 'y' to install, or any other key to cancel.")
+    if(inp_P=="y"|inp_P=="Y"){utils::install.packages("reshape2")}else{stop("Canceled")}
+  }
   meanframe <- reshape2::melt(meanframe, c("x","max.length"), value.name="y")
   meanframe$variable <- NULL
   meanframe <- meanframe * mag
@@ -208,7 +212,7 @@ createPlotList <- function(spotdata,  meshdata, groups =4 , colorpalette="GreenY
   }
   if("Lmid"%in%colnames(spotdata)==F&"l"%in%colnames(spotdata)==F){
     message("Did not find cell data in spot dataset. Running spotsInBox to connect spots to meshes...")
-    combineframes <- spotsInBox(spotdata, meshdata, Xm=Xm,Ym=Ym)
+    combineframes <- spotsInBox(spotdata, meshdata, Xm=Xm,Ym=Ym,meshInOutput=TRUE)
     meshdata <- combineframes$mesh
     spotdata <- combineframes$spots_relative
 
@@ -371,11 +375,11 @@ createPlotList <- function(spotdata,  meshdata, groups =4 , colorpalette="GreenY
     meshdata <- merge(meshdata, MR[,c("cell", "frame", "q1")], all=T)
     MESHlist <- split(meshdata, meshdata$q1)
     message("Calculating mean cell outlines..")
-    if(nrow(unique(meshdata[meshdata$max.length==max(meshdata$max.length),]))< 12){
+    if(nrow(unique(meshdata[,c("cell", "frame", "max.length")][meshdata$max.length==max(meshdata$max.length),]))< 12){
       means <- lapply(MESHlist, function(x) superfun(x, 12, p2um))
     }
-    if(nrow(unique(meshdata[meshdata$max.length==max(meshdata$max.length),]))>11){
-      means <- lapply(MESHlist, function(x)superfun(x, round(min(x$max.length), digits=0), p2um))
+    if(nrow(unique(meshdata[,c("cell", "frame", "max.length")][meshdata$max.length==max(meshdata$max.length),]))>11){
+      means <- lapply(MESHlist, function(x)superfun(x, round(nrow(unique(x[,c("cell", "frame", "max.length")][x$max.length==min(x$max.length),])), digits=0), p2um))
     }
     u$mean_outlines <- means
     message("Finished calculating mean cell outlines")
@@ -416,11 +420,11 @@ createPlotList <- function(spotdata,  meshdata, groups =4 , colorpalette="GreenY
   pall <- heatmap(pall, mppall, colc, viridis)
 
 
-  if(nrow(unique(meshdata[meshdata$max.length==max(meshdata$max.length),]))< 12){
+  if(nrow(unique(meshdata[,c("cell", "frame", "max.length")][meshdata$max.length==max(meshdata$max.length),]))< 12){
     meantotal <- superfun(meshdata, 12, p2um)
   }
-  if(nrow(unique(meshdata[meshdata$max.length==max(meshdata$max.length),]))> 11){
-    meantotal <- superfun(meshdata, 30, p2um)
+  if(nrow(unique(meshdata[,c("cell", "frame", "max.length")][meshdata$max.length==max(meshdata$max.length),]))> 11){
+    meantotal <- superfun(meshdata, round(nrow(unique(x[,c("cell", "frame", "max.length")][x$max.length==min(x$max.length),])), digits=0), p2um)
   }
   pall <- coplot(pall,max(meantotal$x)*1.2, max(meantotal$y)*1.2)
   pall <- pall + ggplot2::geom_path(data=meantotal, ggplot2::aes_string(x='x',y='y'), colour="white")
