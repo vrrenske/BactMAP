@@ -19,7 +19,7 @@ plotObjects <- function(obdat, meshdat, groups=1, cellcolor="black", objectcolor
   }
 
   obdat <- obdat[order(obdat$frame, obdat$cell, obdat$obnum, obdat$obpath),]
-  obdat$frameOB <- paste(obdat$frame, obdat$obID, sep="_")
+  obdat$frameOB <- paste(obdat$frame, obdat$obID, obdat$cell, sep="_")
   if(getdata==TRUE){outlist$object_data <- obdat}
   if(missing(meshdat)==TRUE){
     outplot <- ggplot2::ggplot(obdat, ggplot2::aes_string(x='ob_out_x', y='ob_out_y', group='frameOB')) +

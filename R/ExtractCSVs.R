@@ -26,10 +26,25 @@ extr_MicrobeJMESH <- function(dataloc, sep=","){
       stop("Can not find the cell indicator. Please check your MicrobeJ CSV and make sure to save it including the column 'NAME' or 'NAME.id'")
     }
   }
-  MESH <- merge(MESH, IDlist)
-  MESH$frame <- MESH$POSITION
-  MESH$cellID <- MESH$NAME.id
-  MESH <- MESH[,c("X", "Y", "cell", "frame", "cellID")]
+  MESH <- dplyr::left_join(MESH, IDlist)
+  MESH <- dplyr::rename(MESH, frame = POSITION, cellID = NAME.id)
+  if("Y"%in%colnames(MESH)==FALSE){
+    if("COORD.y"%in%colnames(MESH)==TRUE){
+      if("X"%in%colnames(MESH)){
+        MESH$X <- NULL
+      }
+      MESH <- dplyr::rename(MESH, X = COORD.x, Y=COORD.y)
+    }else{
+      stop("Cannot find X/Y coordinates. BactMAP recognizes the coordinate names 'COORD.x' and 'COORD.y', as well as the names 'X' and 'Y'. Please check your contour CSV and change the names of the coordinate variables accordingly")
+    }
+  }
+
+  if("intensity"%in%colnames(MESH)){
+    MESH <- MESH[,c("X", "Y", "cell", "frame", "cellID", "intensity")]
+  }else{
+    MESH <- MESH[,c("X", "Y", "cell", "frame", "cellID")]
+    }
+
   bblist <- lapply(unique(MESH$cellID), function(x) as.numeric(suppressWarnings(shotGroups::getMinBBox(data.frame(x= MESH[MESH$cellID==x,]$X, y=MESH[MESH$cellID==x,]$Y))[c("width","height")])))
   lengthlist <- lapply(c(1:length(bblist)), function(x) max(bblist[[x]]))
   widthlist <- lapply(c(1:length(bblist)), function(x) min(bblist[[x]]))
@@ -100,13 +115,40 @@ extr_MicrobeJSpots <- function(spotloc ,mag, sep=","){
 }
 
 #' @export
-extr_MicrobeJ <- function(dataloc, spotloc, objectloc, mag, sepspot=",", sepmesh=",", sepobj=",", cellList=FALSE, keeprealvalues=FALSE){
-  if(missing(spotloc)!=T&missing(dataloc)!=T&missing(mag)){
-    stop("Magnification conversion needed for proper intercellular measurements! MicrobeJ already converted the spot localizations for you, but not the contours.")
+extr_MicrobeJ <- function(dataloc, spotloc, objectloc, mag = "No_PixelCorrection", sepspot=",", sepmesh=",", sepobj=",", cellList=FALSE, keeprealvalues=FALSE, magcor = c("dataloc", "spotloc", "objectloc")){
+  if(mag=="No_PixelCorrection"&"dataloc"%in%magcor&"spotloc"%in%magcor&"objectloc"%in%magcor){
+    warning("Not converting pixels to micron for any dataset. If you are not sure if you need to correct pixels to micron, check the values of the x/y coordinaties (COORD.x/y and POSITION.x/y) in your MicrobeJ CSVs.")
+    magd <- mag
+    mago <- mag
+    mags <- mag
   }
   if(missing(mag)!=T&is.numeric(unlist(get(magnificationList,envir=magEnv)[mag]))==FALSE){
     stop("Magnification conversion factor not recognized. Please use addPixels2um('pixelName', pixelsize) to add your conversion factor")
   }
+  if(mag!="No_PixelCorrection"){
+    if("dataloc"%in%magcor){
+      magd <- mag
+      message(paste("Using pixel to micron conversion factor", magd, "to convert cell contour pixel coordinates to microns."))
+    }else{
+      magd <- "No_PixelCorrection"
+      message("Keeping cell contour coordinates as is.")
+    }
+    if("spotloc"%in%magcor){
+      mags <- mag
+      message(paste("Using pixel to micron conversion factor", mags, "to convert spot coordinates to microns."))
+    }else{
+      mags <- "No_PixelCorrection"
+      message("Keeping spot coordinates as is.")
+    }
+    if("objectloc"%in%magcor){
+      mago <- mag
+      message(paste("Using pixel to micron conversion factor", mago, "to convert object contour pixel coordinates to microns."))
+    }else{
+      mago <- "No_PixelCorrection"
+      message("Keeping object contour coordinates as is.")
+    }
+  }
+
   outlist <- list()
   if(missing(dataloc)!=T){
     MESHout <- extr_MicrobeJMESH(dataloc, sepmesh)
@@ -119,10 +161,7 @@ extr_MicrobeJ <- function(dataloc, spotloc, objectloc, mag, sepspot=",", sepmesh
     }
   }
   if(missing(spotloc)!=T){
-    if(missing(mag)){
-      mag <- "No_PixelCorrection"
-    }
-    spotsout <- extr_MicrobeJSpots(spotloc ,mag, sep=sepspot)
+    spotsout <- extr_MicrobeJSpots(spotloc ,mags, sep=sepspot)
     SPOTS <- spotsout$spotList
     cellList2 <- spotsout$cellList
     if(missing(dataloc)==T){
@@ -139,6 +178,7 @@ extr_MicrobeJ <- function(dataloc, spotloc, objectloc, mag, sepspot=",", sepmesh
     colnames(objectsout)[colnames(objectsout)=="max.length"] <- "oblength"
     colnames(objectsout)[colnames(objectsout)=="max.width"] <- "obwidth"
     objectsout$cell <- NULL
+    objectsout$num <- NULL
     pathframe <- do.call('rbind',lapply(unique(objectsout$obID), function(x) data.frame("obID"=x, "obpath"=c(1:nrow(objectsout[objectsout$obID==x,])))))
     objectsout$obpath <- pathframe$obpath
     outlist$objectframe <- objectsout
@@ -146,25 +186,33 @@ extr_MicrobeJ <- function(dataloc, spotloc, objectloc, mag, sepspot=",", sepmesh
   if(missing(spotloc)!=T&missing(dataloc)!=T){
     IDframe <- unique(MESH[,c("cellID", "cell")])
     SPOTS <- merge(SPOTS, IDframe)
-    if(keeprealvalues==FALSE){
-      if(abs((max(SPOTS$x)/unlist(get(magnificationList, envir=magEnv)[mag]))-max(MESH$X))<abs(max(SPOTS$x)-max(MESH$X))){
+    if((keeprealvalues==FALSE&"dataloc"%in%magcor&"spotloc"%in%magcor) | (keeprealvalues==FALSE&"dataloc"%in%magcor!=T&"spotloc"%in%magcor!=T)){
+      if(abs((max(SPOTS$x)/unlist(get(magnificationList, envir=magEnv)[mags]))-max(MESH$X))<abs(max(SPOTS$x)-max(MESH$X))){
         message("BactMAP detected that the maxima (spots) coordinates are in micron while the contour (mesh) coordinates are in pixels and corrects this. To override, include the command 'keeprealvalues=TRUE' in the extr_MicrobeJ function call.")
-        SPOTS$x <- SPOTS$x/unlist(get(magnificationList, envir=magEnv)[mag])
-        SPOTS$y <- SPOTS$y/unlist(get(magnificationList, envir=magEnv)[mag])
+        SPOTS$x <- SPOTS$x/unlist(get(magnificationList, envir=magEnv)[mags])
+        SPOTS$y <- SPOTS$y/unlist(get(magnificationList, envir=magEnv)[mags])
       }else{
-        if(abs(max(SPOTS$x)-(max(MESH$X)/unlist(get(magnificationList, envir=magEnv)[mag])))<abs(max(SPOTS$x)-max(MESH$X))){
+        if(abs(max(SPOTS$x)-(max(MESH$X)/unlist(get(magnificationList, envir=magEnv)[magd])))<abs(max(SPOTS$x)-max(MESH$X))){
           message("BactMAP detected that the contour (mesh) coordinates are in micron while the maxima (spots) coordinates are in pixels and corrects this. To override, include the command 'keeprealvalues=TRUE' in the extr_MicrobeJ function call.")
-          MESH$X<-MESH$X/unlist(get(magnificationList, envir=magEnv)[mag])
-          MESH$Y<-MESH$Y/unlist(get(magnificationList, envir=magEnv)[mag])
+          MESH$X<-MESH$X/unlist(get(magnificationList, envir=magEnv)[magd])
+          MESH$Y<-MESH$Y/unlist(get(magnificationList, envir=magEnv)[magd])
           }
       }
+    }else{
+      if("dataloc"%in%magcor==T&"spotloc"%in%magcor!=T){
+        SPOTS$x <- SPOTS$x/unlist(get(magnificationList, envir=magEnv)[magd])
+        SPOTS$y <- SPOTS$y/unlist(get(magnificationList, envir=magEnv)[magd])
+      }
+      if("spotloc"%in%magcor==T&"dataloc"%in%magcor!=T){
+        MESH$X<-MESH$X/unlist(get(magnificationList, envir=magEnv)[mags])
+        MESH$Y<-MESH$Y/unlist(get(magnificationList, envir=magEnv)[mags])
+      }
     }
+
     listbox <- spotsInBox(SPOTS, MESH, meshInOutput=TRUE)
     outlist$spotframe <- SPOTS
-    if(missing(mag)){
-      mag <- "No_PixelCorrection"
-    }
-    spot_mesh <- mergeframes(listbox$spots_relative, listbox$mesh, mag)
+
+    spot_mesh <- mergeframes(listbox$spots_relative, listbox$mesh, mags)
 
     outlist$spots_relative <- spot_mesh
 
@@ -178,13 +226,13 @@ extr_MicrobeJ <- function(dataloc, spotloc, objectloc, mag, sepspot=",", sepmesh
     if("X_rot"%in%colnames(outlist$mesh)!=T){
       outlist$mesh <- meshTurn(outlist$mesh)
     }
-    outlist$mesh$Xrot_micron <- outlist$mesh$X_rot * unlist(get(magnificationList, envir=magEnv)[mag])
-    outlist$mesh$Yrot_micron <- outlist$mesh$Y_rot * unlist(get(magnificationList, envir=magEnv)[mag])
-    outlist$mesh$max_um <- outlist$mesh$max.length * unlist(get(magnificationList, envir=magEnv)[mag])
-    outlist$mesh$maxwum <- outlist$mesh$max.width * unlist(get(magnificationList, envir=magEnv)[mag])
+    outlist$mesh$Xrot_micron <- outlist$mesh$X_rot * unlist(get(magnificationList, envir=magEnv)[magd])
+    outlist$mesh$Yrot_micron <- outlist$mesh$Y_rot * unlist(get(magnificationList, envir=magEnv)[magd])
+    outlist$mesh$max_um <- outlist$mesh$max.length * unlist(get(magnificationList, envir=magEnv)[magd])
+    outlist$mesh$maxwum <- outlist$mesh$max.width * unlist(get(magnificationList, envir=magEnv)[magd])
   }
   if(missing(objectloc)!=T&missing(dataloc)!=T){
-    object_relative <- objectInBox(outlist$mesh, outlist$objectframe, mag=mag)
+    object_relative <- objectInBox(meshdata = outlist$mesh, objectdata = outlist$objectframe, mag=mago)
     outlist$object_relative <- object_relative
   }
   outlist$pixel2um <- unlist(get(magnificationList, envir=magEnv)[mag])

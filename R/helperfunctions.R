@@ -9,6 +9,7 @@
 #library(ggthemes)
 #library(gridExtra)
 
+
 #' @export
 #'
 #'
@@ -481,28 +482,45 @@ takeObjectCentre <- function(dat, xie, yie){
 }
 
 #add object centre to mesh file and turn accordingly
+#' @importFrom dplyr %<%
 midobject <- function(MESH, OBJ, p2um){
-  MESH <- merge(MESH, OBJ, all=T)
-  MESH$xccor <- MESH$centre_x - MESH$Xmid
-  MESH$yccor <- MESH$centre_y - MESH$Ymid
-  MESH$xcorcor <- MESH$ob_x - MESH$Xmid
-  MESH$ycorcor <- MESH$ob_y - MESH$Ymid
-  #MESHp$X_rot <- X_cor * cos(angle) - Y_cor * sin(angle)
-  MESH$Lmid <- MESH$xccor * cos(MESH$angle) - MESH$yccor * sin(MESH$angle)
-  MESH$Dum <- MESH$xccor * sin(MESH$angle) + MESH$yccor * cos(MESH$angle)
-  MESH$ob_out_x <- MESH$xcorcor * cos(MESH$angle) - MESH$ycorcor * sin(MESH$angle)
-  MESH$ob_out_y <- MESH$xcorcor * sin(MESH$angle) + MESH$ycorcor * cos(MESH$angle)
-  MO <- MESH[,c("frame", "cell", "obpath", "obnum", "obID", "max.length", "max.width", "Dum", "Lmid", "ob_out_x", "ob_out_y")]
-  MO <- unique(MO)
+  MESH <- MESH %>%
+    dplyr::left_join(OBJ) %>%
+    dplyr::mutate(xccor = centre_x - Xmid,
+                  yccor = centre_y - Ymid,
+                  xcorcor = ob_x - Xmid,
+                  ycorcor = ob_y - Ymid,
+                  Lmid = xccor * cos(angle)-yccor*sin(angle),
+                  Dum = xccor * sin(angle)+yccor*cos(angle),
+                  ob_out_x = xcorcor * cos(angle) - ycorcor * sin(angle),
+                  ob_out_y = xcorcor * sin(angle) + ycorcor * cos(angle)) %>%
+    dplyr::select(frame, cell, obpath, obnum, obID, max.length, max.width, Dum, Lmid, ob_out_x, ob_out_y) %>%
+    dplyr::distinct() %>%
+    dplyr::mutate(num = dplyr::dense_rank(max.length)) %>%
+    LimDum(p2um) %>%
+    dplyr::mutate(ob_out_x = ob_out_x * p2um, ob_out_y = ob_out_y * p2um)
+  return(MESH)
 
-  MOnum <- unique(MO[,c("frame", "cell", "max.length", "obnum")])
-  MOnum <- MOnum[order(MOnum$max.length),]
-  MOnum$num <- 1:nrow(MOnum)
-  MO <- merge(MOnum, MO)
-  MO <- LimDum(MO, p2um)
-  MO$ob_out_x <- MO$ob_out_x*p2um
-  MO$ob_out_y <- MO$ob_out_y*p2um
-  return(MO)
+  #MESH$xccor <- MESH$centre_x - MESH$Xmid
+  #MESH$yccor <- MESH$centre_y - MESH$Ymid
+  #MESH$xcorcor <- MESH$ob_x - MESH$Xmid
+ # MESH$ycorcor <- MESH$ob_y - MESH$Ymid
+
+ # MESH$Lmid <- MESH$xccor * cos(MESH$angle) - MESH$yccor * sin(MESH$angle)
+ # MESH$Dum <- MESH$xccor * sin(MESH$angle) + MESH$yccor * cos(MESH$angle)
+ # MESH$ob_out_x <- MESH$xcorcor * cos(MESH$angle) - MESH$ycorcor * sin(MESH$angle)
+ # MESH$ob_out_y <- MESH$xcorcor * sin(MESH$angle) + MESH$ycorcor * cos(MESH$angle)
+  #MO <- MESH[,c("frame", "cell", "obpath", "obnum", "obID", "max.length", "max.width", "Dum", "Lmid", "ob_out_x", "ob_out_y")]
+#  MO <- unique(MO)
+
+  #MOnum <- unique(MO[,c("frame", "cell", "max.length", "obnum")])
+  #MOnum <- MOnum[order(MOnum$max.length),]
+  #MOnum$num <- 1:nrow(MOnum)
+  #MO <- merge(MOnum, MO)
+  #MO <- LimDum(MO, p2um)
+  #MO$ob_out_x <- MO$ob_out_x*p2um
+  #MO$ob_out_y <- MO$ob_out_y*p2um
+  #return(MO)
 }
 
 ################################################################################################

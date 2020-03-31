@@ -9,7 +9,8 @@ objectInBox <- function(objectdata, meshdata, mag = "No_PixelCorrection"){
   object_rel <- spotsInBox(objectdata,meshdata, Xs="ob_x", Ys="ob_y")$spots_relative
   colnames(object_rel)[colnames(object_rel)=="x"] <- "ob_x"
   colnames(object_rel)[colnames(object_rel)=="y"] <- "ob_y"
-  objectdata <- merge(objectdata, object_rel[,c("ob_x", "ob_y", "cell", "frame")])
+  objectdata$obID <- as.character(objectdata$obID)
+  objectdata <- dplyr::right_join(objectdata, object_rel[,c("ob_x", "ob_y", "cell", "frame")])
   objectdata <- objectdata[order(objectdata$obID, objectdata$cell),]
   message("Counting Objects per Cell..")
   ObN <- do.call('rbind',

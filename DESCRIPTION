@@ -15,7 +15,8 @@ Imports:
   utils,
   methods,
   stats,
-  ggtree
+  ggtree,
+  dplyr
 Suggests:
   gridExtra,
   ggthemes,

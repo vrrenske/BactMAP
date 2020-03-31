@@ -149,10 +149,7 @@ plotOverlay <- function(meshdata,
   #check mesh for requirements (if they're there)
   if(missing(meshdata)!=T){
     if("Xrotum"%in%colnames(meshdata)){
-      meshdata$Xrot_micron <- meshdata$Xrotum
-      meshdata$Yrot_micron <- meshdata$Yrotum
-      meshdata$Xrotum <- NULL
-      meshdata$Yrotum <- NULL
+      meshdata <- meshdata %>% dplyr::rename(Xrot_micron = Xrotum, Yrot_micron = Yrotum)
     }
     if("Xrot_micron"%in%colnames(meshdata)!=T){
       if(missing(mag)){
@@ -171,8 +168,9 @@ plotOverlay <- function(meshdata,
     if("ob_out_x"%in%colnames(objectdata)!=T){
       if("l"%in%colnames(objectdata)!=T){stop("No object outlines correlated to cell outlines found ('ob_out_x'/'ob_out_y' or 'l'/'d'). Please correlate outlines to cells using 'spotsInBox' before entering to this function")}
       if(missing(mag)){stop("No magnification correction value ('mag') found. Add value 'mag' in function or add columns 'ob_out_y' & 'ob_out_x' to objectdata")}
-      if("l"%in%colnames(objectdata)==T){ objectdata$ob_out_x <- objectdata$l  * unlist(get(magnificationList,envir=magEnv)[mag])
-                                objectdata$ob_out_y <- objectdata$d  * unlist(get(magnificationList,envir=magEnv)[mag])
+      if("l"%in%colnames(objectdata)==T){
+        objectdata$ob_out_x <- objectdata$l  * unlist(get(magnificationList,envir=magEnv)[mag])
+        objectdata$ob_out_y <- objectdata$d  * unlist(get(magnificationList,envir=magEnv)[mag])
       }
     }
   }
@@ -188,67 +186,115 @@ plotOverlay <- function(meshdata,
   }
 
   #group data if needed
-    if(by=="both"|by=="condition"){
-      collist <- c("frame", "cell", quantiles_by, "condition")
-    }
+  if(by=="both"|by=="condition"){
+    collist <- c("frame", "cell", quantiles_by, "condition")
+  }else{
     if(by=="channel"){
       collist <- c("frame", "cell", quantiles_by)
     }
-    if(missing(meshdata)!=T){
-      onlycells <- unique(meshdata[,collist])
-    }
+  }
+  if(missing(meshdata)!=T){
+    onlycells <- unique(meshdata[,collist])
+  }else{
     if(missing(meshdata)==T&missing(spotdata)!=T){
       onlycells <- unique(spotdata[,collist])
     }
+  }
     if(missing(meshdata)==T&missing(spotdata)==T){
       if(missing(objectdata==T)){stop("No data input found.")}
       onlycells <- unique(objectdata[,collist])
     }
 
-  onlycells <- onlycells[order(onlycells[,quantiles_by]),]
-  onlycells$number <- c(1:nrow(onlycells))
+
+  onlycells <- onlycells %>%
+    dplyr::arrange(quantiles_by) %>%
+    dplyr::mutate(number = dplyr::row_number(quantiles_by))
 
   if(quantiles>1&equal_groups==TRUE){
-    onlycells$quantiles <- cut(onlycells$number, breaks=quantiles, labels = c(1:quantiles))
-  }
-  if(quantiles>1&equal_groups==FALSE){
-    onlycells$quantiles <- cut(onlycells[,quantiles_by], breaks=quantiles, labels = c(1:quantiles))
+    onlycells <- onlycells %>%
+      dplyr::mutate(quantiles = dplyr::ntile(quantiles=number, quantiles))
+  }else{
+    if(quantiles>1&equal_groups==FALSE){
+      onlycells <- onlycells %>%
+        dplyr::mutate(quantiles = dplyr::ntile(quantiles=quantiles_by, quantiles))
+    }
   }
 
-  onlycells <- onlycells[,colnames(onlycells)[colnames(onlycells)!=quantiles_by]]
-  #build plot
+  onlycells <- onlycells %>%
+    dplyr::select(onlycells, -quantiles_by)
+
+   #build plot
 
   if(type=="all"){
     plotout <- list()
   }
+
   if(type=="projection"|type=="all"){
     plot <- ggplot2::ggplot() + ggplot2::theme_minimal()
     if(missing(meshdata)!=T){
-      meshdata <- merge(meshdata, onlycells)
-      meshdata$cellframe <- paste(meshdata$cell, meshdata$frame, sep="_")
-      plot <- plot + ggplot2::geom_polygon(data=meshdata, ggplot2::aes_string(x='Xrot_micron', y='Yrot_micron', group='cellframe'),
-                                           fill=meshcolor, alpha=transparency, color=NA)
+      suppressMessages(
+        meshdata <- meshdata %>%
+          dplyr::left_join(onlycells) %>%
+          dplyr::mutate(cellframe = paste(cell, frame, sep="_"))
+      )
+
+      plot <- plot + ggplot2::geom_polygon(data=meshdata,
+                                           ggplot2::aes_string(x='Xrot_micron', y='Yrot_micron', group='cellframe'),
+                                           fill=meshcolor,
+                                           alpha=transparency,
+                                           color=NA)
     }
     if(missing(objectdata)!=T){
-      objectdata <- merge(objectdata, onlycells)
-      objectdata <- objectdata[order(objectdata$frame, objectdata$cell, objectdata$obpath),]
-      objectdata$frameOB <- paste(objectdata$frame, objectdata$obID, sep="_")
+      suppressMessages(
+        objectdata <- objectdata %>%
+          dplyr::left_join(onlycells) %>%
+          dplyr::arrange(frame, cell, obpath) %>%
+          dplyr::mutate(frameOB = paste(frame, obID, sep="_"))
+      )
+
       if(by=="channel"|by=="both"){
-        plot <- plot + ggplot2::geom_polygon(data=objectdata, ggplot2::aes_string(x='ob_out_x', y='ob_out_y', fill='channel', group='frameOB'),
-                                             alpha=transparency, color=NA) + ggplot2::scale_fill_manual(values=objectcolor)
-      }
-      if(by=="condition"){
-        plot <- plot + ggplot2::geom_polygon(data=objectdata, ggplot2::aes_string(x='ob_out_x', y='ob_out_y', group='frameOB'),
-                                             alpha=transparency, color=NA, fill=objectcolor[1])
+        plot <- plot +
+          ggplot2::geom_polygon(data=objectdata,
+                                ggplot2::aes_string(x='ob_out_x', y='ob_out_y', fill='channel', group='frameOB'),
+                                alpha=transparency,
+                                color=NA) +
+          ggplot2::scale_fill_manual(values=objectcolor)
+      }else{
+        if(by=="condition"){
+          plot <- plot +
+            ggplot2::geom_polygon(data=objectdata,
+                                  ggplot2::aes_string(x='ob_out_x', y='ob_out_y', group='frameOB'),
+                                  alpha=transparency,
+                                  color=NA,
+                                  fill=objectcolor[1])
+        }
       }
     }
     if(missing(spotdata)!=T){
-      spotdata <- merge(spotdata, onlycells)
+      suppressMessages(
+        spotdata <- spotdata %>%
+          left_join(onlycells)
+      )
+
       if(by=="channel"|by=="both"){
-        plot <- plot + ggplot2::geom_point(data=spotdata, ggplot2::aes_string(x='Lmid', y='Dum', color='channel'), size=dotsize, alpha=transparency*10, shape=16) + ggplot2::scale_color_manual(values=spotcolor)
-      }
-      if(by=="condition"){
-        plot <- plot + ggplot2::geom_point(data=spotdata, ggplot2::aes_string(x='Lmid', y='Dum'), color=spotcolor[1], size=dotsize, alpha=transparency*10, shape=16)
+        plot <- plot +
+          ggplot2::geom_point(data=spotdata,
+                              ggplot2::aes_string(x='Lmid', y='Dum', color='channel'),
+                              size=dotsize,
+                              alpha=transparency*10,
+                              shape=16) +
+          ggplot2::scale_color_manual(values=spotcolor)
+
+      }else{
+        if(by=="condition"){
+          plot <- plot +
+            ggplot2::geom_point(data=spotdata,
+                                ggplot2::aes_string(x='Lmid', y='Dum'),
+                                color=spotcolor[1],
+                                size=dotsize,
+                                alpha=transparency*10,
+                                shape=16)
+        }
       }
     }
 
@@ -257,14 +303,16 @@ plotOverlay <- function(meshdata,
     if(quantiles>1){
       if(by=="condition"|by=="both"){
         plot <- plot + ggplot2::facet_grid(quantiles~condition)
+      }else{
+        if(by=="channel"){
+          plot <- plot + ggplot2::facet_grid(quantiles~.)
+        }
       }
-      if(by=="channel"){
-        plot <- plot + ggplot2::facet_grid(quantiles~.)
-      }
-    }
-    if(quantiles<=1){
-      if(by=="condition"|by=="both"){
-        plot <- plot + ggplot2::facet_grid(.~condition)
+    }else{
+      if(quantiles<=1){
+        if(by=="condition"|by=="both"){
+          plot <- plot + ggplot2::facet_grid(.~condition)
+        }
       }
     }
     if(type =="all"){
@@ -275,7 +323,9 @@ plotOverlay <- function(meshdata,
 
 
   if(type=="length"|type=="all"){
-    plot <- ggplot2::ggplot() + ggplot2::theme_minimal()
+    plot <- ggplot2::ggplot() +
+      ggplot2::theme_minimal()
+
     if(missing(objectdata)!=T){
       if(type!="all"){
         objectdata <- merge(objectdata, onlycells)
