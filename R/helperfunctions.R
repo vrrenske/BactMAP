@@ -482,7 +482,7 @@ takeObjectCentre <- function(dat, xie, yie){
 }
 
 #add object centre to mesh file and turn accordingly
-#' @importFrom dplyr %<%
+#' @importFrom dplyr %>%
 midobject <- function(MESH, OBJ, p2um){
   MESH <- MESH %>%
     dplyr::left_join(OBJ) %>%
