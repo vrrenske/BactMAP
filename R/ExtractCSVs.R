@@ -115,7 +115,15 @@ extr_MicrobeJSpots <- function(spotloc ,mag, sep=","){
 }
 
 #' @export
-extr_MicrobeJ <- function(dataloc, spotloc, objectloc, mag = "No_PixelCorrection", sepspot=",", sepmesh=",", sepobj=",", cellList=FALSE, keeprealvalues=FALSE, magcor = c("dataloc", "spotloc", "objectloc")){
+extr_MicrobeJ <- function(dataloc,
+                          spotloc,
+                          objectloc,
+                          mag = "No_PixelCorrection",
+                          sepspot=",", sepmesh=",", sepobj=",",
+                          cellList=FALSE,
+                          keeprealvalues=FALSE,
+                          magcor = c("dataloc", "spotloc", "objectloc")
+                          ){
   if(mag=="No_PixelCorrection"&"dataloc"%in%magcor&"spotloc"%in%magcor&"objectloc"%in%magcor){
     warning("Not converting pixels to micron for any dataset. If you are not sure if you need to correct pixels to micron, check the values of the x/y coordinaties (COORD.x/y and POSITION.x/y) in your MicrobeJ CSVs.")
     magd <- mag
@@ -151,7 +159,14 @@ extr_MicrobeJ <- function(dataloc, spotloc, objectloc, mag = "No_PixelCorrection
 
   outlist <- list()
   if(missing(dataloc)!=T){
-    MESHout <- extr_MicrobeJMESH(dataloc, sepmesh)
+    if(is.list(dataloc)){
+      M <- lapply(dataloc, function(x) extr_MicrobeJMESH(x, sepmesh))
+      MESHout <- list()
+      MESHout$cellList <- combineDataframes(lapply(M, function(x) x$cellList))$finalframe
+      MESHout$meshList <- combineDataframes(lapply(M, function(x) x$meshList))$finalframe
+    }else{
+      MESHout <- extr_MicrobeJMESH(dataloc, sepmesh)
+      }
     cellList1 <- MESHout$cellList
     MESH <- MESHout$meshList
     if(missing(spotloc)==T){
@@ -161,7 +176,14 @@ extr_MicrobeJ <- function(dataloc, spotloc, objectloc, mag = "No_PixelCorrection
     }
   }
   if(missing(spotloc)!=T){
-    spotsout <- extr_MicrobeJSpots(spotloc ,mags, sep=sepspot)
+    if(is.list(spotloc)){
+      S <- lapply(spotloc, function(x) extr_MicrobeJSpots(x, sepspot))
+      spotsout <- list()
+      spotsout$cellList <- combineDataframes(lapply(S, function(x) x$cellList))$finalframe
+      spotsout$meshList <- combineDataframes(lapply(S, function(x) x$spotList))$finalframe
+    }else{
+      spotsout <- extr_MicrobeJSpots(spotloc ,mags, sep=sepspot)
+    }
     SPOTS <- spotsout$spotList
     cellList2 <- spotsout$cellList
     if(missing(dataloc)==T){
@@ -171,6 +193,14 @@ extr_MicrobeJ <- function(dataloc, spotloc, objectloc, mag = "No_PixelCorrection
     }
   }
   if(missing(objectloc)!=T){
+    if(is.list(objectloc)){
+      O <- lapply(objectloc, function(x) extr_MicrobeJMESH(x, sepobj))
+      objectsout <- list()
+      objectsout$cellList <- combineDataframes(lapply(O, function(x) x$cellList))$finalframe
+      objectsout$meshList <- combineDataframes(lapply(O, function(x) x$meshList))$finalframe
+    }else{
+      objectsout <- extr_MicrobeJMESH(objectloc, sepobj)$meshList
+    }
     objectsout <- extr_MicrobeJMESH(objectloc, sepobj)$meshList
     colnames(objectsout)[colnames(objectsout)=="X"] <- "ob_x"
     colnames(objectsout)[colnames(objectsout)=="Y"] <- "ob_y"

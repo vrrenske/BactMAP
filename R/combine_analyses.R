@@ -51,6 +51,7 @@ combineDataframes <- function(listofdataframes, listofconditions, listofchannels
         names(listofdataframes) <- listofchannels
       }
     }
+
   }
 
   if(output=="all"|output=="finalframe"){
