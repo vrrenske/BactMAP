@@ -60,6 +60,9 @@ extr_MicrobeJSpots <- function(spotloc ,mag, sep=","){
   SPOTS <- utils::read.csv(spotloc, header=F, sep=sep)
   colnamesspot <- SPOTS[1,]
   colnamesspot <- colnamesspot[!is.na(colnamesspot)]
+  if(is.na(unique(SPOTS[,ncol(SPOTS)]))){
+    SPOTS <- SPOTS[,-ncol(SPOTS)]
+  }
   SPOTS <- SPOTS[-1,]
 
   #comma problem
@@ -73,7 +76,7 @@ extr_MicrobeJSpots <- function(spotloc ,mag, sep=","){
     }
     SPOTS[,(y+1)] <- NULL
   }
-  colnames(SPOTS) <- colnamesspot
+  colnames(SPOTS) <- colnamesspot[1:ncol(SPOTS)]
 
   spotL <- list()
   spotL$cellList <- SPOTS
@@ -85,7 +88,18 @@ extr_MicrobeJSpots <- function(spotloc ,mag, sep=","){
       SPOTS$x <- as.numeric(t(data.frame(strsplit(stringr::str_sub(SPOTS$LOCATION,2,-2),";"))[1,]))
       SPOTS$y <- as.numeric(t(data.frame(strsplit(stringr::str_sub(SPOTS$LOCATION,2,-2),";"))[2,]))
     }else{
-      stop("X/Y positions of Maxima not found. Make sure to include the column 'LOCATION' or the colums 'LOCATION.x' and 'LOCATION.y' in your MicrobeJ CSV file")
+      if("COORD.x"%in%colnames(SPOTS)){
+        SPOTS$x <- as.numeric(as.character(SPOTS$COORD.x))/unlist(get(magnificationList, envir=magEnv)[mag])
+        SPOTS$y <- as.numeric(as.character(SPOTS$COORD.y))/unlist(get(magnificationList, envir=magEnv)[mag])
+      }else{
+        if("COORD"%in%colnames(SPOTS)){
+          SPOTS$x <- as.numeric(t(data.frame(strsplit(stringr::str_sub(SPOTS$COORD,2,-2),";"))[1,]))
+          SPOTS$y <- as.numeric(t(data.frame(strsplit(stringr::str_sub(SPOTS$COORD,2,-2),";"))[2,]))
+        }else{
+          stop("X/Y positions of Maxima not found. Make sure to include the column 'LOCATION', 'COORD', or the colums 'LOCATION.x' and 'LOCATION.y' or 'COORD.x' and 'COORD.y' in your MicrobeJ CSV file")
+        }
+      }
+
     }
   }
 
@@ -95,9 +109,9 @@ extr_MicrobeJSpots <- function(spotloc ,mag, sep=","){
     if("PARENT"%in%colnames(SPOTS)){
       SPOTS$cellID <- SPOTS$PARENT
     }
-    else(
-      stop("Column 'PARENT' or 'PARENT.id' not found. Cannot identify the cell. Please include the column 'PARENT' or 'PARENT.id' in the MicrobeJ CSV output")
-    )
+   # else(
+     # stop("Column 'PARENT' or 'PARENT.id' not found. Cannot identify the cell. Please include the column 'PARENT' or 'PARENT.id' in the MicrobeJ CSV output")
+  #  )
   }
 
   if("POSITION.slice"%in%colnames(SPOTS)){
@@ -109,7 +123,12 @@ extr_MicrobeJSpots <- function(spotloc ,mag, sep=","){
       stop("Column 'POSITION' or 'POSITION.slice' not found. Cannot indicate frame number. Please include the column 'POSITION' or 'POSITION.slice' in your MicrobeJ CSV output.")
     }
   }
-  SPOTS <- SPOTS[,c("x", "y", "cellID", "frame")]
+  if("cellID"%in%SPOTS){
+    SPOTS <- SPOTS[,c("x", "y", "cellID", "frame")]
+  }else{
+    SPOTS <- SPOTS[,c("x", "y", "frame")]
+  }
+
   spotL$spotList <- SPOTS
   return(spotL)
 }
@@ -188,7 +207,9 @@ extr_MicrobeJ <- function(dataloc,
     cellList2 <- spotsout$cellList
     if(missing(dataloc)==T){
       outlist$cellList <- cellList2
-      IDframe <- data.frame(cellID = unique(SPOTS$cellID), cell=c(1:length(unique(SPOTS$cellID))))
+      if("cellID"%in%SPOTS){
+        IDframe <- data.frame(cellID = unique(SPOTS$cellID), cell=c(1:length(unique(SPOTS$cellID))))
+      }
       outlist$spotframe <- SPOTS
     }
   }
@@ -214,8 +235,11 @@ extr_MicrobeJ <- function(dataloc,
     outlist$objectframe <- objectsout
   }
   if(missing(spotloc)!=T&missing(dataloc)!=T){
-    IDframe <- unique(MESH[,c("cellID", "cell")])
-    SPOTS <- merge(SPOTS, IDframe)
+    if("cellID"%in%colnames(SPOTS)){
+      IDframe <- unique(MESH[,c("cellID", "cell")])
+      SPOTS <- merge(SPOTS, IDframe)
+    }
+
     if((keeprealvalues==FALSE&"dataloc"%in%magcor&"spotloc"%in%magcor) | (keeprealvalues==FALSE&"dataloc"%in%magcor!=T&"spotloc"%in%magcor!=T)){
       if(abs((max(SPOTS$x)/unlist(get(magnificationList, envir=magEnv)[mags]))-max(MESH$X))<abs(max(SPOTS$x)-max(MESH$X))){
         message("BactMAP detected that the maxima (spots) coordinates are in micron while the contour (mesh) coordinates are in pixels and corrects this. To override, include the command 'keeprealvalues=TRUE' in the extr_MicrobeJ function call.")
