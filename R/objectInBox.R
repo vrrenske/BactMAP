@@ -6,32 +6,30 @@
 objectInBox <- function(objectdata, meshdata, mag = "No_PixelCorrection"){
   pixel2um <- unlist(get(magnificationList, envir=magEnv)[mag])
   message("Matching Object with Cell..")
-  object_rel <- spotsInBox(objectdata,meshdata, Xs="ob_x", Ys="ob_y")$spots_relative
-  colnames(object_rel)[colnames(object_rel)=="x"] <- "ob_x"
-  colnames(object_rel)[colnames(object_rel)=="y"] <- "ob_y"
-  objectdata$obID <- as.character(objectdata$obID)
-  objectdata <- dplyr::right_join(objectdata, object_rel[,c("ob_x", "ob_y", "cell", "frame")])
-  objectdata <- objectdata[order(objectdata$obID, objectdata$cell),]
-  message("Counting Objects per Cell..")
-  ObN <- do.call('rbind',
-                 lapply(unique(objectdata$frame),
-                        function(x)
-                          do.call('rbind',
-                                  lapply(unique(objectdata$cell[objectdata$frame==x]),
-                                         function(y)
-                                           data.frame("frame"=x,
-                                                      "cell"=y,
-                                                      "obID"=unique(objectdata$obID[objectdata$frame==x&objectdata$cell==y]),
-                                                      "obnum"=c(1:length(unique(objectdata$obID[objectdata$frame==x&objectdata$cell==y])))
-                                           )
-                                  )
-                          )
+  object_rel <- spotsInBox(objectdata, meshdata, Xs="ob_x", Ys="ob_y")$spots_relative
 
-                 )
-  )
-  objectdata <- merge(objectdata, ObN)
+  object_rel <- object_rel %>%
+    dplyr::rename(ob_x = x,
+                  ob_y = y) %>%
+    dplyr::right_join(objectdata) %>%
+    dplyr::group_by(obID) %>%
+    dplyr::mutate(pip=sum(pip, na.rm=T)) %>%
+    dplyr::ungroup() %>%
+    dplyr::filter(!is.na(pip)) %>%
+    dplyr::filter(pip>0) %>%
+    dplyr::group_by(obID) %>%
+    dplyr::mutate(max.length = mean(max.length, na.rm=T),
+                  max.width = mean(max.width, na.rm=T),
+                  cell = mean(cell, na.rm=T)
+                  ) %>%
+    dplyr::ungroup() %>%
+    dplyr::select(-l, -d) %>%
+    dplyr::group_by(cell) %>%
+    dplyr::mutate(obnum = dplyr::dense_rank(obID)) %>%
+    dplyr::ungroup()
+
   message("Marking the Object centrepoints..")
-  OM <- suppressWarnings(centrefun(objectdata))
+  OM <- suppressWarnings(centrefun(object_rel))
   message("Putting the objects in the correct orientation..")
   OM <- suppressWarnings(midobject(meshdata, OM, pixel2um))
   message("Done.")

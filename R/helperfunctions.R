@@ -111,10 +111,10 @@ spotsInBox <- function(spotdata, meshdata, Xs = "x", Ys = "y", Xm = "X", Ym = "Y
   #cellframe_meshdata <- paste(meshdata$cell, meshdata$frame, sep="_")
   if (!requireNamespace("pbapply", quietly = TRUE)) {
     o <- lapply(unique(meshdata$frame), function(x) lapply(unique(meshdata[meshdata$frame==x,]$cell), function(y) getSpotsInBox(meshp=meshdata[meshdata$frame==x&meshdata$cell==y,],
-                                                                                                                               spotdatap=spotdata[spotdata$frame==x,],
-                                                                                                                               u,
-                                                                                                                               a,
-                                                                                                                               returnMESH=meshInOutput)))
+                                                                                                                                spotdatap=spotdata[spotdata$frame==x,],
+                                                                                                                                u,
+                                                                                                                                a,
+                                                                                                                                returnMESH=meshInOutput)))
   }
   if (requireNamespace("pbapply", quietly = TRUE)) {
     o <- pbapply::pblapply(unique(meshdata$frame), function(x) lapply(unique(meshdata[meshdata$frame==x,]$cell), function(y) getSpotsInBox(meshp=meshdata[meshdata$frame==x&meshdata$cell==y,],
@@ -219,6 +219,7 @@ getSpotsInBox <- function(meshp, spotdatap, u, a, returnMESH){
   if("trajectory"%in%colnames(spotdatap)==T){
     pinps <- merge(spotdatap[,c("x", "y", "trajectory", "displacement_sq", "trajectory_length")], pinps)
   }
+
   if(returnMESH==TRUE){
     return(list("REP" = pinps, "MESH" = meshp))
   }
@@ -484,6 +485,7 @@ takeObjectCentre <- function(dat, xie, yie){
 #add object centre to mesh file and turn accordingly
 #' @importFrom dplyr %>%
 midobject <- function(MESH, OBJ, p2um){
+  OBJ$angle <- NULL
   MESH <- MESH %>%
     dplyr::left_join(OBJ) %>%
     dplyr::mutate(xccor = centre_x - Xmid,
