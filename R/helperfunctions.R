@@ -58,19 +58,7 @@ getPixels2um <- function(){
   print(get(magnificationList, envir=magEnv))
 }
 
-##error message + solution when pixel2um is not set
-#spotrPixelerror <- function(){
-  #errormessage <- readline(caption="The conversion factor from pixel to um is not indicated. Please use 'spotrSetpixel2um' by pressing 'a'.
-  #        if you don't want to convert from pixel to um, press 'b'./n")
- # if(errormessage=="a"|errormessage=="A"){
- #   conv == spotrSetpixel2um()
- # }
- # if(errormessage=="b"|errormessage=="B"){
- #   conv == 1
- # }
-  #else(print("Did not receive 'a' nor 'b'. If you want to convert from pixel to um, use the function 'spotrSetpixel2um()' manually./n"))
-  #return(conv)
-#}
+
 
 ##merge spotfiles with only raw coordinates with mesh file with only raw data. add mesh length/width while on it.
 #' @export
@@ -83,8 +71,7 @@ spotsInBox <- function(spotdata, meshdata, Xs = "x", Ys = "y", Xm = "X", Ym = "Y
     inp <- readline("Package 'sp' needed for this function to work. Press 'y' to install, or any other key to cancel.")
     if(inp=="y"|inp=="Y"){utils::install.packages("sp")}else{stop("Canceled")}
   }
-  #q <- 0
-  #b <- 0
+
    #rewrite colnames if not the same as suggested
   pb <- utils::txtProgressBar(min=0, max=100, title="Total Progress SpotsInBox:")
   if(Xs!="x"){
@@ -125,13 +112,7 @@ spotsInBox <- function(spotdata, meshdata, Xs = "x", Ys = "y", Xm = "X", Ym = "Y
   }
 
   utils::setTxtProgressBar(pb, 45)
-  #min.i <- min(meshdata$frame)
-  #for(i in unique(meshdata$frame)){ #per frame
-    #min.n <- min(meshdata$cell[meshdata$frame==i])
-    #spotdatap <- spotdata[spotdata$frame==i,]
-    #for(n in unique(meshdata$cell[meshdata$frame==i])){ #per cell
-    #}
-  #}
+
   outs <- list()
   outs$spots_relative <- do.call('rbind', lapply(o, function(x) do.call('rbind', lapply(x, function(y) y$REP))))
   utils::setTxtProgressBar(pb,65)
@@ -488,19 +469,19 @@ midobject <- function(MESH, OBJ, p2um){
   OBJ$angle <- NULL
   MESH <- MESH %>%
     dplyr::left_join(OBJ) %>%
-    dplyr::mutate(xccor = centre_x - Xmid,
-                  yccor = centre_y - Ymid,
-                  xcorcor = ob_x - Xmid,
-                  ycorcor = ob_y - Ymid,
-                  Lmid = xccor * cos(angle)-yccor*sin(angle),
-                  Dum = xccor * sin(angle)+yccor*cos(angle),
-                  ob_out_x = xcorcor * cos(angle) - ycorcor * sin(angle),
-                  ob_out_y = xcorcor * sin(angle) + ycorcor * cos(angle)) %>%
-    dplyr::select(frame, cell, obpath, obnum, obID, max.length, max.width, Dum, Lmid, ob_out_x, ob_out_y) %>%
+    dplyr::mutate(xccor = .data$centre_x - .data$Xmid,
+                  yccor = .data$centre_y - .data$Ymid,
+                  xcorcor = .data$ob_x - .data$Xmid,
+                  ycorcor = .data$ob_y - .data$Ymid,
+                  Lmid = .data$xccor * cos(.data$angle)-.data$yccor*sin(.data$angle),
+                  Dum = .data$xccor * sin(.data$angle)+.data$yccor*cos(.data$angle),
+                  ob_out_x = .data$xcorcor * cos(.data$angle) - .data$ycorcor * sin(.data$angle),
+                  ob_out_y = .data$xcorcor * sin(.data$angle) + .data$ycorcor * cos(.data$angle)) %>%
+    dplyr::select(.data$frame, .data$cell, .data$obpath, .data$obnum, .data$obID, .data$max.length, .data$max.width, .data$Dum, .data$Lmid, .data$ob_out_x, .data$ob_out_y) %>%
     dplyr::distinct() %>%
-    dplyr::mutate(num = dplyr::dense_rank(max.length)) %>%
+    dplyr::mutate(num = dplyr::dense_rank(.data$max.length)) %>%
     LimDum(p2um) %>%
-    dplyr::mutate(ob_out_x = ob_out_x * p2um, ob_out_y = ob_out_y * p2um)
+    dplyr::mutate(ob_out_x = .data$ob_out_x * p2um, ob_out_y = .data$ob_out_y * p2um)
   return(MESH)
 
   #MESH$xccor <- MESH$centre_x - MESH$Xmid

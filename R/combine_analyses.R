@@ -150,7 +150,7 @@ plotOverlay <- function(meshdata,
   #check mesh for requirements (if they're there)
   if(missing(meshdata)!=T){
     if("Xrotum"%in%colnames(meshdata)){
-      meshdata <- meshdata %>% dplyr::rename(Xrot_micron = Xrotum, Yrot_micron = Yrotum)
+      meshdata <- meshdata %>% dplyr::rename(Xrot_micron = .data$Xrotum, Yrot_micron = .data$Yrotum)
     }
     if("Xrot_micron"%in%colnames(meshdata)!=T){
       if(missing(mag)){
@@ -213,7 +213,7 @@ plotOverlay <- function(meshdata,
 
   if(quantiles>1&equal_groups==TRUE){
     onlycells <- onlycells %>%
-      dplyr::mutate(quantiles = dplyr::ntile(quantiles=number, quantiles))
+      dplyr::mutate(quantiles = dplyr::ntile(quantiles=.data$number, quantiles))
   }else{
     if(quantiles>1&equal_groups==FALSE){
       onlycells <- onlycells %>%
@@ -236,7 +236,7 @@ plotOverlay <- function(meshdata,
       suppressMessages(
         meshdata <- meshdata %>%
           dplyr::left_join(onlycells) %>%
-          dplyr::mutate(cellframe = paste(cell, frame, sep="_"))
+          dplyr::mutate(cellframe = paste(.data$cell, .data$frame, sep="_"))
       )
 
       plot <- plot + ggplot2::geom_polygon(data=meshdata,
@@ -249,8 +249,8 @@ plotOverlay <- function(meshdata,
       suppressMessages(
         objectdata <- objectdata %>%
           dplyr::left_join(onlycells) %>%
-          dplyr::arrange(frame, cell, obpath) %>%
-          dplyr::mutate(frameOB = paste(frame, obID, sep="_"))
+          dplyr::arrange(.data$frame, .data$cell, .data$obpath) %>%
+          dplyr::mutate(frameOB = paste(.data$frame, .data$obID, sep="_"))
       )
 
       if(by=="channel"|by=="both"){
@@ -274,7 +274,7 @@ plotOverlay <- function(meshdata,
     if(missing(spotdata)!=T){
       suppressMessages(
         spotdata <- spotdata %>%
-          left_join(onlycells)
+          dplyr::left_join(onlycells)
       )
 
       if(by=="channel"|by=="both"){

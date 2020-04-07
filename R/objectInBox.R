@@ -1,6 +1,6 @@
 ##ObjectInBox
 
-
+#'@importFrom rlang .data
 #'@export
 
 objectInBox <- function(objectdata, meshdata, mag = "No_PixelCorrection"){
@@ -9,23 +9,23 @@ objectInBox <- function(objectdata, meshdata, mag = "No_PixelCorrection"){
   object_rel <- spotsInBox(objectdata, meshdata, Xs="ob_x", Ys="ob_y")$spots_relative
 
   object_rel <- object_rel %>%
-    dplyr::rename(ob_x = x,
-                  ob_y = y) %>%
+    dplyr::rename(ob_x = .data$x,
+                  ob_y = .data$y) %>%
     dplyr::right_join(objectdata) %>%
-    dplyr::group_by(obID) %>%
-    dplyr::mutate(pip=sum(pip, na.rm=T)) %>%
+    dplyr::group_by(.data$obID) %>%
+    dplyr::mutate(pip=sum(.data$pip, na.rm=T)) %>%
     dplyr::ungroup() %>%
-    dplyr::filter(!is.na(pip)) %>%
-    dplyr::filter(pip>0) %>%
-    dplyr::group_by(obID) %>%
-    dplyr::mutate(max.length = mean(max.length, na.rm=T),
-                  max.width = mean(max.width, na.rm=T),
-                  cell = mean(cell, na.rm=T)
+    dplyr::filter(!is.na(.data$pip)) %>%
+    dplyr::filter(.data$pip>0) %>%
+    dplyr::group_by(.data$obID) %>%
+    dplyr::mutate(max.length = mean(.data$max.length, na.rm=T),
+                  max.width = mean(.data$max.width, na.rm=T),
+                  cell = mean(.data$cell, na.rm=T)
                   ) %>%
     dplyr::ungroup() %>%
-    dplyr::select(-l, -d) %>%
-    dplyr::group_by(cell) %>%
-    dplyr::mutate(obnum = dplyr::dense_rank(obID)) %>%
+    dplyr::select(-.data$l, -.data$d) %>%
+    dplyr::group_by(.data$cell) %>%
+    dplyr::mutate(obnum = dplyr::dense_rank(.data$obID)) %>%
     dplyr::ungroup()
 
   message("Marking the Object centrepoints..")

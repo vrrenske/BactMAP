@@ -27,13 +27,13 @@ extr_MicrobeJMESH <- function(dataloc, sep=","){
     }
   }
   MESH <- dplyr::left_join(MESH, IDlist)
-  MESH <- dplyr::rename(MESH, frame = POSITION, cellID = NAME.id)
+  MESH <- dplyr::rename(MESH, frame = .data$POSITION, cellID = .data$NAME.id)
   if("Y"%in%colnames(MESH)==FALSE){
     if("COORD.y"%in%colnames(MESH)==TRUE){
       if("X"%in%colnames(MESH)){
         MESH$X <- NULL
       }
-      MESH <- dplyr::rename(MESH, X = COORD.x, Y=COORD.y)
+      MESH <- dplyr::rename(MESH, X = .data$COORD.x, Y=.data$COORD.y)
     }else{
       stop("Cannot find X/Y coordinates. BactMAP recognizes the coordinate names 'COORD.x' and 'COORD.y', as well as the names 'X' and 'Y'. Please check your contour CSV and change the names of the coordinate variables accordingly")
     }

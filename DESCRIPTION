@@ -11,6 +11,7 @@ URL: https://veeninglab.com/bactmap
 biocViews:
 Imports:
   ggplot2 (>= 3.0.0),
+  rlang,
   plyr,
   utils,
   methods,

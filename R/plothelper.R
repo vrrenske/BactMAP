@@ -379,7 +379,7 @@ createPlotList <- function(spotdata,  meshdata, groups =4 , colorpalette="GreenY
       means <- lapply(MESHlist, function(x) superfun(x, 12, p2um))
     }
     if(nrow(unique(meshdata[,c("cell", "frame", "max.length")][meshdata$max.length==max(meshdata$max.length),]))>11){
-      means <- lapply(MESHlist, function(x)superfun(x, round(nrow(unique(x[,c("cell", "frame", "max.length")][x$max.length==min(x$max.length),])), digits=0), p2um))
+      means <- lapply(MESHlist, function(x) superfun(x, round(nrow(unique(x[,c("cell", "frame", "max.length")][x$max.length==min(x$max.length),])), digits=0), p2um))
     }
     u$mean_outlines <- means
     message("Finished calculating mean cell outlines")
@@ -424,7 +424,7 @@ createPlotList <- function(spotdata,  meshdata, groups =4 , colorpalette="GreenY
     meantotal <- superfun(meshdata, 12, p2um)
   }
   if(nrow(unique(meshdata[,c("cell", "frame", "max.length")][meshdata$max.length==max(meshdata$max.length),]))> 11){
-    meantotal <- superfun(meshdata, round(nrow(unique(x[,c("cell", "frame", "max.length")][x$max.length==min(x$max.length),])), digits=0), p2um)
+    meantotal <- superfun(meshdata, round(nrow(unique(meshdata[,c("cell", "frame", "max.length")][meshdata$max.length==min(meshdata$max.length),])), digits=0), p2um)
   }
   pall <- coplot(pall,max(meantotal$x)*1.2, max(meantotal$y)*1.2)
   pall <- pall + ggplot2::geom_path(data=meantotal, ggplot2::aes_string(x='x',y='y'), colour="white")

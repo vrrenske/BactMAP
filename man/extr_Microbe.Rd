@@ -9,7 +9,7 @@
 Upload the output of MicrobeJ into R. Upto now the code supports fluorescent localization data & cell outlines, both saved as seperate .CSV or .TXT files in the MicrobeJ GUI by first pressing \emph{<right click> -> expand all} on one of the Results columns and then pressing \emph{<right click> -> export} for both the cell contour dataset and the fluorescent localization dataset.
 }
 \usage{
-extr_MicrobeJ(dataloc, spotloc, objectloc, mag, sepspot=",", sepmesh=",", sepobj=",", cellList=FALSE, keeprealvalues=FALSE)
+extr_MicrobeJ(dataloc, spotloc, objectloc, mag = "No_PixelCorrection", sepspot=",", sepmesh=",", sepobj=",", cellList=FALSE, keeprealvalues=FALSE, magcor = c("dataloc", "spotloc", "objectloc"))
 }
 
 
@@ -17,12 +17,13 @@ extr_MicrobeJ(dataloc, spotloc, objectloc, mag, sepspot=",", sepmesh=",", sepobj
   \item{dataloc}{path of the exported microbeJ file (.csv or .txt) containing the outlines of the bacterial cells.}
   \item{spotloc}{path of the exported microbeJ file (.csv or .txt) containing the sub-directory with fluorescent spot coordinates}
   \item{objectloc}{path of the exported microbeJ file (.csv or .txt) containing the outlines of objects/filaments in the cell.}
-  \item{mag}{the pixel conversion factor to be used}
+  \item{mag}{the pixel conversion factor to be used, default = "No_PixelCorrection"}
   \item{sepspot}{default is ",". when the to-be-imported .csv/txt is seperated by another value, change here.}
   \item{sepmesh}{default is ",". when the to-be-imported .csv/txt is seperated by another value, change here.}
   \item{sepobj}{default is ",". when the to-be-imported .csv/txt is seperated by another value, change here.}
   \item{cellList}{when cellList==TRUE, the dataframe 'cellList' (see Values below) will be in the output list.}
   \item{keeprealvalues}{default FALSE. BactMAP checks whether the mesh and spot files are both in pixels or in micron and corrects this. When keeprealvalues==TRUE, BactMAP skips this step.}
+  \item{magcor}{indicates the input datasets which need to be corrected (pixel to micron). if not changed, all datasets are corrected.}
 
 }
 

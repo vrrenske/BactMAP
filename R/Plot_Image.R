@@ -124,7 +124,10 @@ pinping <- function(dat, mesh, x, surroundings=FALSE){
   maxmeshx <- max(mesh$X)+2
   maxmeshy <- max(mesh$Y)+2
   dat <- dat[dat$x>minmeshx&dat$y>minmeshy&dat$x<maxmeshx&dat$y<maxmeshy,]
-  p <- SDMTools::pnt.in.poly(dat[,c("x","y")], mesh[mesh$cell==x,][,c("X","Y")])
+  #p <- SDMTools::pnt.in.poly(dat[,c("x","y")], mesh[mesh$cell==x,][,c("X","Y")])
+
+  p <- suppressWarnings(sp::point.in.polygon(dat[,"x"], dat[,"y"], mesh$X[mesh$cell==x],mesh$Y[mesh$cell==x])) #find spot/object coordinates inside cell
+  p <- data.frame("x"=dat$x, "y"=dat$y, "pip"=p)
   #if pip == 1, the point is inside the polygon. if p==0, it is not.
   #I replace the pips which are 1 with the cell number x
   p$pip[p$pip!=0] <- x
@@ -143,8 +146,9 @@ pinping <- function(dat, mesh, x, surroundings=FALSE){
   ybox3 <- mesh$Ymid-(ybox1-mesh$Ymid)
   box <- data.frame("x"=c(xbox1,xbox2,xbox3,xbox4), "y"=c(ybox1, ybox2, ybox3,ybox4))
   dat <- dat[dat$x>min(box$x)&dat$y>min(box$y)&dat$x<max(box$x)&dat$y<max(box$y),]
-  p <- SDMTools::pnt.in.poly(dat[,c("x","y")], box)
-
+  #p <- SDMTools::pnt.in.poly(dat[,c("x","y")], box)
+  p <- suppressWarnings(sp::point.in.polygon(dat[,"x"], dat[,"y"], box$x, box$y))
+  p <- data.frame("x"= dat$x, "y"=dat$y, "pip"=p)
   #add cell number (as pip so it matches the situation with the cell outlines)
   p$pip[p$pip!=0] <- x
   datje <- merge(dat, p[p$pip!=0,])
