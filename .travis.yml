@@ -38,6 +38,6 @@ addons:
       - ghostscript
 
 before_install:
-  - if [ "$OSTYPE" != "linux-gnu" ]; then sudo tlmgr install framed titling; fi
+  - if [ "$TRAVIS_OS_NAME" == "osx" ]; then sudo tlmgr install framed titling; fi
   - if [ "$TRAVIS_OS_NAME" == "osx" ]; then brew install ghostscript; fi;
 
