@@ -38,7 +38,7 @@ addons:
       - ghostscript
 
 before_install:
-  - if [[ "$OSTYPE" != "linux-gnu" ]]; then sudo tlmgr install framed titling latexmk; fi
+ # - if [[ "$OSTYPE" != "linux-gnu" ]]; then sudo tlmgr install framed titling latexmk; fi
   - if [ "$TRAVIS_OS_NAME" == "osx" ]; then brew install ghostscript; fi;
 
 install: echo "Nothing occurs at installation, only script"
