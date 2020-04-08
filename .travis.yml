@@ -6,6 +6,7 @@ sudo: required
 cache: packages
 bioc_packages: ggtree
 script:
+- Rscript install_texlive.R
 - R CMD build . --compact-vignettes=gs+qpdf
 
 r_binary_packages:
@@ -41,6 +42,5 @@ before_install:
  # - if [[ "$OSTYPE" != "linux-gnu" ]]; then sudo tlmgr install framed titling latexmk; fi
   - if [ "$TRAVIS_OS_NAME" == "osx" ]; then brew install ghostscript; fi;
 
-script:
-- Rscript install_texlive.R
+
 
