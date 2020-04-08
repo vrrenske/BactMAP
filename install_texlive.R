@@ -5,4 +5,6 @@ if (!requireNamespace("tinytex", quietly = TRUE)) {
   }
   remotes::install_github(c('yihui/tinytex'), quietly = TRUE)
   tinytex::install_tinytex()
+  tinytex::tlmgr_install()
+  tinytex::tlmgr_update()
 }
