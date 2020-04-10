@@ -9,6 +9,71 @@
 #library(ggthemes)
 #library(gridExtra)
 
+#' @export
+#'
+#' @title Function to get a dataframe per cell out of your mesh, spots, object or tiff dataset.
+#'
+#' \code{onePerCell()} returns a dataframe with one table per cell, simplified especially for people who wish
+#' to make their own plots (e.g. histograms, etc) based on the summarized cell data. Automatically, it groups
+#' the input dataset by unique cell (cell & frame), but it is possible to use this function with other column names.
+#'
+#' @param inputframe the dataset (in form of a dataframe) to be summarized
+#' @param by the grouping value. default = c("cell", "frame")
+#' @return the function will return a dataframe (tibble) with the data summarized by the grouping value \code{by}.
+#' it will do this by returning the common values per cell (mean intensity, etc), removing values that are useless
+#' in one-column context (x/y coordinates of outlines), and calculating the mean, median and standard deviation of
+#' numerical values it doesn't recognize. if there are character values with different values per grouped variable,
+#' the function will take ONLY THE FIRST VARIABLE.
+#'
+#' @example
+#' \dontrun{
+#' df <- data.frame("cell"= c(rep(1, 5), rep(2,5)), "frame"=rep(1, 10), "channel"="GFP", "intensity"=c(1,3,4,5,6,1,2,7,3,10))
+#'
+#' onePerCell(df)
+#' }
+onePerCell <- function(inputframe, by=c("cell","frame")){
+
+  #remove columns with x/y coordinates
+  cols <- colnames(inputframe)
+  cols <- cols[!cols%in%c("X",
+                          "Y",
+                          "ob_out_x",
+                          "ob_out_y",
+                          "num",
+                          "obpath",
+                          "X_rot",
+                          "Y_rot",
+                          "Xrot_micron",
+                          "Yrot_micron"
+  )]
+
+  inputframe <- inputframe %>% select(cols)
+
+  for(n in by){
+    inputframe <- inputframe %>% dplyr::group_by(.data[[n]], add=TRUE)
+  }
+
+
+
+  #summarize
+  inputframe_num <- inputframe %>%
+    dplyr::summarize_if(is.double, list(mean = mean, sd=sd)) %>%
+    ungroup()
+  inputframe_num <- inputframe_num[,colSums(inputframe_num!=0)>0]
+
+  inputframe_char <- inputframe %>%
+    dplyr::mutate_if(is.factor, as.character) %>%
+    dplyr::summarize_if(is.character, funs(dplyr::first))
+  inputframe_out <- dplyr::full_join(inputframe_num, inputframe_char) %>% ungroup()
+
+  #check for ambiguous stuff
+  chcar <- inputframe_char %>% ungroup() %>% select_if(is.character) %>% colnames()
+  message(paste("Character columns : '", chcar, "' are not used to subset this dataset and instead only the first occuring
+                variable of each column per group was kept. To subset by these columns, add them to the input parameter 'by'.",
+                collapse = " "))
+  return(inputframe_out)
+}
+
 
 #' @export
 #'
