@@ -8,7 +8,7 @@
 
 ##MicrobeJ
 
-extr_MicrobeJMESH <- function(dataloc, sep=","){
+extr_MicrobeJMESH <- function(dataloc, sep=",", extracols){
   if (!requireNamespace("shotGroups", quietly = TRUE)) {
     inp <- readline("Package 'shotGroups' needed for this function to work. Press 'y' to install, or any other key to cancel.")
     if(inp=="y"|inp=="Y"){utils::install.packages("shotGroups")}else{stop("Canceled")}
@@ -52,10 +52,10 @@ extr_MicrobeJMESH <- function(dataloc, sep=","){
   MESH <- dplyr::left_join(MESH, IDlist)
   MESH <- dplyr::rename(MESH, frame = .data$POSITION, cellID = .data$NAME.id)
 
-  if("intensity"%in%colnames(MESH)){
+  if(!missing(extracols)){
     MESHi <- MESH %>%
-      dplyr::select(.data$intensity, .data$cellID) %>%
-      dplyr::filter(!is.na(.data$intensity)) %>%
+      dplyr::select(extracols, .data$cellID) %>%
+      tidyr::drop_na(extracols) %>%
       dplyr::distinct()
     MESH <- dplyr::distinct(MESH[,c("X", "Y", "cell", "frame", "cellID")]) %>%
       left_join(MESHi)
@@ -160,7 +160,8 @@ extr_MicrobeJ <- function(dataloc,
                           sepspot=",", sepmesh=",", sepobj=",",
                           cellList=FALSE,
                           keeprealvalues=FALSE,
-                          magcor = c("dataloc", "spotloc", "objectloc")
+                          magcor = c("dataloc", "spotloc", "objectloc"),
+                          extracols
                           ){
   if(mag=="No_PixelCorrection"&"dataloc"%in%magcor&"spotloc"%in%magcor&"objectloc"%in%magcor){
     warning("Not converting pixels to micron for any dataset. If you are not sure if you need to correct pixels to micron, check the values of the x/y coordinaties (COORD.x/y and POSITION.x/y) in your MicrobeJ CSVs.")
@@ -203,7 +204,11 @@ extr_MicrobeJ <- function(dataloc,
       MESHout$cellList <- combineDataframes(lapply(M, function(x) x$cellList))$finalframe
       MESHout$meshList <- combineDataframes(lapply(M, function(x) x$meshList))$finalframe
     }else{
+      if(missing(extracols)){
       MESHout <- extr_MicrobeJMESH(dataloc, sepmesh)
+      }else{
+        MESHout <- extr_MicrobeJMESH(dataloc, sepmesh, extracols)
+      }
       }
     cellList1 <- MESHout$cellList
     MESH <- MESHout$meshList

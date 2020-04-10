@@ -17,12 +17,12 @@ Imports:
   methods,
   stats,
   ggtree,
-  dplyr
+  dplyr,
+  tidyr
 Suggests:
   gridExtra,
   ggthemes,
   MASS,
-  tidyr,
   reshape2,
   R.matlab,
   shotGroups,
