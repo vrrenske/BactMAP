@@ -16,18 +16,7 @@ extr_MicrobeJMESH <- function(dataloc, sep=","){
   MESH <- utils::read.csv(dataloc, header=T, sep=sep)
   meshL <- list()
   meshL$cellList <- MESH
-  if("NAME.id"%in%colnames(MESH)){
-    IDlist <- data.frame(NAME.id = unique(MESH$NAME.id), cell = c(1:length(unique(MESH$NAME.id))))
-  }else{
-    if("NAME"%in%colnames(MESH)){
-      IDlist <- data.frame(NAME.id = unique(MESH$NAME), cell = c(1:length(unique(MESH$NAME))))
-      MESH$NAME.id <- MESH$NAME
-    }else{
-      stop("Can not find the cell indicator. Please check your MicrobeJ CSV and make sure to save it including the column 'NAME' or 'NAME.id'")
-    }
-  }
-  MESH <- dplyr::left_join(MESH, IDlist)
-  MESH <- dplyr::rename(MESH, frame = .data$POSITION, cellID = .data$NAME.id)
+
   if("Y"%in%colnames(MESH)==FALSE){
     if("COORD.y"%in%colnames(MESH)==TRUE){
       if("X"%in%colnames(MESH)){
@@ -39,10 +28,40 @@ extr_MicrobeJMESH <- function(dataloc, sep=","){
     }
   }
 
-  if("intensity"%in%colnames(MESH)){
-    MESH <- MESH[,c("X", "Y", "cell", "frame", "cellID", "intensity")]
+
+  if("NAME.id"%in%colnames(MESH)){
+    MESH <- MESH %>%
+      dplyr::group_by(.data$X, .data$Y, .data$POSITION) %>%
+      dplyr::mutate(NAME.id = dplyr::nth(.data$NAME.id, 1)) %>%
+      dplyr::ungroup()
+    IDlist <- data.frame(NAME.id = unique(MESH$NAME.id), cell = c(1:length(unique(MESH$NAME.id))))
   }else{
-    MESH <- MESH[,c("X", "Y", "cell", "frame", "cellID")]
+    if("NAME"%in%colnames(MESH)){
+      MESH <- MESH %>%
+        dplyr::group_by(.data$X, .data$Y, .data$POSITION) %>%
+        dplyr::mutate(NAME = dplyr::nth(.data$NAME, 1)) %>%
+        dplyr::ungroup() %>%
+        dplyr::rename(NAME.id = .data$NAME)
+      IDlist <- data.frame(NAME.id = unique(MESH$NAME.id), cell = c(1:length(unique(MESH$NAME.id))))
+    }else{
+      stop("Can not find the cell indicator. Please check your MicrobeJ CSV and make sure to save it including the column 'NAME' or 'NAME.id'")
+    }
+  }
+
+
+  MESH <- dplyr::left_join(MESH, IDlist)
+  MESH <- dplyr::rename(MESH, frame = .data$POSITION, cellID = .data$NAME.id)
+
+  if("intensity"%in%colnames(MESH)){
+    MESHi <- MESH %>%
+      dplyr::select(.data$intensity, .data$cellID) %>%
+      dplyr::filter(!is.na(.data$intensity)) %>%
+      dplyr::distinct()
+    MESH <- dplyr::distinct(MESH[,c("X", "Y", "cell", "frame", "cellID")]) %>%
+      left_join(MESHi)
+
+  }else{
+    MESH <- dplyr::distinct(MESH[,c("X", "Y", "cell", "frame", "cellID")])
     }
 
   bblist <- lapply(unique(MESH$cellID), function(x) as.numeric(suppressWarnings(shotGroups::getMinBBox(data.frame(x= MESH[MESH$cellID==x,]$X, y=MESH[MESH$cellID==x,]$Y))[c("width","height")])))

@@ -6,12 +6,14 @@
 objectInBox <- function(objectdata, meshdata, mag = "No_PixelCorrection"){
   pixel2um <- unlist(get(magnificationList, envir=magEnv)[mag])
   message("Matching Object with Cell..")
+
   object_rel <- spotsInBox(objectdata, meshdata, Xs="ob_x", Ys="ob_y")$spots_relative
 
   object_rel <- object_rel %>%
     dplyr::rename(ob_x = .data$x,
                   ob_y = .data$y) %>%
     dplyr::right_join(objectdata) %>%
+    dplyr::mutate(obID = as.character(.data$obID)) %>%
     dplyr::group_by(.data$obID) %>%
     dplyr::mutate(pip=sum(.data$pip, na.rm=T)) %>%
     dplyr::ungroup() %>%
