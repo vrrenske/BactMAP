@@ -24,6 +24,7 @@ extr_MicrobeJ(dataloc, spotloc, objectloc, mag = "No_PixelCorrection", sepspot="
   \item{cellList}{when cellList==TRUE, the dataframe 'cellList' (see Values below) will be in the output list.}
   \item{keeprealvalues}{default FALSE. BactMAP checks whether the mesh and spot files are both in pixels or in micron and corrects this. When keeprealvalues==TRUE, BactMAP skips this step.}
   \item{magcor}{indicates the input datasets which need to be corrected (pixel to micron). if not changed, all datasets are corrected.}
+  \item{extracols}{if there are any other main variables inside 'dataloc' you wish to pass on to your output, add them here as a vector of character strings (for instance "myvariable" for 1 variable, or c("myvariable1", "myvariable2") for 2 variables.)}
 
 }
 
