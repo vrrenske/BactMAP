@@ -34,6 +34,7 @@ objectInBox <- function(objectdata, meshdata, mag = "No_PixelCorrection"){
   OM <- suppressWarnings(centrefun(object_rel))
   message("Putting the objects in the correct orientation..")
   OM <- suppressWarnings(midobject(meshdata, OM, pixel2um))
+  OM <- OM %>% dplyr::left_join(objectdata)
   message("Done.")
   return(OM)
 }

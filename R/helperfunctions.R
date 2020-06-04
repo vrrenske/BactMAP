@@ -161,6 +161,14 @@ spotsInBox <- function(spotdata, meshdata, Xs = "x", Ys = "y", Xm = "X", Ym = "Y
 
 #for-loop to re-write
   #cellframe_meshdata <- paste(meshdata$cell, meshdata$frame, sep="_")
+ # o <- meshdata %>%
+  #  dplyr::group_by(.data$frame, .data$cell) %>%
+ #   getSpotsInBox(spotdatap = spotdata[spotdata$frame==meshdata$frame,],
+       #           u=u,
+     #             a=a,
+       #           returnMESH = FALSE)
+
+
   if (!requireNamespace("pbapply", quietly = TRUE)) {
     o <- lapply(unique(meshdata$frame), function(x) lapply(unique(meshdata[meshdata$frame==x,]$cell), function(y) getSpotsInBox(meshp=meshdata[meshdata$frame==x&meshdata$cell==y,],
                                                                                                                                 spotdatap=spotdata[spotdata$frame==x,],
@@ -193,7 +201,7 @@ spotsInBox <- function(spotdata, meshdata, Xs = "x", Ys = "y", Xm = "X", Ym = "Y
 
 }
 
-getSpotsInBox <- function(meshp, spotdatap, u, a, returnMESH){
+getSpotsInBox <- function(meshp, spotdatap, u, a, returnMESH=FALSE){
 
   box <- suppressWarnings(shotGroups::getMinBBox(data.frame(x= meshp$X, y=meshp$Y))) #bounding box of cell
   lengthwidth <- c(box$width, box$height)
@@ -205,7 +213,7 @@ getSpotsInBox <- function(meshp, spotdatap, u, a, returnMESH){
     meshp$max.length <- max(lengthwidth) #take length/width if not already defined
   }
 
-  pinps <- suppressWarnings(sp::point.in.polygon(spotdatap[,"x"], spotdatap[,"y"], meshp$X,meshp$Y)) #find spot/object coordinates inside cell
+  pinps <- suppressWarnings(sp::point.in.polygon(spotdatap$x, spotdatap$y, meshp$X,meshp$Y)) #find spot/object coordinates inside cell
   pinps <- data.frame("x"=spotdatap$x, "y"=spotdatap$y, "pip"=pinps)
   if(nrow(pinps)>0){
     pinps <- pinps[pinps$pip==1,]

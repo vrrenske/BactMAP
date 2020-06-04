@@ -58,7 +58,7 @@ extr_MicrobeJMESH <- function(dataloc, sep=",", extracols){
       tidyr::drop_na(extracols) %>%
       dplyr::distinct()
     MESH <- dplyr::distinct(MESH[,c("X", "Y", "cell", "frame", "cellID")]) %>%
-      left_join(MESHi)
+      dplyr::left_join(MESHi)
 
   }else{
     MESH <- dplyr::distinct(MESH[,c("X", "Y", "cell", "frame", "cellID")])
@@ -252,6 +252,7 @@ extr_MicrobeJ <- function(dataloc,
     colnames(objectsout)[colnames(objectsout)=="cellID"] <- "obID"
     colnames(objectsout)[colnames(objectsout)=="max.length"] <- "oblength"
     colnames(objectsout)[colnames(objectsout)=="max.width"] <- "obwidth"
+    objectsout <- objectsout  %>% dplyr::group_by(.data$obID) %>% dplyr::mutate(obarea=sp::Polygon(cbind(.data$ob_x, .data$ob_y))@area) %>% dplyr::ungroup()
     objectsout$cell <- NULL
     objectsout$num <- NULL
     pathframe <- do.call('rbind',lapply(unique(objectsout$obID), function(x) data.frame("obID"=x, "obpath"=c(1:nrow(objectsout[objectsout$obID==x,])))))
