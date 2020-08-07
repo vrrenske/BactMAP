@@ -21,7 +21,6 @@ Imports:
   tidyr
 Suggests:
   gridExtra,
-  ggthemes,
   MASS,
   reshape2,
   R.matlab,

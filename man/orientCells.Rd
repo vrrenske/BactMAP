@@ -13,6 +13,8 @@ orientCells(dataTurn, cellData, removeNonOriented = FALSE)
 \item{dataTurn}{has to be a \code{spots_relative} or \code{object_relative} dataset}
 
 \item{cellData}{a list of corresponding datasets that need to be turned as well. can be 1 dataset (for instance \code{mesh}) or a list of datasets (like \code{list(mesh, object_relative)})}
+
+\item{removeNonOriented}{default is FALSE - if set to TRUE, in all datasets only the oriented cells will be kept.}
 }
 \value{
 the function will return a list of the datasets, where the relative X/Y coordinates of the cells and internal features are all oriented to one side.

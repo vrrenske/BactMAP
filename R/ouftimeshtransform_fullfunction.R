@@ -89,7 +89,7 @@ sprOuftimesh <- function(cellList){
       x <- x + 1
     }
   }
-  minPointTwo <- quantile(MESH$max.length, probs=seq(0, 0.02, 0.02))[[2]]
+  minPointTwo <- stats::quantile(MESH$max.length, probs=seq(0, 0.02, 0.02))[[2]]
   return(MESH[MESH$max.length>minPointTwo,])
 }
 

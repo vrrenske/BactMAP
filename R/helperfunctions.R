@@ -5,9 +5,6 @@
 ##other package dependencies:
 
 #merge data functions
-#library(ggplot2)
-#library(ggthemes)
-#library(gridExtra)
 
 #' @export
 #'
@@ -47,7 +44,7 @@ onePerCell <- function(inputframe, by=c("cell","frame")){
                           "Yrot_micron"
   )]
 
-  inputframe <- inputframe %>% select(cols)
+  inputframe <- inputframe %>% dplyr::select(cols)
 
   for(n in by){
     inputframe <- inputframe %>% dplyr::group_by(.data[[n]], add=TRUE)
@@ -57,17 +54,17 @@ onePerCell <- function(inputframe, by=c("cell","frame")){
 
   #summarize
   inputframe_num <- inputframe %>%
-    dplyr::summarize_if(is.double, list(mean = mean, sd=sd)) %>%
-    ungroup()
+    dplyr::summarize_if(is.double, list(mean = mean, sd=stats::sd)) %>%
+    dplyr::ungroup()
   inputframe_num <- inputframe_num[,colSums(inputframe_num!=0)>0]
 
   inputframe_char <- inputframe %>%
     dplyr::mutate_if(is.factor, as.character) %>%
-    dplyr::summarize_if(is.character, funs(dplyr::first))
-  inputframe_out <- dplyr::full_join(inputframe_num, inputframe_char) %>% ungroup()
+    dplyr::summarize_if(is.character, dplyr::funs(dplyr::first))
+  inputframe_out <- dplyr::full_join(inputframe_num, inputframe_char) %>% dplyr::ungroup()
 
   #check for ambiguous stuff
-  chcar <- inputframe_char %>% ungroup() %>% select_if(is.character) %>% colnames()
+  chcar <- inputframe_char %>% ungroup() %>% dplyr::select_if(is.character) %>% colnames()
   message(paste("Character columns : '", chcar, "' are not used to subset this dataset and instead only the first occuring
                 variable of each column per group was kept. To subset by these columns, add them to the input parameter 'by'.",
                 collapse = " "))
@@ -632,6 +629,7 @@ micron <- function(){
 #'
 #' @param dataTurn has to be a \code{spots_relative} or \code{object_relative} dataset
 #' @param cellData a list of corresponding datasets that need to be turned as well. can be 1 dataset (for instance \code{mesh}) or a list of datasets (like \code{list(mesh, object_relative)})
+#' @param removeNonOriented default is FALSE - if set to TRUE, in all datasets only the oriented cells will be kept.
 #' @return the function will return a list of the datasets, where the relative X/Y coordinates of the cells and internal features are all oriented to one side.
 #'
 #' @examples
@@ -657,7 +655,7 @@ orientCells <- function(dataTurn, cellData, removeNonOriented = FALSE){
     dataTurn <- dataTurn %>%
       dplyr::group_by(.data$frame, .data$cell) %>%
       dplyr::mutate(totalspot = dplyr::n_distinct(.data$obID),
-                    spot = obID) %>%
+                    spot = .data$obID) %>%
       dplyr::ungroup()
   }
 
@@ -671,10 +669,10 @@ orientCells <- function(dataTurn, cellData, removeNonOriented = FALSE){
       dplyr::distinct(.data$frame, .data$cell, .data$spot, .data$pol) %>%
       dplyr::group_by(.data$frame, .data$cell) %>%
       dplyr::mutate(pol = mean(.data$pol)) %>%
-      dplyr::mutate(pol = if_else(pol==-1|pol==1, .data$pol, 0, 0))
+      dplyr::mutate(pol = dplyr::if_else(.data$pol==-1|.data$pol==1, .data$pol, 0, 0))
     dataTurn <- dataTurn %>%
       dplyr::select(-.data$pol) %>%
-      left_join(dataSmall)
+      dplyr::left_join(dataSmall)
   }
 
   if(removeNonOriented == TRUE){
