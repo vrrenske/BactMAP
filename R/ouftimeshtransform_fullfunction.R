@@ -25,21 +25,21 @@ sprOuftipickfile <- function(cellListfile){
 
   cellList <- cellList[(startnum+1):nrow(cellList),]
   cellList <- data.frame(cellList)
-  cellList <- data.frame(do.call("rbind", strsplit(as.character(cellList$cellList), ",", fixed=T)))
+  cellList <- suppressWarnings(data.frame(do.call("rbind", strsplit(as.character(cellList$cellList), ",", fixed=T))))
   colnames(cellList) <- listcols
 #remove annoying bug of missing ", " in end when there is an object.
 #needed with old version of OUFTI
-  #if(U=="n"){
-    #cellList$cellId[(as.character(cellList$cellId))==as.character(cellList$frameNumber)] <- NA
-   # cellList$cellId <- as.numeric(as.character(cellList$cellId))
-   # cellList$objects <- as.numeric(as.character(cellList$objects))
-   # cellList$cellId[is.na(cellList$cellId)] <- cellList$objects[is.na(cellList$cellId)]
-   # cellList$objects[cellList$objects==cellList$cellId] <- NA
-  #}
+  if("#1"%in%cellList$cellId){
+    cellList$cellId[(as.character(cellList$cellId))==as.character(cellList$frameNumber)] <- NA
+    cellList$cellId <- as.numeric(cellList$cellId)
+    cellList$cellId[is.na(cellList$cellId)] <- cellList$objects[is.na(cellList$cellId)]
+    cellList$objects[grepl(" ", cellList$objects)==FALSE] <- NA
+  }
 #get rid of hashtag.
-  cellList$frameNumber <- as.character(cellList$frameNumber)
+  cellList$frameNumber <- cellList$frameNumber
   cellList$frameNumber <- gsub("#", "", cellList$frameNumber)
   cellList$frameNumber <- as.numeric(cellList$frameNumber)
+  cellList <- cellList[cellList$cellId>0,]
   return(cellList)
   }
 
@@ -48,9 +48,9 @@ sprOuftipickfile <- function(cellListfile){
 sprOuftimesh <- function(cellList){
 
   mesh <- cellList[c("frameNumber", "cellId", "length", "mesh")]
-  mesh$frame <- as.numeric(as.character(mesh$frameNumber))
-  mesh$cell <- as.numeric(as.character(mesh$cellId))
-  mesh$max.length <- as.numeric(as.character(mesh$length))
+  mesh$frame <- mesh$frameNumber
+  mesh$cell <- as.numeric(mesh$cellId)
+  mesh$max.length <- as.numeric(mesh$length)
   mesh$length <- NULL
   mesh$frameNumber <- NULL
   mesh$cellId <- NULL
@@ -89,7 +89,8 @@ sprOuftimesh <- function(cellList){
       x <- x + 1
     }
   }
-  return(MESH[MESH$max.length>1,])
+  minPointTwo <- quantile(MESH$max.length, probs=seq(0, 0.02, 0.02))[[2]]
+  return(MESH[MESH$max.length>minPointTwo,])
 }
 
 
@@ -111,19 +112,18 @@ sprOuftiM <- function(cellList, MESH){
 ######################spot file  ######################################################
 sprOuftispot <- function(cellList){
   REP <- cellList[c("frameNumber", "cellId", "spots")]
-  REP$frame <- as.numeric(as.character(REP$frameNumber))
-  REP$cell <- as.numeric(as.character(REP$cellId))
+  REP$frame <- as.numeric(REP$frameNumber)
+  REP$cell <- as.numeric(REP$cellId)
   REP <- REP[!is.na(REP$cell),]
   REP$frameNumber <- NULL
   REP$cellId <- NULL
-  REP$spots <- as.character(REP$spots)
   u <- 0
   for(n in 1:nrow(REP)){
     if(REP$spots[n] != " "){
       dat3 <- data.frame(t(do.call('rbind', strsplit((REP$spots[n]), ';', fixed=TRUE))))
       colnames(dat3) <- "sp"
       dat3$cnt <- 1:nrow(dat3)
-      dat3 <- dat3[dat3$sp != " ",]
+      dat3 <- dat3[1:5,]
       dat3$sp <- as.character(dat3$sp)
       dat3$sp <- gsub("-", " -", dat3$sp)
       for(z in 1:nrow(dat3)){
@@ -160,6 +160,7 @@ sprOuftispot <- function(cellList){
     OBJ$cellId <- NULL
     OBJ$objects <- as.character(OBJ$objects)
     for(n in 1:nrow(OBJ)){
+      if(!is.na(OBJ$objects[n])){
          if(OBJ$objects[n] != " "){
              dat3 <- data.frame(t(do.call('rbind', strsplit((OBJ$objects[n]), ';', fixed=TRUE))))
              colnames(dat3) <- "ob"
@@ -193,6 +194,7 @@ sprOuftispot <- function(cellList){
                 OBJn <- datfull
              } else { OBJn <- rbind(OBJn,datfull)}
              }
+      }
     }
     OBJn$ob_x <- as.numeric(as.character(OBJn$ob_x))
     OBJn$ob_y <- as.numeric(as.character(OBJn$ob_y))

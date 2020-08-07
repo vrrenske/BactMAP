@@ -29,3 +29,10 @@ Function to get a dataframe per cell out of your mesh, spots, object or tiff dat
 to make their own plots (e.g. histograms, etc) based on the summarized cell data. Automatically, it groups
 the input dataset by unique cell (cell & frame), but it is possible to use this function with other column names.
 }
+\examples{
+\dontrun{
+df <- data.frame("cell"= c(rep(1, 5), rep(2,5)), "frame"=rep(1, 10), "channel"="GFP", "intensity"=c(1,3,4,5,6,1,2,7,3,10))
+
+onePerCell(df)
+}
+}

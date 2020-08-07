@@ -172,7 +172,8 @@ superfun <- function(dat, bins,mag){
 
 #or two, by quartiles of the number of cells:
 #' @export
-createPlotList <- function(spotdata,  meshdata, groups =4 , colorpalette="GreenYellow", mag="No_PixelCorrection", AllPlot=F, Xm="X", Ym="Y", viridis=FALSE, showPlot=TRUE, getData=FALSE, getSummary=TRUE){
+createPlotList <- function(spotdata,  meshdata, groups =4 , colorpalette="GreenYellow", lineColor = "white", mag="No_PixelCorrection", AllPlot=F, Xm="X", Ym="Y", viridis=FALSE, showPlot=TRUE, getData=FALSE, getSummary=TRUE){
+
   if (!requireNamespace("MASS", quietly = TRUE)) {
     inp_P <- readline("Package 'MASS' needed for this function to work. Press 'y' to install, or any other key to cancel.")
     if(inp_P=="y"|inp_P=="Y"){utils::install.packages("MASS")}else{stop("Canceled")}
@@ -244,6 +245,11 @@ createPlotList <- function(spotdata,  meshdata, groups =4 , colorpalette="GreenY
 
   if(viridis==FALSE){
     colc <- get(colopts, envir = colEnv)[colorpalette][[1]]
+    if(lineColor=="white"|lineColor=="#FFFFFF"){
+      if(colc[[1]]=="white"|colc[[1]]=="#FFFFFF"){
+        lineColor <- readline("the background color and outline of the cell are both set to 'white'. to change this, type your preferred line color and press Enter to continue")
+      }
+    }
   }
 
   if(viridis==TRUE){
@@ -283,7 +289,7 @@ createPlotList <- function(spotdata,  meshdata, groups =4 , colorpalette="GreenY
   #plotting! -> L and D ordered by cell length
   pL <- ggplot2::ggplot(MR, ggplot2::aes_string(x='num', y='Lmid'))
   if(viridis==TRUE){
-    pL <- LWplot(pL, "black", max(MR$num, na.rm=T))
+    pL <- LWplot(pL, colc[[1]], max(MR$num, na.rm=T))
   }
   if(viridis==FALSE){
     pL <- LWplot(pL, colc[[1]], max(MR$num, na.rm=T))
@@ -293,12 +299,12 @@ createPlotList <- function(spotdata,  meshdata, groups =4 , colorpalette="GreenY
     ggplot2::ggtitle("Spot location on length axis ordered by cell length") +
     ggplot2::xlab("Spot - ordered by cell length") +
     ggplot2::ylab("Y-position (\u03BCm)") +
-    ggplot2::geom_line(data=MR, ggplot2::aes_string(x='num',y='pole1'),colour="white") +
-    ggplot2::geom_line(data=MR, ggplot2::aes_string(x='num',y='pole2'),colour="white")
+    ggplot2::geom_line(data=MR, ggplot2::aes_string(x='num',y='pole1'),colour=lineColor) +
+    ggplot2::geom_line(data=MR, ggplot2::aes_string(x='num',y='pole2'),colour=lineColor)
 
   pW <- ggplot2::ggplot(MR, ggplot2::aes_string(x='num', y='Dum'))
   if(viridis == TRUE){
-    pW <- LWplot(pW, "black", max(MR$num,na.rm=T))
+    pW <- LWplot(pW, colc[[1]], max(MR$num,na.rm=T))
   }
   if(viridis==FALSE){
     pW <- LWplot(pW, colc[[1]], max(MR$num,na.rm=T))
@@ -319,7 +325,7 @@ createPlotList <- function(spotdata,  meshdata, groups =4 , colorpalette="GreenY
   phlist <- list()
   for(n in 1:groups){
     p <- heatmap(plist[[n]], mp, colc, viridis)
-    p <- coplot(p, xmax, ymax)
+    p <- coplot(p, xmax, ymax, u=colc[[1]])
     phlist <- append(phlist, list(p))
   }
 
@@ -334,7 +340,7 @@ createPlotList <- function(spotdata,  meshdata, groups =4 , colorpalette="GreenY
   }
   if(viridis==TRUE){
     pLD <- pLD + ggplot2::theme_minimal() +
-      ggplot2::theme(panel.background=ggplot2::element_rect(fill="black"), panel.grid = ggplot2::element_blank())
+      ggplot2::theme(panel.background=ggplot2::element_rect(fill=colc[[1]]), panel.grid = ggplot2::element_blank())
   }
   u$lengthplot <- pLD
 
@@ -343,7 +349,7 @@ createPlotList <- function(spotdata,  meshdata, groups =4 , colorpalette="GreenY
   pWD <- heatmap(pWD, mpW1, colc,viridis)
   if(viridis==TRUE){
     pWD <- pWD + ggplot2::theme_minimal() +
-      ggplot2::theme(panel.background=ggplot2::element_rect(fill="black"), panel.grid = ggplot2::element_blank())
+      ggplot2::theme(panel.background=ggplot2::element_rect(fill=colc[[1]]), panel.grid = ggplot2::element_blank())
   }
 
   if(viridis==FALSE){
@@ -387,7 +393,7 @@ createPlotList <- function(spotdata,  meshdata, groups =4 , colorpalette="GreenY
     phmlist <- list()
     for(n in 1:groups){
       p <- phlist[[n]] +
-        ggplot2::geom_path(data=means[[n]], ggplot2::aes_string(x='x',y='y'), colour="white") +
+        ggplot2::geom_path(data=means[[n]], ggplot2::aes_string(x='x',y='y'), colour=lineColor) +
         ggplot2::coord_fixed(xlim=c(min(means[[groups]]$x)*1.2, max(means[[groups]]$x*1.2)), ylim=c(min(means[[groups]]$y)*1.2, max(means[[groups]]$y*1.2)))
       phmlist <- append(phmlist, list(p))
     }
@@ -401,10 +407,10 @@ createPlotList <- function(spotdata,  meshdata, groups =4 , colorpalette="GreenY
     phmalist <- list()
     for(n in 1:groups){
       if(missing(meshdata)!=TRUE){
-        p1_all <- suppressMessages(allplot(phmlist[[n]], allMRs[[n]], max(means[[groups]]$x*1.2), max(means[[groups]]$y*1.2), empty))
+        p1_all <- suppressMessages(allplot(phmlist[[n]], allMRs[[n]], max(means[[groups]]$x*1.2), max(means[[groups]]$y*1.2), empty, histfill=colc[[1]]))
       }
       if(missing(meshdata)==TRUE){
-        p1_all <- suppressMessages(allplot(phlist[[n]], allMRs[[n]], mean(allMRs[[groups]]$max.length)*1.2, mean(allMRs[[groups]]$max.width)*1.2, empty))
+        p1_all <- suppressMessages(allplot(phlist[[n]], allMRs[[n]], mean(allMRs[[groups]]$max.length)*1.2, mean(allMRs[[groups]]$max.width)*1.2, empty , histfill=colc[[1]]))
       }
       phmalist <- append(phmalist,list(p1_all))
       u$qplots <- gridExtra::arrangeGrob(grobs=phmalist, ncol=1)
@@ -426,13 +432,13 @@ createPlotList <- function(spotdata,  meshdata, groups =4 , colorpalette="GreenY
   if(nrow(unique(meshdata[,c("cell", "frame", "max.length")][meshdata$max.length==max(meshdata$max.length),]))> 11){
     meantotal <- superfun(meshdata, round(nrow(unique(meshdata[,c("cell", "frame", "max.length")][meshdata$max.length==min(meshdata$max.length),])), digits=0), p2um)
   }
-  pall <- coplot(pall,max(meantotal$x)*1.2, max(meantotal$y)*1.2)
-  pall <- pall + ggplot2::geom_path(data=meantotal, ggplot2::aes_string(x='x',y='y'), colour="white")
+  pall <- coplot(pall,max(meantotal$x)*1.2, max(meantotal$y)*1.2, u = colc[[1]])
+  pall <- pall + ggplot2::geom_path(data=meantotal, ggplot2::aes_string(x='x',y='y'), colour=lineColor)
   if(AllPlot==F){
     u$plottotal <- pall
   }
   if(AllPlot==T){
-    pall_all <- suppressMessages(allplot(pall, MR, max(meantotal$x)*1.2, max(meantotal$y)*1.2, empty))
+    pall_all <- suppressMessages(allplot(pall, MR, max(meantotal$x)*1.2, max(meantotal$y)*1.2, empty, histfill=colc[[1]]))
     u$plottotal <- pall_all
 
   }
@@ -540,17 +546,17 @@ createPlotList <- function(spotdata,  meshdata, groups =4 , colorpalette="GreenY
 ###########################################double histograms!! yay!!!######################################3333
 ##allplot function combines histograms and density plot.
 
-allplot <- function(plot, data, xmax, ymax, empty){
+allplot <- function(plot, data, xmax, ymax, empty, histfill){
 
   #prepare seperate plots: histograms (hL, hD) and modified coordinate plots(remove legend )
   p1D <- plot + ggplot2::theme(legend.position = "none")
   p1hL <- ggplot2::ggplot(data, ggplot2::aes_string(x='Lcor')) +
-    ggplot2::geom_histogram(fill="black") +
+    ggplot2::geom_histogram(fill=histfill) +
     ggplot2::coord_cartesian(xlim = c(-xmax, xmax)) +
     ggplot2::theme_minimal() +
     ggplot2::theme(axis.title.x = ggplot2::element_blank())
   p1hD <- ggplot2::ggplot(data, ggplot2::aes_string(x='Dcor')) +
-    ggplot2::geom_histogram(fill="black") +
+    ggplot2::geom_histogram(fill=histfill) +
     ggplot2::coord_flip(xlim = c(-ymax, ymax)) +
     ggplot2::theme_minimal() +
     ggplot2::theme(axis.title.y = ggplot2::element_blank())

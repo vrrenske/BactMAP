@@ -12,6 +12,7 @@ createPlotList(spotdata,
                meshdata,
                groups=4,
                colorpalette="GreenYellow",
+               lineColor="white",
                mag="No_PixelCorrection",
                AllPlot=F,
                Xm="X",
@@ -26,6 +27,7 @@ createPlotList(spotdata,
   \item{meshdata}{Data frame containing -at least- the x and y coordinates of the cell meshes, the maximum cell width, maximum cell length, cell ID and frame. Optional.}
   \item{groups}{Number of groups the data will be divided in. Default = 4.}
   \item{colorpalette}{Color palette the heatmap plots will be plotted in. Default is "GreenYellow". Check which palettes are loaded by \code{showColorPaletes()} and add your own palette using \code{addPallete()}}
+  \item{lineColor}{to be able to change the outlines of the cell and pole localizations in demographs, set lineColor. Default is "white".}
   \item{mag}{The name of the conversion factor for pixel to micrometer. Default is "No_PixelCorrection" which is 1. Check \code{\link{getPixels2um}} for the loaded conversionfactors and use \code{addPixels2um("ConversionName", conversionfactor)} to add a conversion factor to the list.}
   \item{AllPlot}{When \code{TRUE}, the output x/y plots will have sideplots with histograms of the spot localization. When \code{FALSE}, only the x/y plots will be plotted.}
   \item{Xm}{By default, the column names of the x/y coordinates in the MESH data frames are "X" and "Y". When this is not the case, one can tell the function by using \code{Xm} and \code{Ym}. Enter a character string with the name of the x-coordinate column for Xm, and the name of the y-coordinate column for Ym.}

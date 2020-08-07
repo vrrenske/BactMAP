@@ -62,3 +62,5 @@ pal2Default()
 }
 
 \keyword{~color}
+
+

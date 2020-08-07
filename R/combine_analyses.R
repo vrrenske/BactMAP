@@ -209,20 +209,19 @@ plotOverlay <- function(meshdata,
 
   onlycells <- onlycells %>%
     dplyr::arrange(quantiles_by) %>%
-    dplyr::mutate(number = dplyr::row_number(quantiles_by))
+    dplyr::mutate(number = dplyr::row_number(.data[[quantiles_by]]))
 
   if(quantiles>1&equal_groups==TRUE){
     onlycells <- onlycells %>%
-      dplyr::mutate(quantiles = dplyr::ntile(quantiles=.data$number, quantiles))
+      dplyr::mutate(quantiles = dplyr::ntile(x= .data$number, quantiles))
   }else{
     if(quantiles>1&equal_groups==FALSE){
       onlycells <- onlycells %>%
-        dplyr::mutate(quantiles = dplyr::ntile(quantiles=quantiles_by, quantiles))
+        dplyr::mutate(quantiles = dplyr::ntile(x=quantiles_by, quantiles))
     }
   }
 
-  onlycells <- onlycells %>%
-    dplyr::select(onlycells, -quantiles_by)
+  onlycells <- onlycells[,colnames(onlycells)[colnames(onlycells)!=quantiles_by]]
 
    #build plot
 

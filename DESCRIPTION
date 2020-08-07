@@ -43,5 +43,5 @@ Suggests:
   mvtnorm,
   tidyverse
 Collate: 'ouftidirectlyfrommatlab.R' 'Extr_Morphometrics.R' 'ExtractCSVs.R' 'helperfunctions.R' 'ouftimeshtransform_fullfunction.R' 'plothelper.R' 'supersegger_genealogy.R' 'Plot_Image.R' 'objectplotting.R' 'supersegger_meshes.R' 'combine_analyses.R' 'timelapse.R' 'plotTracks.R' 'objectInBox.R' 'zzz.R'
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
 VignetteBuilder: knitr

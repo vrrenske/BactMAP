@@ -25,7 +25,7 @@
 #' numerical values it doesn't recognize. if there are character values with different values per grouped variable,
 #' the function will take ONLY THE FIRST VARIABLE.
 #'
-#' @example
+#' @examples
 #' \dontrun{
 #' df <- data.frame("cell"= c(rep(1, 5), rep(2,5)), "frame"=rep(1, 10), "channel"="GFP", "intensity"=c(1,3,4,5,6,1,2,7,3,10))
 #'
@@ -369,6 +369,12 @@ turncell <- function(MESHp, u, rawdatafile, a, n, i, ars){
   MESHp$Ymid <- mp[2]
   MESHp$X_rot <- X_cor * cos(angle) - Y_cor * sin(angle)
   MESHp$Y_rot <- X_cor * sin(angle) + Y_cor * cos(angle) #rotate cell
+  if(MESHp$Y_rot[[1]]>0){
+    MESHp$Y_rot <-  MESHp$X_rot * sin(pi) + MESHp$Y_rot * cos(pi)
+    MESHp$X_rot <- MESHp$X_rot * cos(pi) - MESHp$Y_rot * sin(pi)
+    MESHp$angle <- MESHp$angle - pi
+  }
+
 
   if(!missing(rawdatafile)){
     message(paste("Turning raw data for cell", n))
@@ -616,3 +622,139 @@ assign(magnificationList, mL, envir=magEnv)
 micron <- function(){
   return("\u00b5m")
 }
+
+
+#'@export
+#' @title Orient your cells by the side in which your spots or objects (predominantly) are located
+#'
+#' \code{orientCells()} takes a \code{spots_relative} or \code{object_relative} dataset and uses the relative localization of each spot or mid-point of each object
+#' to flip all related cells & content to one side based on this localization.
+#'
+#' @param dataTurn has to be a \code{spots_relative} or \code{object_relative} dataset
+#' @param cellData a list of corresponding datasets that need to be turned as well. can be 1 dataset (for instance \code{mesh}) or a list of datasets (like \code{list(mesh, object_relative)})
+#' @return the function will return a list of the datasets, where the relative X/Y coordinates of the cells and internal features are all oriented to one side.
+#'
+#' @examples
+#' \dontrun{
+#'
+#' output <- orientCells(dataTurn = myData$spots_relative, cellData = list(myData$mesh, myData$object_relative))
+#'}
+#'
+orientCells <- function(dataTurn, cellData, removeNonOriented = FALSE){
+  #check if the dataset is relative
+  if(!"Lmid"%in%colnames(dataTurn)){
+    if(!"l"%in%colnames(dataTurn)){
+      stop("No relative localizations found in the 'dataTurn' input. Please use a dataframe with relative spot or object locatizations.")
+    }
+    if("l"%>%colnames(dataTurn)){
+      #rename l & d
+      dataTurn <- dataTurn %>%
+        dplyr::rename(Lmid=.data$l, Dum = .data$d)
+    }
+  }
+  #in case of objects
+  if("obID"%in%colnames(dataTurn)){
+    dataTurn <- dataTurn %>%
+      dplyr::group_by(.data$frame, .data$cell) %>%
+      dplyr::mutate(totalspot = dplyr::n_distinct(.data$obID),
+                    spot = obID) %>%
+      dplyr::ungroup()
+  }
+
+  #classify location of spot/object middle with variable 'pol' (handy if you have more than 1 spot)
+  dataTurn <- dataTurn %>%
+    dplyr::mutate(pol = dplyr::if_else(.data$Lmid<0, -1, 1, 0))
+
+  if(max(dataTurn$totalspot)>1){
+    message("More than one spot per cell detected. Function takes the side most spots are on (in case of a tie, cell is classified as 'non-polarized' by setting variable 'pol' to 0).")
+    dataSmall <- dataTurn %>%
+      dplyr::distinct(.data$frame, .data$cell, .data$spot, .data$pol) %>%
+      dplyr::group_by(.data$frame, .data$cell) %>%
+      dplyr::mutate(pol = mean(.data$pol)) %>%
+      dplyr::mutate(pol = if_else(pol==-1|pol==1, .data$pol, 0, 0))
+    dataTurn <- dataTurn %>%
+      dplyr::select(-.data$pol) %>%
+      left_join(dataSmall)
+  }
+
+  if(removeNonOriented == TRUE){
+    dataTurn <- dataTurn[dataTurn$pol!=0,]
+  }
+
+  listPol <- dataTurn %>%
+    dplyr::select(.data$frame, .data$cell, .data$pol)
+
+  dataTurn <- turnEach(dataTurn)
+
+  if(is.data.frame(cellData)==FALSE){
+    if(is.list(cellData)==FALSE){
+      stop("Does not recognize the cellData input. Either provide one dataframe or a list() of dataframes.")
+    }
+    cellData <- lapply(cellData, function(x) turnEach(x, listPol))
+  }else{
+    cellData <- turnEach(cellData, listPol)
+  }
+
+  return(list(dataTurn = dataTurn, cellData = cellData))
+
+}
+
+
+turnEach <- function(partCD, listPol){
+  if("spot"%in%colnames(partCD)){
+    dType <- "spot"
+    if(!"Lmid"%in%colnames(partCD)){
+      if(!"l"%in%colnames(partCD)){
+        stop("The spot dataframe does not contain relative localizations. Please add a spots_relative dataframe.")
+      }
+      partCD <- partCD %>%
+        dplyr::rename(Lmid = .data$l, Dum = .data$d)
+    }
+  }
+  if("obID"%in%colnames(partCD)){
+    dType <- "object"
+  }
+  if("Xmid"%in%colnames(partCD)){
+    dType <- "mesh"
+  }
+  if(missing(dType)){
+    stop("Did not recognize the input dataframe in cellData.")
+  }
+
+  if(!missing(listPol)){
+    partCD <- partCD %>%
+      dplyr::right_join(listPol)
+  }
+
+
+  if(dType == "spot"){
+    partCD <- partCD %>%
+      dplyr::mutate(
+        Lmid = dplyr::if_else(.data$pol!=0, .data$Lmid*.data$pol, .data$Lmid, .data$Lmid),
+      )
+  }
+  if(dType == "object"){
+    partCD <- partCD %>%
+      dplyr::mutate(
+        Lmid = dplyr::if_else(.data$pol!=0, .data$Lmid*.data$pol, .data$Lmid, .data$Lmid),
+        ob_out_x = dplyr::if_else(.data$pol!=0, .data$ob_out_x*.data$pol, .data$ob_out_x, .data$ob_out_x)
+      )
+  }
+  if(dType == "mesh"){
+    partCD <- partCD %>%
+      dplyr::mutate(
+        X_rot = dplyr::if_else(.data$pol!=0, .data$X_rot*.data$pol, .data$X_rot, .data$X_rot),
+        Xrot_micron = dplyr::if_else(.data$pol!=0, .data$Xrot_micron*.data$pol, .data$Xrot_micron, .data$Xrot_micron)
+      )
+    if("xt"%in%colnames(partCD)){
+      partCD <- partCD %>%
+        dplyr::mutate(
+          xt = dplyr::if_else(.data$pol!=0, .data$xt*.data$pol, .data$xt, .data$xt)
+        )
+    }
+  }
+
+  return(partCD)
+
+}
+
