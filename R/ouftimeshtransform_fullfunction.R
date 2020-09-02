@@ -180,6 +180,10 @@ sprOuftispot <- function(cellList){
                datpart <- unique(datpart)
                datpart$obnum <- i
                datpart$obpath <- c(1:nrow(datpart))
+               bbox <- shotGroups::getMinBBox(data.frame(datpart$ob_x, datpart$ob_y))
+               datpart$obwidth <- min(c(bbox$height, bbox$width))
+               datpart$oblength <- max(c(bbox$height, bbox$width))
+               datpart$obarea <- sp::Polygon(data.frame(datpart$ob_x, datpart$ob_y))@area
                if(i==1){
                  datfull <- datpart
                }
@@ -198,6 +202,9 @@ sprOuftispot <- function(cellList){
     }
     OBJn$ob_x <- as.numeric(as.character(OBJn$ob_x))
     OBJn$ob_y <- as.numeric(as.character(OBJn$ob_y))
+
+
+
     return(OBJn)
   }
 

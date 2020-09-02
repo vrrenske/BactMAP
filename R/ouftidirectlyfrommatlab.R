@@ -119,6 +119,7 @@ extr_Oufti <- function(matfile, mag="No_PixelCorrection", phylo=FALSE, cellList=
   ##if CSV input; take cellList, matlab file & object file from there
   if(substr(matfile, nchar(matfile)-3, nchar(matfile))==".csv"|substr(matfile, nchar(matfile)-3, nchar(matfile))==".txt"){
     CSV <- TRUE
+    message("Taking oufti information from .csv file.")
     outlist <- extr_OuftiCSV(matfile)
     Mesh <- outlist$mesh
     cellList1 <- outlist$cellList
@@ -163,6 +164,11 @@ extr_Oufti <- function(matfile, mag="No_PixelCorrection", phylo=FALSE, cellList=
   if("objectframe"%in%names(outlist)){
     OM <- suppressWarnings(centrefun(OBJ))
     OM <- suppressWarnings(midobject(Mesh, OM, outlist$pixel2um))
+    OM <- OM %>%
+      dplyr::left_join(outlist$objectframe) %>%
+      dplyr::mutate(obarea_um = .data$obarea * (outlist$pixel2um)^2,
+                    oblength_um = .data$oblength * outlist$pixel2um,
+                    obwidth_um = .data$obwidth * outlist$pixel2um)
     outlist$object_relative <- OM
   }
   ##then take the spots
