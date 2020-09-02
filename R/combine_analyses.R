@@ -94,7 +94,7 @@ plotOverlay <- function(meshdata,
                         by="both",
                         type="all",
                         quantiles = 1,
-                        quantiles_by = "max.length",
+                        quantiles_by = "max_um",
                         equal_groups=TRUE,
                         mag,
                         objectcolor=c("#E69F00", "#56B4E9", "#009E73", "#F0E442"),
@@ -103,7 +103,8 @@ plotOverlay <- function(meshdata,
                         his_scales = "free",
                         transparency  = 0.05,
                         meshcolor = "black",
-                        dotsize=1){
+                        dotsize=1,
+                        summaryquant=TRUE){
 
   #check type input
   if(type!="all"&type!="projection"&type!="histogram"&type!="length"&type!="width"){type <- readline("Please give type of plot: 'histogram', 'length', 'width', 'projection', or 'all' and press enter to confirm.")
@@ -220,6 +221,19 @@ plotOverlay <- function(meshdata,
         dplyr::mutate(quantiles = dplyr::ntile(x=quantiles_by, quantiles))
     }
   }
+
+  if(quantiles==1){
+    onlycells$quantiles=1
+  }
+
+  onlysum <- onlycells %>%
+    dplyr::group_by(.data$quantiles) %>%
+    dplyr::summarise(mean = mean(.data[[quantiles_by]]),
+                     median = median(.data[[quantiles_by]]),
+                     min = min(.data[[quantiles_by]]),
+                     max= max(.data[[quantiles_by]]),
+                     ncells = dplyr::n())
+
 
   onlycells <- onlycells[,colnames(onlycells)[colnames(onlycells)!=quantiles_by]]
 
@@ -502,7 +516,11 @@ plotOverlay <- function(meshdata,
   }
 
   if(type=="all"){return(plotout)}
-  if(type!="all"){return(plot)}
+  if(type!="all"){if(summaryquant ==TRUE){
+    return(list(plot = plot,
+                summary = onlysum))
+  }else{return(plot)}
+  }
 }
 
 
