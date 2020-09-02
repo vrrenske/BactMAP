@@ -23,7 +23,8 @@ plotOverlay(meshdata,
             his_scales = "free",
             transparency  = 0.05,
             meshcolor = "black",
-            dotsize=1)
+            dotsize=1,
+            summaryquant = FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -75,6 +76,9 @@ plotOverlay(meshdata,
   \item{dotsize}{
   Change this value to change the size of the plotted spots.
   }
+  \item{summaryquant}{
+  To receive a summary of each quantile (defined by quantiles_by) with the projection, set this to TRUE.
+  }
 }
 
 \value{
@@ -90,7 +94,7 @@ A plot or a list of plots:
   Dotplot showing the localization of the spots and/or objects on the cell's width axis on the y-axis, and the cells ordered by cell length on the x-axis.
 }
 \item{projection}{
-  Cell projections showing the relative object localization, spot localization and cell shape; if \code{quantiles} are set, grouped by \code{by_quantiles}.
+  Cell projections showing the relative object localization, spot localization and cell shape; if \code{quantiles} are set, grouped by \code{quantiles_by}. If summaryquant is set to TRUE, the output will be a list including a $plot (=the projections) and a $summary dataframe summarizing each quantile by the variable quantiles_by.
   }
 }
 

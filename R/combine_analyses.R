@@ -104,7 +104,7 @@ plotOverlay <- function(meshdata,
                         transparency  = 0.05,
                         meshcolor = "black",
                         dotsize=1,
-                        summaryquant=TRUE){
+                        summaryquant=FALSE){
 
   #check type input
   if(type!="all"&type!="projection"&type!="histogram"&type!="length"&type!="width"){type <- readline("Please give type of plot: 'histogram', 'length', 'width', 'projection', or 'all' and press enter to confirm.")
@@ -515,7 +515,10 @@ plotOverlay <- function(meshdata,
 
   }
 
-  if(type=="all"){return(plotout)}
+  if(type=="all"){
+    if(summaryquant==TRUE){
+      plotout$summary <- onlysum}
+    return(plotout)}
   if(type!="all"){if(summaryquant ==TRUE){
     return(list(plot = plot,
                 summary = onlysum))
