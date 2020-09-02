@@ -175,15 +175,20 @@ sprOuftispot <- function(cellList){
              dat3 <- dat3[,selectobj]
              dat3 <- dat3[as.character(dat3$X1)!="",]
              colnames(dat3) <- rep(c("ob_x", "ob_y"), (ncol(dat3)/2))
+
+
              for(i in numobjects){
                datpart <- dat3[,(2*i-1):(2*i)]
                datpart <- unique(datpart)
+               datpart$ob_x <- as.numeric(datpart$ob_x)
+               datpart$ob_y <- as.numeric(datpart$ob_y)
+               datpart <- datpart[!is.na(datpart$ob_x)&!is.na(datpart$ob_y),]
                datpart$obnum <- i
                datpart$obpath <- c(1:nrow(datpart))
-               bbox <- shotGroups::getMinBBox(data.frame(datpart$ob_x, datpart$ob_y))
+               bbox <- shotGroups::getMinBBox(data.frame(x= datpart$ob_x, y=datpart$ob_y))
                datpart$obwidth <- min(c(bbox$height, bbox$width))
                datpart$oblength <- max(c(bbox$height, bbox$width))
-               datpart$obarea <- sp::Polygon(data.frame(datpart$ob_x, datpart$ob_y))@area
+               datpart$obarea <- sp::Polygon(data.frame(x=datpart$ob_x, y=datpart$ob_y))@area
                if(i==1){
                  datfull <- datpart
                }
@@ -193,15 +198,14 @@ sprOuftispot <- function(cellList){
              }
              datfull$frame <- OBJ$frame[n]
              datfull$cell <- OBJ$cell[n]
-             datfull$obID <- paste(datfull$cell, datfull$obnum, sep="_")
+             datfull$obID <- paste(datfull$cell, datfull$frame, datfull$obnum, sep="_")
              if(exists("OBJn")==FALSE){
                 OBJn <- datfull
              } else { OBJn <- rbind(OBJn,datfull)}
              }
       }
     }
-    OBJn$ob_x <- as.numeric(as.character(OBJn$ob_x))
-    OBJn$ob_y <- as.numeric(as.character(OBJn$ob_y))
+
 
 
 

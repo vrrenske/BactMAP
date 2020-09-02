@@ -556,7 +556,7 @@ midobject <- function(MESH, OBJ, p2um){
     dplyr::select(.data$frame, .data$cell, .data$obpath, .data$obnum, .data$obID, .data$max.length, .data$max.width, .data$Dum, .data$Lmid, .data$ob_out_x, .data$ob_out_y) %>%
     dplyr::distinct() %>%
     dplyr::mutate(num = dplyr::dense_rank(.data$max.length)) %>%
-    LimDum(p2um, remOut=F) %>%
+    LimDum(p2um) %>%
     dplyr::mutate(ob_out_x = .data$ob_out_x * p2um, ob_out_y = .data$ob_out_y * p2um)
   return(MESH)
 

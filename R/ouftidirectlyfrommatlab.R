@@ -119,7 +119,7 @@ extr_Oufti <- function(matfile, mag="No_PixelCorrection", phylo=FALSE, cellList=
   ##if CSV input; take cellList, matlab file & object file from there
   if(substr(matfile, nchar(matfile)-3, nchar(matfile))==".csv"|substr(matfile, nchar(matfile)-3, nchar(matfile))==".txt"){
     CSV <- TRUE
-    message("Taking oufti information from .csv file.")
+    message("Taking oufti information from .csv")
     outlist <- extr_OuftiCSV(matfile)
     Mesh <- outlist$mesh
     cellList1 <- outlist$cellList
