@@ -151,66 +151,6 @@ sprOuftispot <- function(cellList){
 }
 
 
-  sprOuftiobject <- function(cellList){
-    OBJ <- cellList[c("frameNumber", "cellId", "objects")]
-    OBJ$frame <- as.numeric(as.character(OBJ$frameNumber))
-    OBJ$cell <- as.numeric(as.character(OBJ$cellId))
-    OBJ <- OBJ[!is.na(OBJ$cell),]
-    OBJ$frameNumber <- NULL
-    OBJ$cellId <- NULL
-    OBJ$objects <- as.character(OBJ$objects)
-    for(n in 1:nrow(OBJ)){
-      if(!is.na(OBJ$objects[n])){
-         if(OBJ$objects[n] != " "){
-             dat3 <- data.frame(t(do.call('rbind', strsplit((OBJ$objects[n]), ';', fixed=TRUE))))
-             colnames(dat3) <- "ob"
-             dat3$cnt <- 1:nrow(dat3)
-             dat3 <- dat3[dat3$ob != " ",]
-             dat3$ob <- as.character(dat3$ob)
-             dat3 <- data.frame(t(do.call('rbind', strsplit((dat3$ob), " ", fixed=TRUE))))
-             numobjects <- c(1:(ncol(dat3)/5))
-             selectobj <- (numobjects*5)-4
-             selectobj <- append(selectobj, selectobj+1)
-             selectobj <- selectobj[order(selectobj)]
-             dat3 <- dat3[,selectobj]
-             dat3 <- dat3[as.character(dat3$X1)!="",]
-             colnames(dat3) <- rep(c("ob_x", "ob_y"), (ncol(dat3)/2))
-
-
-             for(i in numobjects){
-               datpart <- dat3[,(2*i-1):(2*i)]
-               datpart <- unique(datpart)
-               datpart$ob_x <- as.numeric(datpart$ob_x)
-               datpart$ob_y <- as.numeric(datpart$ob_y)
-               datpart <- datpart[!is.na(datpart$ob_x)&!is.na(datpart$ob_y),]
-               datpart$obnum <- i
-               datpart$obpath <- c(1:nrow(datpart))
-               bbox <- shotGroups::getMinBBox(data.frame(x= datpart$ob_x, y=datpart$ob_y))
-               datpart$obwidth <- min(c(bbox$height, bbox$width))
-               datpart$oblength <- max(c(bbox$height, bbox$width))
-               datpart$obarea <- sp::Polygon(data.frame(x=datpart$ob_x, y=datpart$ob_y))@area
-               if(i==1){
-                 datfull <- datpart
-               }
-               if(i>1){
-                 datfull <- rbind(datfull, datpart)
-               }
-             }
-             datfull$frame <- OBJ$frame[n]
-             datfull$cell <- OBJ$cell[n]
-             datfull$obID <- paste(datfull$cell, datfull$frame, datfull$obnum, sep="_")
-             if(exists("OBJn")==FALSE){
-                OBJn <- datfull
-             } else { OBJn <- rbind(OBJn,datfull)}
-             }
-      }
-    }
-
-
-
-
-    return(OBJn)
-  }
 
 #
 extr_OuftiCSV <- function(dataloc){
@@ -223,13 +163,74 @@ extr_OuftiCSV <- function(dataloc){
   outlist$cellList <- C
   outlist$mesh <- MESH
   if(length(unique(C$spots))>1){
+    message("found spot data. saving as 'spotframe'.")
     SPOTS <- sprOuftispot(C)
     outlist$spotframe <- SPOTS
   }
   if(length(unique(C$objects))>1){
-    OBJ <- suppressWarnings(sprOuftiobject(C))
+    message("found object data. saving as 'objectframe'.")
+    OBJ <- suppressWarnings(sprOuftiobject2(C))
     outlist$objectframe <- OBJ
   }
   return(outlist)
 }
+
+
+sprOuftiobject2 <- function(cellList){
+  OBJ <- cellList[c("frameNumber", "cellId", "objects")] %>%
+    dplyr::transmute(frame = as.numeric(as.character(.data$frameNumber)),
+                     cell = as.numeric(as.character(.data$cellId)),
+                     objects = as.character(.data$objects)) %>%
+    dplyr::filter(!is.na(.data$cell),
+                  !is.na(.data$objects),
+                  .data$objects != " ")
+
+  OBJ <- lapply(c(1:nrow(OBJ)), function(x) perRowObject(OBJ[x,])) %>%
+    dplyr::bind_rows()
+  return(OBJ)
+}
+
+
+perRowObject <- function(obRow){
+  dat3 <- data.frame(t(do.call('rbind', strsplit((obRow$objects), ';', fixed=TRUE))))
+  colnames(dat3) <- "ob"
+  dat3$cnt <- 1:nrow(dat3)
+  dat3 <- dat3 %>%
+    dplyr::filter(.data$ob != " ") %>%
+    dplyr::mutate(ob = as.character(.data$ob))
+  dat3 <- data.frame(t(do.call('rbind', strsplit((dat3$ob), " ", fixed=TRUE))))
+  numobjects <- c(1:(ncol(dat3)/5))
+  selectobj <- (numobjects*5)-4
+  selectobj <- append(selectobj, selectobj+1)
+  selectobj <- selectobj[order(selectobj)]
+  dat3 <- dat3[,selectobj]
+  colnames(dat3) <- rep(c("ob_x", "ob_y"), (ncol(dat3)/2))
+  datfull <- lapply(numobjects, function(x) perObject(x, dat3)) %>%
+    dplyr::bind_rows() %>%
+    dplyr::mutate(frame = obRow$frame,
+                  cell = obRow$cell,
+                  obID = paste(.data$frame, .data$cell, .data$obnum, sep="_"))
+  return(datfull)
+
+}
+
+
+perObject <- function(i, dat3){
+  datpart <- dat3[,(2*i-1):(2*i)] %>%
+    dplyr::distinct() %>%
+    dplyr::mutate(ob_x = as.numeric(.data$ob_x),
+                  ob_y = as.numeric(.data$ob_y)) %>%
+    dplyr::filter(!is.na(.data$ob_x)) %>%
+    dplyr::filter(!is.na(.data$ob_y)) %>%
+    dplyr::mutate(obnum = i,
+                  obpath = dplyr::row_number())
+  bbox <- shotGroups::getMinBBox(data.frame(point.x= datpart$ob_x, point.y=datpart$ob_y))
+  datpart <- datpart %>%
+    mutate(obwidth = min(c(bbox$height, bbox$width)),
+           oblength = max(c(bbox$height, bbox$width)),
+           obarea = sp::Polygon(data.frame(x=datpart$ob_x, y=datpart$ob_y))@area)
+  return(datpart)
+}
+
+
 
