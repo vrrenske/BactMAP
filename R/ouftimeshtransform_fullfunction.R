@@ -226,7 +226,7 @@ perObject <- function(i, dat3){
                   obpath = dplyr::row_number())
   bbox <- shotGroups::getMinBBox(data.frame(point.x= datpart$ob_x, point.y=datpart$ob_y))
   datpart <- datpart %>%
-    mutate(obwidth = min(c(bbox$height, bbox$width)),
+    dplyr::mutate(obwidth = min(c(bbox$height, bbox$width)),
            oblength = max(c(bbox$height, bbox$width)),
            obarea = sp::Polygon(data.frame(x=datpart$ob_x, y=datpart$ob_y))@area)
   return(datpart)

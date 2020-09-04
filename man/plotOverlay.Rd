@@ -14,7 +14,7 @@ plotOverlay(meshdata,
             by="both",
             type="all",
             quantiles = 1,
-            quantiles_by = "max.length",
+            quantiles_by = "max_um",
             equal_groups=TRUE,
             mag,
             objectcolor=c("#E69F00", "#56B4E9", "#009E73", "#F0E442"),
@@ -44,7 +44,7 @@ plotOverlay(meshdata,
   The type of output plot. Options are: "histogram", "length", "width", "projection" or "all". Examples of each plot are given below.
 }
   \item{quantiles}{
-  When "projection" or "all" is chosen, the cells can be split into groups by \code{quantiles_by}: one of the other columns existing in each dataset (default = \code{max.length}). Default for \code{quantiles} = \code{1}, so no grouping.
+  When "projection" or "all" is chosen, the cells can be split into groups by \code{quantiles_by}: one of the other columns existing in each dataset (default = \code{max_um}). Default for \code{quantiles} = \code{1}, so no grouping.
 }
   \item{quantiles_by}{
   see \code{quantiles}

@@ -229,7 +229,7 @@ plotOverlay <- function(meshdata,
   onlysum <- onlycells %>%
     dplyr::group_by(.data$quantiles) %>%
     dplyr::summarise(mean = mean(.data[[quantiles_by]]),
-                     median = median(.data[[quantiles_by]]),
+                     median = stats::median(.data[[quantiles_by]]),
                      min = min(.data[[quantiles_by]]),
                      max= max(.data[[quantiles_by]]),
                      ncells = dplyr::n())

@@ -64,7 +64,7 @@ onePerCell <- function(inputframe, by=c("cell","frame")){
   inputframe_out <- dplyr::full_join(inputframe_num, inputframe_char) %>% dplyr::ungroup()
 
   #check for ambiguous stuff
-  chcar <- inputframe_char %>% ungroup() %>% dplyr::select_if(is.character) %>% colnames()
+  chcar <- inputframe_char %>% dplyr::ungroup() %>% dplyr::select_if(is.character) %>% colnames()
   message(paste("Character columns : '", chcar, "' are not used to subset this dataset and instead only the first occuring
                 variable of each column per group was kept. To subset by these columns, add them to the input parameter 'by'.",
                 collapse = " "))
