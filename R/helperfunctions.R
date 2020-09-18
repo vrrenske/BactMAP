@@ -543,6 +543,7 @@ takeObjectCentre <- function(dat, xie, yie){
 #' @importFrom dplyr %>%
 midobject <- function(MESH, OBJ, p2um){
   OBJ$angle <- NULL
+  OBJ$max.length <- NULL
   MESH <- MESH %>%
     dplyr::left_join(OBJ) %>%
     dplyr::mutate(xccor = .data$centre_x - .data$Xmid,
