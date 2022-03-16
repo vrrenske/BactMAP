@@ -31,29 +31,33 @@ extr_Morphometrics_cellList <- function(morphpath){
       }
     }
   }
+
+  cellList <- cellList[cellList$area>24,]
   return(cellList)
 }
 
 
 spotrExtractMorphMESH <- function(cellList){
+
   if("length"%in%colnames(cellList)!=T){
-      MESH <- do.call('rbind', lapply(c(1:nrow(cellList)), function(x) extrMorphCell(cellList[x,], l=TRUE)))
+      MESH <- do.call('rbind', lapply(c(1:nrow(cellList)), function(x) extrMorphCell(cellList[x,], l=FALSE) ))
       M1 <- MESH[MESH$numpoint==MESH$pole1,]
       M2 <- MESH[MESH$numpoint==MESH$pole2,]
       M1 <- M1[order(M1$cell,M1$frame),]
       M2 <- M2[order(M2$cell, M2$frame),]
       M1$max.length <- sqrt((M1$X-M2$X)^2+(M1$Y-M2$Y)^2)
       MESH <- merge(MESH, M1[,c("cell", "frame", "max.length")])
-  }else{MESH <- do.call('rbind', lapply(c(1:nrow(cellList)), function(x) extrMorphCell(cellList[x,], l=FALSE)))}
+  }else{MESH <- do.call('rbind', lapply(c(1:nrow(cellList)), function(x) extrMorphCell(cellList[x,], l=TRUE)))}
   return(MESH)
 
 }
 
 extrMorphCell <- function(cell, l = TRUE){
+  print(c(cell$cellID, cell$frame))
   meshcell <- data.frame(cell$Xcont, cell$Ycont, cell$cellID, cell$area, cell$pole1, cell$pole2, cell$frame)
 
-  #data.frame(cellList$Xcont[n], cellList$Ycont[n], cellList$cellID[n], cellList$area[n],
-   #                      cellList$pole1[n], cellList$pole2[n], cellList$frame[n])
+  #meshcell <- data.frame(cell$Xcont[1], cell$Ycont[1], cell$cellID[1], cell$area[1],
+                     #    cell$pole1[1], cell$pole2[1], cell$frame[1])
   colnames(meshcell) <- c("X", "Y", "cell", "area", "pole1", "pole2", "frame")
   if(l==TRUE){
     meshcell$max.length <- cell$length
