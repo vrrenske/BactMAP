@@ -343,18 +343,26 @@ turncell <- function(MESHp, u, rawdatafile, a, n, i, ars){
 
   un <- data.frame(table(round(d1$dist, 5)))
 
+  if(un$Freq==3){
+    d1 <- data.frame(x = abs(distances$x-distances$x[2]), y =abs(distances$y-distances$y[2]))
+    d1$pointn <- 1:4
+    d1 <- d1[d1$pointn!=2,]
+    d1$dist <- sqrt(d1$x^2+d1$y^2)
+    un <- data.frame(table(round(d1$dist, 5)))
+  }
+
   partdist <- un$Var1[un$Freq==1]
   partner <- d1$pointn[round(d1$dist,5)==partdist]
   rest <- d1$pointn[round(d1$dist,5)!=partdist]
 
   if(round(d1$dist[d1$pointn==partner],5)==round(min(lengthwidth),5)){
-    widthline <- distances[c(1,partner),]
-    lengthline <- distances[rest,]
-  }
+      widthline <- distances[c(1,partner),]
+      lengthline <- distances[rest,]
+    }
   if(round(d1$dist[d1$pointn==partner],5)==round(max(lengthwidth),5)){
-    widthline <- distances[rest,]
-    lengthline <- distances[c(1,partner),] #pick which line is length/width
-  }
+      widthline <- distances[rest,]
+      lengthline <- distances[c(1,partner),] #pick which line is length/width
+    }
 
   mp <- c(mean(lengthline$x), mean(lengthline$y)) #midpoint
   X_cor <- MESHp$X-mp[1]
@@ -408,7 +416,10 @@ meshTurn <- function(MESH, Xm="X", Ym="Y", rawdatafile){
       RlistF <- lapply(Mlistboth, function(x) x$rawdat)
       Rlist[[i]] <- do.call(rbind, RlistF)
     }
-    if(missing(rawdatafile)){MlistF <- lapply(unique(M$cell), function(x) turncell(M[M$cell==x,], u, a=a, n=x, i=i, ars=ars))}
+    if(missing(rawdatafile)){
+      MlistF <- lapply(unique(M$cell), function(x)
+        return(turncell(M[M$cell==x,], u, a=a, n=x, i=i, ars=ars)))
+      }
     Mlist[[i]] <- do.call(rbind,MlistF)
 
   }
