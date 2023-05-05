@@ -28,9 +28,9 @@ extr_OriginalStack <- function(picloc){
 
 #' @export
 extr_OriginalCells <- function(imdatframe, mesh, surroundings=FALSE, turnCell=TRUE){
-  if("area"%in%colnames(mesh)){
-    mesh <- mesh[mesh$area>2,]
-  }
+  #if("area"%in%colnames(mesh)){
+  #  mesh <- mesh[mesh$area>2,]
+ # }
 
   allcellslist <- lapply(unique(mesh$frame), function(x) pipperframe(imdatframe, mesh, x, surroundings))
     allcellsframe <- do.call(rbind, allcellslist)
