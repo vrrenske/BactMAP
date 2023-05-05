@@ -343,7 +343,7 @@ turncell <- function(MESHp, u, rawdatafile, a, n, i, ars){
 
   un <- data.frame(table(round(d1$dist, 5)))
 
-  if(un$Freq==3){
+  if(un$Freq[1]==3){
     d1 <- data.frame(x = abs(distances$x-distances$x[2]), y =abs(distances$y-distances$y[2]))
     d1$pointn <- 1:4
     d1 <- d1[d1$pointn!=2,]
@@ -408,7 +408,7 @@ meshTurn <- function(MESH, Xm="X", Ym="Y", rawdatafile){
 
   #if length and max width are already defined, don't touch them.
   for(i in unique(MESH$frame)){ #per frame
-    #print(paste("Turning meshes for frame", i))
+    print(paste("Turning meshes for frame", i))
     M <- MESH[MESH$frame==i,]
     if(!missing(rawdatafile)){
       Mlistboth <- lapply(unique(M$cell), function(x) turncell(M[M$cell==x,], u, rawdatafile,a, x, i, ars=ars))
