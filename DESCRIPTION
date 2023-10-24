@@ -16,10 +16,10 @@ Imports:
   utils,
   methods,
   stats,
-  ggtree,
   dplyr,
   tidyr
 Suggests:
+  ggtree,
   gridExtra,
   MASS,
   reshape2,
